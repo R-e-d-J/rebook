@@ -35,15 +35,15 @@ root.title('rebook')
 
 # main tab
 
-baseTab = Notebook(root)
+base_tab = Notebook(root)
 
-conversionTab = Frame(baseTab)
-baseTab.add(conversionTab, text='Conversion')
+conversion_tab = Frame(base_tab)
+base_tab.add(conversion_tab, text='Conversion')
 
-logTab = Frame(baseTab)
-baseTab.add(logTab, text='Log')
+log_tab = Frame(base_tab)
+base_tab.add(log_tab, text='Log')
 
-baseTab.pack(expand=1, fill='both')
+base_tab.pack(expand=1, fill='both')
 
 # ############################################################################################### #
 # MENU
@@ -53,7 +53,7 @@ menu_bar = Menu(root)
 root['menu'] = menu_bar
 
 def on_command_about_box_cb():
-	theMessage = \
+	about_message = \
 		'''rebook
 
 TclTk GUI for k2pdfopt by Pu Wang
@@ -61,7 +61,7 @@ TclTk GUI for k2pdfopt by Pu Wang
 The source code can be found at:
 http://github.com/pwang7/rebook/rebook.py'''
 
-	tkinter.messagebox.showinfo(message=theMessage)
+	tkinter.messagebox.showinfo(message=about_message)
 
 menu_file = Menu(menu_bar)
 menu_bar.add_cascade(menu=menu_file, label='File')
@@ -422,7 +422,7 @@ strvarScreenHeight = StringVar()
 #                    }
 #                    )
 # style.theme_use('style_class')
-required_input_frame = Labelframe(conversionTab, text='Required Inputs')
+required_input_frame = Labelframe(conversion_tab, text='Required Inputs')
 required_input_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -659,7 +659,7 @@ conversion_tab_left_part_row_num += 1
 strvarOutputFilePath = StringVar()
 strvarCmdArgs = StringVar()
 
-infoFrame = Labelframe(conversionTab, text='Related Info')
+infoFrame = Labelframe(conversion_tab, text='Related Info')
 infoFrame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -735,7 +735,7 @@ strvarBottomMargin = StringVar()
 strvarDPI = StringVar()
 strvarPageNums = StringVar()
 
-parameters_frame = Labelframe(conversionTab, text='Parameters')
+parameters_frame = Labelframe(conversion_tab, text='Parameters')
 parameters_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -1364,7 +1364,7 @@ isIgnSmallDefects = BooleanVar()
 isAutoCrop = BooleanVar()
 
 options_frame = Labelframe(
-	conversionTab,
+	conversion_tab,
 	text='Options',
 )
 options_frame.grid(
@@ -1839,7 +1839,7 @@ def generate_one_preview_image(preview_page_index):
 
 	background_future.add_done_callback(preview_image_future_cb)
 
-preview_frame = Labelframe(conversionTab, text='Preview & Convert')
+preview_frame = Labelframe(conversion_tab, text='Preview & Convert')
 preview_frame.grid(
 	column=conversion_tab_right_part_column_num,
 	row=conversion_tab_right_part_row_num,
@@ -2063,11 +2063,11 @@ previewImageCanvas.grid(
 xScrollBar.config(command=previewImageCanvas.xview)
 yScrollBar.config(command=previewImageCanvas.yview)
 
-conversionTab.columnconfigure(
+conversion_tab.columnconfigure(
 	conversion_tab_right_part_column_num,
 	weight=1,
 )
-conversionTab.rowconfigure(
+conversion_tab.rowconfigure(
 	conversion_tab_right_part_row_num,
 	weight=1,
 )
@@ -2310,7 +2310,7 @@ arg_cb_map = {
 
 # k2pdfopt stdout
 
-output_frame = Labelframe(logTab, text='k2pdfopt STDOUT')
+output_frame = Labelframe(log_tab, text='k2pdfopt STDOUT')
 output_frame.pack(expand=1, fill='both')
 
 def on_command_clear_log_cb():
