@@ -14,51 +14,72 @@ import tkinter.scrolledtext as scrltxt
 
 
 def check_page_nums(input_pages):
-    page_num_list = re.split(',|-|o|e', input_pages)
+	page_num_list = re.split(',|-|o|e', input_pages)
 
-    for page_num in page_num_list:
-        if len(page_num) > 0 and not page_num.isdigit():
-            return FALSE
-    return TRUE
+	for page_num in page_num_list:
+		if len(page_num) > 0 and not page_num.isdigit():
+			return False
+	return True
 
+# ############################################################################################### #
+# Generating k2pdfopt command line
+# ############################################################################################### #
+def update_cmd_arg_entry_strvar():
+	global strvar_command_args
+	strvar_command_args.set(generate_cmd_arg_str())
+
+
+def add_or_update_one_cmd_arg(arg_key, arg_value):
+	global k2pdfopt_cmd_args
+	k2pdfopt_cmd_args[arg_key] = arg_value
+
+
+def remove_one_cmd_arg(arg_key):
+	global k2pdfopt_cmd_args
+	previous = k2pdfopt_cmd_args.pop(arg_key, None)
+	return previous
+
+
+# ############################################################################################### #
 # GUI construction
-
+# ############################################################################################### #
 root = Tk()
-
 # screen_width = root.winfo_screenwidth()
 # screen_height = root.winfo_screenheight()
-
-# root.resizable(FALSE, FALSE)
-
+# root.resizable(False, False)
 root.title('rebook')
 
-# main tab
 
-baseTab = Notebook(root)
+# ############################################################################################### #
+# MAIN TAB
+# ############################################################################################### #
+base_tab = Notebook(root)
 
-conversionTab = Frame(baseTab)
-baseTab.add(conversionTab, text='Conversion')
+conversion_tab = Frame(base_tab)
+base_tab.add(conversion_tab, text='Conversion')
 
-logTab = Frame(baseTab)
-baseTab.add(logTab, text='Log')
+log_tab = Frame(base_tab)
+base_tab.add(log_tab, text='Logs')
 
-baseTab.pack(expand=1, fill='both')
+base_tab.pack(expand=1, fill='both')
 
-# menu
 
+# ############################################################################################### #
+# MENU
+# ############################################################################################### #
 menu_bar = Menu(root)
 root['menu'] = menu_bar
 
 def on_command_about_box_cb():
-    theMessage = \
-        '''rebook
+	about_message = \
+		'''rebook
 
 TclTk GUI for k2pdfopt by Pu Wang
 
 The source code can be found at:
 http://github.com/pwang7/rebook/rebook.py'''
 
-    tkinter.messagebox.showinfo(message=theMessage)
+	tkinter.messagebox.showinfo(message=about_message)
 
 menu_file = Menu(menu_bar)
 menu_bar.add_cascade(menu=menu_file, label='File')
@@ -68,558 +89,520 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 # root.createcommand('::tk::mac::ShowHelp', on_command_about_box_cb)
 
 # global variables and functions
-
 k2pdfopt_path = './k2pdfopt'
 custom_preset_file_path = 'rebook_preset.json'
-
-def check_k2pdfopt_path_exists():
-    if not os.path.exists(k2pdfopt_path):
-        tkinter.messagebox.showerror(
-            message='Failed to find k2pdfopt, ' +
-            'please put it under the same directory ' +
-            'as rebook and then restart.'
-        )
-        quit()
-
 k2pdfopt_cmd_args = {}
 
-def update_cmd_arg_entry_strvar():
-    global strvarCmdArgs
 
-    strvarCmdArgs.set(generate_cmd_arg_str())
+def check_k2pdfopt_path_exists():
+	if not os.path.exists(k2pdfopt_path):
+		tkinter.messagebox.showerror(
+			message='Failed to find k2pdfopt, ' +
+			'please put it under the same directory ' +
+			'as rebook and then restart.'
+		)
+		quit()
 
-def add_or_update_one_cmd_arg(arg_key, arg_value):
-    global k2pdfopt_cmd_args
-
-    k2pdfopt_cmd_args[arg_key] = arg_value
-
-def remove_one_cmd_arg(arg_key):
-    global k2pdfopt_cmd_args
-
-    previous = k2pdfopt_cmd_args.pop(arg_key, None)
-
-    return previous
 
 def load_custom_preset():
-    global strvarOutputFilePath
+	global strvar_output_file_path
 
-    if os.path.exists(custom_preset_file_path):
-        with open(custom_preset_file_path) as preset_file:
-            dict_to_load = json.load(preset_file)
+	if os.path.exists(custom_preset_file_path):
+		with open(custom_preset_file_path) as preset_file:
+			dict_to_load = json.load(preset_file)
 
-            if dict_to_load:
-                log_string('Load Preset: ' + str(dict_to_load))
+			if dict_to_load:
+				log_string('Load Preset: ' + str(dict_to_load))
+				initialize_vars(dict_to_load)
+				return True
 
-                initialize_vars(dict_to_load)
+	return False
 
-                return TRUE
-
-    return FALSE
 
 def log_string(str_line):
-    global stdoutText
+	global stdoutText
 
-    log_content = str_line.strip()
-    if len(log_content) > 0:
-        stdoutText.config(state=NORMAL)
+	log_content = str_line.strip()
 
-        print('=== ' + log_content)  # TODO: remove print
+	if len(log_content) > 0:
+		stdoutText.config(state=NORMAL)
+		print('=== ' + log_content)  # TODO: remove print
+		stdoutText.insert(END, log_content + '\n')
+		stdoutText.config(state=DISABLED)
 
-        stdoutText.insert(END, log_content + '\n')
-        stdoutText.config(state=DISABLED)
 
 def clear_logs():
-    stdoutText.config(state=NORMAL)
-    stdoutText.delete(1.0, END)
-    stdoutText.config(state=DISABLED)
+	stdoutText.config(state=NORMAL)
+	stdoutText.delete(1.0, END)
+	stdoutText.config(state=DISABLED)
+
 
 def initialize_vars(dict_vars):
-    global k2pdfopt_cmd_args
+	global k2pdfopt_cmd_args
 
-    for k, v in dict_vars.items():
-        for i in range(len(v)):
-            arg_var_map[k][i].set(v[i])
+	for k, v in dict_vars.items():
+		for i in range(len(v)):
+			arg_var_map[k][i].set(v[i])
 
-    k2pdfopt_cmd_args = {}
+	k2pdfopt_cmd_args = {}
 
-    for cb_func in arg_cb_map.values():
-        if cb_func is not None:
-            cb_func()
-    # must be after loading preset values
-    update_cmd_arg_entry_strvar()
+	for cb_func in arg_cb_map.values():
+		if cb_func is not None:
+			cb_func()
+	# must be after loading preset values
+	update_cmd_arg_entry_strvar()
+
 
 def restore_default_values():
-    clear_logs()
+	clear_logs()
+	remove_preview_img_and_clear_canvas()
 
-    remove_preview_img_and_clear_canvas()
+	for sv in string_var_list:
+		sv.set('')
 
-    for sv in string_var_list:
-        sv.set('')
+	for bv in bool_var_list:
+		bv.set(False)
 
-    for bv in bool_var_list:
-        bv.set(FALSE)
+	for b in combo_box_list:
+		b.current(0)
 
-    for b in combo_box_list:
-        b.current(0)
+	initialize_vars(default_var_map)
 
-    initialize_vars(default_var_map)
 
 def start_loop(loop):
-    asyncio.set_event_loop(loop)
-    loop.run_forever()
+	asyncio.set_event_loop(loop)
+	loop.run_forever()
 
 thread_loop = asyncio.get_event_loop()
 run_loop_thread = Thread(
-    target=start_loop,
-    args=(thread_loop,),
-    daemon=TRUE,
+	target=start_loop,
+	args=(thread_loop,),
+	daemon=True,
 )
 run_loop_thread.start()
 
 background_process = None
 background_future = None
 
-device_argument_map = {
-    0: 'k2',
-    1: 'dx',
-    2: 'kpw',
-    3: 'kp2',
-    4: 'kp3',
-    5: 'kv',
-    6: 'ko2',
-    7: 'pb2',
-    8: 'nookst',
-    9: 'kbt',
-    10: 'kbg',
-    11: 'kghd',
-    12: 'kghdfs',
-    13: 'kbm',
-    14: 'kba',
-    15: 'kbhd',
-    16: 'kbh2o',
-    17: 'kbh2ofs',
-    18: 'kao',
-    19: 'nex7',
-    20: None,
-}
+device_argument_map =   {
+                            0: 'k2',
+                            1: 'dx',
+                            2: 'kpw',
+                            3: 'kp2',
+                            4: 'kp3',
+                            5: 'kv',
+                            6: 'ko2',
+                            7: 'pb2',
+                            8: 'nookst',
+                            9: 'kbt',
+                            10: 'kbg',
+                            11: 'kghd',
+                            12: 'kghdfs',
+                            13: 'kbm',
+                            14: 'kba',
+                            15: 'kbhd',
+                            16: 'kbh2o',
+                            17: 'kbh2ofs',
+                            18: 'kao',
+                            19: 'nex7',
+                            20: None,
+                        }
 
 device_choice_map = {
-    0: 'Kindle 1-5',
-    1: 'Kindle DX',
-    2: 'Kindle Paperwhite',
-    3: 'Kindle Paperwhite 2',
-    4: 'Kindle Paperwhite 3',
-    5: 'Kindle Voyage/PW3+/Oasis',
-    6: 'Kindle Oasis 2',
-    7: 'Pocketbook Basic 2',
-    8: 'Nook Simple Touch',
-    9: 'Kobo Touch',
-    10: 'Kobo Glo',
-    11: 'Kobo Glo HD',
-    12: 'Kobo Glo HD Full Screen',
-    13: 'Kobo Mini',
-    14: 'Kobo Aura',
-    15: 'Kobo Aura HD',
-    16: 'Kobo H2O',
-    17: 'Kobo H2O Full Screen',
-    18: 'Kobo Aura One',
-    19: 'Nexus 7',
-    20: 'Other (specify width & height)',
-}
+						0: 'Kindle 1-5',
+						1: 'Kindle DX',
+						2: 'Kindle Paperwhite',
+						3: 'Kindle Paperwhite 2',
+						4: 'Kindle Paperwhite 3',
+						5: 'Kindle Voyage/PW3+/Oasis',
+						6: 'Kindle Oasis 2',
+						7: 'Pocketbook Basic 2',
+						8: 'Nook Simple Touch',
+						9: 'Kobo Touch',
+						10: 'Kobo Glo',
+						11: 'Kobo Glo HD',
+						12: 'Kobo Glo HD Full Screen',
+						13: 'Kobo Mini',
+						14: 'Kobo Aura',
+						15: 'Kobo Aura HD',
+						16: 'Kobo H2O',
+						17: 'Kobo H2O Full Screen',
+						18: 'Kobo Aura One',
+						19: 'Nexus 7',
+						20: 'Other (specify width & height)',
+					}
 
 mode_argument_map = {
-    0: 'def',
-    1: 'copy',
-    2: 'fp',
-    3: 'fw',
-    4: '2col',
-    5: 'tm',
-    6: 'crop',
-    7: 'concat',
-}
+						0: 'def',
+						1: 'copy',
+						2: 'fp',
+						3: 'fw',
+						4: '2col',
+						5: 'tm',
+						6: 'crop',
+						7: 'concat',
+					}
 
-mode_choice_map = {
-    0: 'Default',
-    1: 'Copy',
-    2: 'Fit Page',
-    3: 'Fit Width',
-    4: '2 Columns',
-    5: 'Trim Margins',
-    6: 'Crop',
-    7: 'Concat',
-}
+mode_choice_map =   {
+						0: 'Default',
+						1: 'Copy',
+						2: 'Fit Page',
+						3: 'Fit Width',
+						4: '2 Columns',
+						5: 'Trim Margins',
+						6: 'Crop',
+						7: 'Concat',
+					}
 
 unit_argument_map = {
-    0: 'in',
-    1: 'cm',
-    2: 's',
-    3: 't',
-    4: 'p',
-    5: 'x',
-}
+						0: 'in',
+						1: 'cm',
+						2: 's',
+						3: 't',
+						4: 'p',
+						5: 'x',
+					}
 
-unit_choice_map = {
-    0: 'Inches',
-    1: 'Centimeters',
-    2: 'Source Page Size',
-    3: 'Trimmed Source Region Size',
-    4: 'Pixels',
-    5: 'Relative to the OCR Text Layer',
-}
+unit_choice_map =   {
+                        0: 'Inches',
+                        1: 'Centimeters',
+                        2: 'Source Page Size',
+                        3: 'Trimmed Source Region Size',
+                        4: 'Pixels',
+                        5: 'Relative to the OCR Text Layer',
+                    }
+
 
 def generate_cmd_arg_str():
-    must_have_args = '-a- -ui- -x'
+	must_have_args = '-a- -ui- -x'
+	device_arg = k2pdfopt_cmd_args.pop(device_arg_name, None)
 
-    device_arg = k2pdfopt_cmd_args.pop(device_arg_name, None)
-    if device_arg is None:
-        width_arg = k2pdfopt_cmd_args.pop(width_arg_name)
-        height_arg = k2pdfopt_cmd_args.pop(height_arg_name)
+	if device_arg is None:
+		width_arg = k2pdfopt_cmd_args.pop(width_arg_name)
+		height_arg = k2pdfopt_cmd_args.pop(height_arg_name)
 
-    mode_arg = k2pdfopt_cmd_args.pop(conversion_mode_arg_name)
+	mode_arg = k2pdfopt_cmd_args.pop(conversion_mode_arg_name)
+	arg_list = [mode_arg] + list(k2pdfopt_cmd_args.values())
+	k2pdfopt_cmd_args[conversion_mode_arg_name] = mode_arg
 
-    arg_list = [mode_arg] + list(k2pdfopt_cmd_args.values())
+	if device_arg is not None:
+		arg_list.append(device_arg)
+		k2pdfopt_cmd_args[device_arg_name] = device_arg
+	else:
+		arg_list.append(width_arg)
+		arg_list.append(height_arg)
+		k2pdfopt_cmd_args[width_arg_name] = width_arg
+		k2pdfopt_cmd_args[height_arg_name] = height_arg
 
-    k2pdfopt_cmd_args[conversion_mode_arg_name] = mode_arg
-    if device_arg is not None:
-        arg_list.append(device_arg)
+	arg_list.append(must_have_args)
+	log_string('Generate Argument List: ' + str(arg_list))
+	cmd_arg_str = ' '.join(arg_list)
 
-        k2pdfopt_cmd_args[device_arg_name] = device_arg
-    else:
-        arg_list.append(width_arg)
-        arg_list.append(height_arg)
+	return cmd_arg_str
 
-        k2pdfopt_cmd_args[width_arg_name] = width_arg
-        k2pdfopt_cmd_args[height_arg_name] = height_arg
-
-    arg_list.append(must_have_args)
-
-    log_string('Generate Argument List: ' + str(arg_list))
-
-    cmd_arg_str = ' '.join(arg_list)
-
-    return cmd_arg_str
 
 def convert_pdf_file(output_arg):
-    check_k2pdfopt_path_exists()
+	check_k2pdfopt_path_exists()
 
-    async def async_run_cmd_and_log(exec_cmd):
-        global background_process
+	async def async_run_cmd_and_log(exec_cmd):
+		global background_process
 
-        executed = exec_cmd.strip()
+		executed = exec_cmd.strip()
 
-        def log_bytes(log_btyes):
-            log_string(log_btyes.decode('utf-8'))
+		def log_bytes(log_btyes):
+			log_string(log_btyes.decode('utf-8'))
 
-        log_string(executed)
+		log_string(executed)
 
-        p = await asyncio.create_subprocess_shell(
-            executed,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        background_process = p
+		p = await asyncio.create_subprocess_shell(
+			executed,
+			stdout=asyncio.subprocess.PIPE,
+			stderr=asyncio.subprocess.PIPE,
+		)
+		background_process = p
 
-        while True:
-            line = await p.stdout.readline()
+		while True:
+			line = await p.stdout.readline()
+			log_bytes(line)
 
-            log_bytes(line)
+			if not line:
+				break
+			if line == '' and p.returncode is not None:
+				break
 
-            if not line:
-                break
-            if line == '' and p.returncode is not None:
-                break
+	input_pdf_path = strvar_input_file_path.get().strip()
 
-    input_pdf_path = strvarFilePath.get().strip()
-    if ' ' in input_pdf_path:
-        # in case the file name contains space
-        input_pdf_path = '\"' + input_pdf_path + '\"'
+	if ' ' in input_pdf_path:
+		# in case the file name contains space
+		input_pdf_path = '\"' + input_pdf_path + '\"'
 
-    executed = ' '.join([
-        k2pdfopt_path,
-        input_pdf_path,
-        output_arg,
-        generate_cmd_arg_str(),
-    ])
-    future = asyncio.run_coroutine_threadsafe(
-        async_run_cmd_and_log(executed),
-        thread_loop,
-    )
-    return future
+	executed = ' '.join([
+		k2pdfopt_path,
+		input_pdf_path,
+		output_arg,
+		generate_cmd_arg_str(),
+	])
+	future = asyncio.run_coroutine_threadsafe(
+		async_run_cmd_and_log(executed),
+		thread_loop,
+	)
+
+	return future
+
 
 def check_pdf_conversion_done():
-    if (background_future is None) or (background_future.done()):
-        if ((background_process is None) or
-                (background_process.returncode is not None)):
-            return TRUE
+	if (background_future is None) or (background_future.done()):
+		if ((background_process is None) or
+				(background_process.returncode is not None)):
+			return True
 
-    tkinter.messagebox.showerror(
-        message='Background Conversion Not Finished Yet! Please Wait.',
-    )
-    return FALSE
+	tkinter.messagebox.showerror(
+		message='Background Conversion Not Finished Yet! Please Wait.',
+	)
+	return False
 
 # conversion tab
 conversion_tab_left_part_column_num = 0
 conversion_tab_left_part_row_num = -1
 
-# required inputs
+
+# ############################################################################################### #
+# REQUIRED INPUTS FRAME
+# ############################################################################################### #
 conversion_tab_left_part_row_num += 1
 
-device_arg_name = '-dev'  # -dev <name>
-width_arg_name = '-w'  # -w <width>[in|cm|s|t|p]
-height_arg_name = '-h'  # -h <height>[in|cm|s|t|p|x]
+device_arg_name = '-dev'            # -dev <name>
+width_arg_name = '-w'               # -w <width>[in|cm|s|t|p]
+height_arg_name = '-h'              # -h <height>[in|cm|s|t|p|x]
 conversion_mode_arg_name = '-mode'  # -mode <mode>
-output_path_arg_name = '-o'  # -o <namefmt>
+output_path_arg_name = '-o'         # -o <namefmt>
 output_pdf_suffix = '-output.pdf'
 screen_unit_prefix = '-screen_unit'
 
-strvarFilePath = StringVar()
-strvarDevice = StringVar()
-strvarConversionMode = StringVar()
-strvarScreenUnit = StringVar()
-strvarScreenWidth = StringVar()
-strvarScreenHeight = StringVar()
+strvar_input_file_path = StringVar()
+strvar_device = StringVar()
+strvar_conversion_mode = StringVar()
+strvar_screen_unit = StringVar()
+strvar_screen_width = StringVar()
+strvar_screen_height = StringVar()
 
-requiredInputFrame = Labelframe(conversionTab, text='Required Inputs')
-requiredInputFrame.grid(
-    column=conversion_tab_left_part_column_num,
-    row=conversion_tab_left_part_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+
+def on_command_open_pdf_file_cb():
+	supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
+
+	filename = tkinter.filedialog.askopenfilename(
+		parent=root,
+		filetypes=supported_formats,
+		title='Select your file',
+	)
+
+	if filename is not None and len(filename.strip()) > 0:
+		strvar_input_file_path.set(filename)
+		(base_path, file_ext) = os.path.splitext(filename)
+		strvar_output_file_path.set(base_path + output_pdf_suffix)
+
+
+def update_device_unit_width_height():
+	if device_combobox.current() != 20:  # non-other type
+		device_type = device_argument_map[device_combobox.current()]
+		arg = device_arg_name + ' ' + device_type
+		add_or_update_one_cmd_arg(device_arg_name, arg)
+		remove_one_cmd_arg(width_arg_name)
+		remove_one_cmd_arg(height_arg_name)
+	else:
+		screen_unit = unit_argument_map[unit_combobox.current()]
+
+		width_arg = (
+			width_arg_name + ' ' +
+			strvar_screen_width.get().strip() + screen_unit
+		)
+		add_or_update_one_cmd_arg(width_arg_name, width_arg)
+
+		height_arg = (
+			height_arg_name + ' ' +
+			strvar_screen_height.get().strip() + screen_unit
+		)
+		add_or_update_one_cmd_arg(height_arg_name, height_arg)
+
+		remove_one_cmd_arg(device_arg_name)
+
+
+def on_bind_event_device_unit_cb(e=None):
+	update_device_unit_width_height()
+
+
+def on_command_width_height_cb():
+	update_device_unit_width_height()
+
+
+def on_bind_event_mode_cb(e=None):
+	conversion_mode = mode_argument_map[mode_combobox.current()]
+	arg = (conversion_mode_arg_name + ' ' + conversion_mode)
+	add_or_update_one_cmd_arg(conversion_mode_arg_name, arg)
+
+
+required_input_frame = Labelframe(conversion_tab, text='Required Inputs')
+required_input_frame.grid(
+	column=conversion_tab_left_part_column_num,
+	row=conversion_tab_left_part_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num = 0
 
-inputPathEntry = Entry(
-    requiredInputFrame,
-    state='readonly',
-    textvariable=strvarFilePath,
-)
-inputPathEntry.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+input_path_entry = Entry(required_input_frame, state='readonly', textvariable=strvar_input_file_path)
+input_path_entry.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-def on_command_open_pdf_file_cb():
-    formats = [('PDF files', '*.pdf')]
-
-    filename = tkinter.filedialog.askopenfilename(
-        parent=root,
-        filetypes=formats,
-        title='Choose a file',
-    )
-
-    if filename is not None and len(filename.strip()) > 0:
-        strvarFilePath.set(filename)
-        (base_path, file_ext) = os.path.splitext(filename)
-        strvarOutputFilePath.set(base_path + output_pdf_suffix)
-
-openButton = Button(
-    requiredInputFrame,
-    text='Open PDF File',
-    command=on_command_open_pdf_file_cb,
-)
-openButton.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+open_button = Button(required_input_frame, text='Choose a File', command=on_command_open_pdf_file_cb)
+open_button.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num += 1
 
-deviceText = Label(requiredInputFrame, text='Device:')
-deviceText.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+device_label = Label(required_input_frame, text='Device')
+device_label.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-def update_device_unit_width_height():
-    if deviceComboBox.current() != 20:  # non-other type
-        deviceType = device_argument_map[deviceComboBox.current()]
-        arg = device_arg_name + ' ' + deviceType
-        add_or_update_one_cmd_arg(device_arg_name, arg)
-
-        remove_one_cmd_arg(width_arg_name)
-        remove_one_cmd_arg(height_arg_name)
-    else:
-        screen_unit = unit_argument_map[unitComboBox.current()]
-
-        width_arg = (
-            width_arg_name + ' ' +
-            strvarScreenWidth.get().strip() + screen_unit
-        )
-        add_or_update_one_cmd_arg(width_arg_name, width_arg)
-
-        height_arg = (
-            height_arg_name + ' ' +
-            strvarScreenHeight.get().strip() + screen_unit
-        )
-        add_or_update_one_cmd_arg(height_arg_name, height_arg)
-
-        remove_one_cmd_arg(device_arg_name)
-
-def on_bind_event_device_unit_cb(e=None):
-    update_device_unit_width_height()
-
-deviceComboBox = Combobox(
-    requiredInputFrame,
-    state='readonly',
-    textvariable=strvarDevice,
-)
-deviceComboBox['values'] = list(device_choice_map.values())
-deviceComboBox.current(0)
-deviceComboBox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
-deviceComboBox.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+device_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_device)
+device_combobox['values'] = list(device_choice_map.values())
+device_combobox.current(0)
+device_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
+device_combobox.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num += 1
 
-unitTextLabel = Label(requiredInputFrame, text='Unit:')
-unitTextLabel.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+unit_label = Label(required_input_frame, text='Unit')
+unit_label.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-unitComboBox = Combobox(
-    requiredInputFrame,
-    state='readonly',
-    textvariable=strvarScreenUnit,
-)
-unitComboBox['values'] = list(unit_choice_map.values())
-unitComboBox.current(0)
-unitComboBox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
-unitComboBox.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+unit_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_screen_unit)
+unit_combobox['values'] = list(unit_choice_map.values())
+unit_combobox.current(0)
+unit_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
+unit_combobox.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num += 1
 
-def on_command_width_height_cb():
-    update_device_unit_width_height()
-
-widthTextLabel = Label(requiredInputFrame, text='Width:')
-widthTextLabel.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+width_label = Label(required_input_frame, text='Width')
+width_label.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-widthSpinBox = Spinbox(
-    requiredInputFrame,
-    from_=0,
-    to=10000,
-    increment=0.1,
-    state='readonly',
-    textvariable=strvarScreenWidth,
-    command=on_command_width_height_cb,
+width_spinbox = Spinbox(
+	required_input_frame,
+	from_=0,
+	to=10000,
+	increment=0.1,
+	state='readonly',
+	textvariable=strvar_screen_width,
+	command=on_command_width_height_cb,
 )
-widthSpinBox.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+width_spinbox.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num += 1
 
-heightTextLabel = Label(requiredInputFrame, text='Height:')
-heightTextLabel.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+height_label = Label(required_input_frame, text='Height')
+height_label.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
-
-heightSpinBox = Spinbox(
-    requiredInputFrame,
-    from_=0,
-    to=10000,
-    increment=0.1,
-    state='readonly',
-    textvariable=strvarScreenHeight,
-    command=on_command_width_height_cb,
+height_spinbox = Spinbox(
+	required_input_frame,
+	from_=0,
+	to=10000,
+	increment=0.1,
+	state='readonly',
+	textvariable=strvar_screen_height,
+	command=on_command_width_height_cb,
 )
-heightSpinBox.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+height_spinbox.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
 required_frame_row_num += 1
 
-def on_bind_event_mode_cb(e=None):
-    conversionMode = mode_argument_map[modeComboBox.current()]
-    arg = (
-        conversion_mode_arg_name + ' ' +
-        conversionMode
-    )
-    add_or_update_one_cmd_arg(conversion_mode_arg_name, arg)
-
-modeTextLabel = Label(requiredInputFrame, text='Conversion Mode:')
-modeTextLabel.grid(
-    column=0,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+conversion_mode_label = Label(required_input_frame, text='Conversion Mode')
+conversion_mode_label.grid(
+	column=0,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-modeComboBox = Combobox(
-    requiredInputFrame,
-    state='readonly',
-    textvariable=strvarConversionMode,
-)
-modeComboBox['values'] = list(mode_choice_map.values())
-modeComboBox.current(0)
-modeComboBox.bind('<<ComboboxSelected>>', on_bind_event_mode_cb)
-modeComboBox.grid(
-    column=1,
-    row=required_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
+mode_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_conversion_mode)
+mode_combobox['values'] = list(mode_choice_map.values())
+mode_combobox.current(0)
+mode_combobox.bind('<<ComboboxSelected>>', on_bind_event_mode_cb)
+mode_combobox.grid(
+	column=1,
+	row=required_frame_row_num,
+	sticky=N+W,
+	pady=0,
+	padx=5,
 )
 
-# info frame
+
+# ############################################################################################### #
+# INFORMATIONS FRAME
+# ############################################################################################### #
 conversion_tab_left_part_row_num += 1
 
-strvarOutputFilePath = StringVar()
-strvarCmdArgs = StringVar()
+strvar_output_file_path = StringVar()
+strvar_command_args = StringVar()
 
-infoFrame = Labelframe(conversionTab, text='Related Info')
-infoFrame.grid(
-    column=conversion_tab_left_part_column_num,
-    row=conversion_tab_left_part_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
 
 def on_command_save_cb():
     with open(custom_preset_file_path, 'w') as preset_file:
@@ -629,44 +612,50 @@ def on_command_save_cb():
 
         json.dump(dict_to_save, preset_file)
 
-saveTextLabel = Label(infoFrame, text='Save Current Setting as Preset:')
-saveTextLabel.grid(column=0, row=0, sticky=N+W, pady=0, padx=5)
-
-saveButton = Button(infoFrame, text='Save', command=on_command_save_cb)
-saveButton.grid(column=1, row=0, sticky=N+W, pady=0, padx=5)
-
-outputTextLabel = Label(infoFrame, text='Output Pdf File Path:')
-outputTextLabel.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
-
-outputPathEntry = Entry(
-    infoFrame,
-    state='readonly',
-    textvariable=strvarOutputFilePath,
-)
-outputPathEntry.grid(column=1, row=1, sticky=N+W, pady=0, padx=5)
-
-cmdArgTextLabel = Label(infoFrame, text='Command-line Options:')
-cmdArgTextLabel.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
 
 def on_bind_event_cmd_args_cb(e=None):
     update_cmd_arg_entry_strvar()
 
-cmdArgEntry = Entry(
-    infoFrame,
-    state='readonly',
-    textvariable=strvarCmdArgs,
-)
-cmdArgEntry.bind('<Button-1>', on_bind_event_cmd_args_cb)
-cmdArgEntry.grid(column=1, row=2, sticky=N+W, pady=0, padx=5)
 
-# parameters
+information_frame = Labelframe(conversion_tab, text='Related Informations')
+information_frame.grid(
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+save_text_label = Label(information_frame, text='Save Current Setting as Preset')
+save_text_label.grid(column=0, row=0, sticky=N+W, pady=0, padx=5)
+
+save_button = Button(information_frame, text='Save', command=on_command_save_cb)
+save_button.grid(column=1, row=0, sticky=N+W, pady=0, padx=5)
+
+output_text_label = Label(information_frame, text='Output Pdf File Path')
+output_text_label.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
+
+output_path_entry = Entry(information_frame, state='readonly', textvariable=strvar_output_file_path)
+output_path_entry.grid(column=1, row=1, sticky=N+W, pady=0, padx=5)
+
+command_arg_text_label = Label(information_frame, text='Command-line Options')
+command_arg_text_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
+
+command_arg_entry = Entry(information_frame, state='readonly', textvariable=strvar_command_args)
+command_arg_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
+command_arg_entry.grid(column=1, row=2, sticky=N+W, pady=0, padx=5)
+
+
+# ############################################################################################### #
+# PARAMETERS FRAME
+# ############################################################################################### #
 conversion_tab_left_part_row_num += 1
 
-column_num_arg_name = '-col'  # -col <maxcol>
+column_num_arg_name = '-col'            # -col <maxcol>
 resolution_multiplier_arg_name = '-dr'  # -dr <value>
-crop_margin_arg_name = '-cbox'  # -cbox[<pagelist>|u|-]
-dpi_arg_name = '-dpi'  # -dpi <dpival>
-page_num_arg_name = '-p'  # -p <pagelist>
+crop_margin_arg_name = '-cbox'          # -cbox[<pagelist>|u|-]
+dpi_arg_name = '-dpi'                   # -dpi <dpival>
+page_num_arg_name = '-p'                # -p <pagelist>
 
 isColumnNum = BooleanVar()
 isResolutionMultipler = BooleanVar()
@@ -683,16 +672,6 @@ strvarBottomMargin = StringVar()
 strvarDPI = StringVar()
 strvarPageNums = StringVar()
 
-paraFrame = Labelframe(conversionTab, text='Parameters')
-paraFrame.grid(
-    column=conversion_tab_left_part_column_num,
-    row=conversion_tab_left_part_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num = 0
 
 def on_command_column_num_cb():
     if isColumnNum.get():
@@ -704,9 +683,95 @@ def on_command_column_num_cb():
     else:
         remove_one_cmd_arg(column_num_arg_name)
 
+
+def on_command_resolution_multipler_cb():
+    if isResolutionMultipler.get():
+        arg = (
+            resolution_multiplier_arg_name + ' ' +
+            strvarResolutionMultiplier.get().strip()
+        )
+        add_or_update_one_cmd_arg(resolution_multiplier_arg_name, arg)
+    else:
+        remove_one_cmd_arg(resolution_multiplier_arg_name)
+
+
+def on_command_and_validate_crop_margin_cb():
+    if (len(strvarCropPageRange.get().strip()) > 0 and
+            not check_page_nums(strvarCropPageRange.get().strip())):
+        remove_one_cmd_arg(crop_margin_arg_name)
+        strvarCropPageRange.set('')
+
+        tkinter.messagebox.showerror(
+            message='Invalide Crop Page Range! Should be like 2-5e,3-7o,9-',
+        )
+
+        return False
+
+    if isCropMargin.get():
+        page_range_arg = strvarCropPageRange.get().strip()
+        margin_args = [
+            strvarLeftMargin.get(),
+            strvarTopMargin.get(),
+            strvarRightMargin.get(),
+            strvarBottomMargin.get(),
+        ]
+        arg = (
+            # no space between -cbox and page range
+            crop_margin_arg_name + page_range_arg + ' '
+            'in,'.join(map(str.strip, margin_args)) + 'in'
+        )
+        add_or_update_one_cmd_arg(crop_margin_arg_name, arg)
+    else:
+        remove_one_cmd_arg(crop_margin_arg_name)
+
+
+def on_command_dpi_cb():
+    if isDPI.get():
+        arg = dpi_arg_name + ' ' + strvarDPI.get().strip()
+        add_or_update_one_cmd_arg(dpi_arg_name, arg)
+    else:
+        remove_one_cmd_arg(dpi_arg_name)
+
+
+def validate_and_update_page_nums():
+    if (len(strvarPageNums.get().strip()) > 0 and
+            not check_page_nums(strvarPageNums.get().strip())):
+        remove_one_cmd_arg(page_num_arg_name)
+        strvarPageNums.set('')
+
+        tkinter.messagebox.showerror(
+            message='Invalide Page Argument! Should be like 2-5e,3-7o,9-',
+        )
+
+        return False
+
+    if len(strvarPageNums.get().strip()) > 0:
+        arg = page_num_arg_name + ' ' + strvarPageNums.get().strip()
+        add_or_update_one_cmd_arg(page_num_arg_name, arg)
+    else:
+        remove_one_cmd_arg(page_num_arg_name)
+
+    return True
+
+
+def on_validate_page_nums_cb():
+    validate_and_update_page_nums()
+
+
+paraFrame = Labelframe(conversion_tab, text='Parameters')
+paraFrame.grid(
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+para_frame_row_num = 0
+
 colNumCheckButton = Checkbutton(
     paraFrame,
-    text='Max Columns:',
+    text='Max Columns',
     variable=isColumnNum,
     command=on_command_column_num_cb,
 )
@@ -737,19 +802,9 @@ colNumSpinBox.grid(
 
 para_frame_row_num += 1
 
-def on_command_resolution_multipler_cb():
-    if isResolutionMultipler.get():
-        arg = (
-            resolution_multiplier_arg_name + ' ' +
-            strvarResolutionMultiplier.get().strip()
-        )
-        add_or_update_one_cmd_arg(resolution_multiplier_arg_name, arg)
-    else:
-        remove_one_cmd_arg(resolution_multiplier_arg_name)
-
 resolutionCheckButton = Checkbutton(
     paraFrame,
-    text='Document Resolution Factor:',
+    text='Document Resolution Factor',
     variable=isResolutionMultipler,
     command=on_command_resolution_multipler_cb,
 )
@@ -780,38 +835,9 @@ resolutionSpinBox.grid(
 
 para_frame_row_num += 1
 
-def on_command_and_validate_crop_margin_cb():
-    if (len(strvarCropPageRange.get().strip()) > 0 and
-            not check_page_nums(strvarCropPageRange.get().strip())):
-        remove_one_cmd_arg(crop_margin_arg_name)
-        strvarCropPageRange.set('')
-
-        tkinter.messagebox.showerror(
-            message='Invalide Crop Page Range! Should be like 2-5e,3-7o,9-',
-        )
-
-        return FALSE
-
-    if isCropMargin.get():
-        page_range_arg = strvarCropPageRange.get().strip()
-        margin_args = [
-            strvarLeftMargin.get(),
-            strvarTopMargin.get(),
-            strvarRightMargin.get(),
-            strvarBottomMargin.get(),
-        ]
-        arg = (
-            # no space between -cbox and page range
-            crop_margin_arg_name + page_range_arg + ' '
-            'in,'.join(map(str.strip, margin_args)) + 'in'
-        )
-        add_or_update_one_cmd_arg(crop_margin_arg_name, arg)
-    else:
-        remove_one_cmd_arg(crop_margin_arg_name)
-
 marginCheckButton = Checkbutton(
     paraFrame,
-    text='Crop Margins (in):',
+    text='Crop Margins (in)',
     variable=isCropMargin,
     command=on_command_and_validate_crop_margin_cb,
 )
@@ -825,7 +851,7 @@ marginCheckButton.grid(
 
 para_frame_row_num += 1
 
-cropPageRangeTextLabel = Label(paraFrame, text='Page Range:')
+cropPageRangeTextLabel = Label(paraFrame, text='      Page Range')
 cropPageRangeTextLabel.grid(
     column=0,
     row=para_frame_row_num,
@@ -850,7 +876,7 @@ cropPageRangeEntry.grid(
 
 para_frame_row_num += 1
 
-leftMarginTextLabel = Label(paraFrame, text='Left Margin:')
+leftMarginTextLabel = Label(paraFrame, text='      Left Margin')
 leftMarginTextLabel.grid(
     column=0,
     row=para_frame_row_num,
@@ -878,10 +904,7 @@ leftMarginSpinBox.grid(
 
 para_frame_row_num += 1
 
-rightMarginTextLabel = Label(
-    paraFrame,
-    text='Right Margin:',
-)
+rightMarginTextLabel = Label(paraFrame, text='      Right Margin')
 rightMarginTextLabel.grid(
     column=0,
     row=para_frame_row_num,
@@ -909,7 +932,7 @@ rightMarginSpinBox.grid(
 
 para_frame_row_num += 1
 
-topMarginTextLabel = Label(paraFrame, text='Top Margin:')
+topMarginTextLabel = Label(paraFrame, text='      Top Margin')
 topMarginTextLabel.grid(
     column=0,
     row=para_frame_row_num,
@@ -937,7 +960,7 @@ topMarginSpinBox.grid(
 
 para_frame_row_num += 1
 
-bottomMarginTextLabel = Label(paraFrame, text='Bottom Margin:')
+bottomMarginTextLabel = Label(paraFrame, text='      Bottom Margin')
 bottomMarginTextLabel.grid(
     column=0,
     row=para_frame_row_num,
@@ -964,13 +987,6 @@ bottomMarginSpinBox.grid(
 )
 
 para_frame_row_num += 1
-
-def on_command_dpi_cb():
-    if isDPI.get():
-        arg = dpi_arg_name + ' ' + strvarDPI.get().strip()
-        add_or_update_one_cmd_arg(dpi_arg_name, arg)
-    else:
-        remove_one_cmd_arg(dpi_arg_name)
 
 dpiCheckButton = Checkbutton(
     paraFrame,
@@ -1005,26 +1021,6 @@ dpiSpinBox.grid(
 
 para_frame_row_num += 1
 
-def validate_and_update_page_nums():
-    if (len(strvarPageNums.get().strip()) > 0 and
-            not check_page_nums(strvarPageNums.get().strip())):
-        remove_one_cmd_arg(page_num_arg_name)
-        strvarPageNums.set('')
-
-        tkinter.messagebox.showerror(
-            message='Invalide Page Argument! Should be like 2-5e,3-7o,9-',
-        )
-
-        return FALSE
-
-    if len(strvarPageNums.get().strip()) > 0:
-        arg = page_num_arg_name + ' ' + strvarPageNums.get().strip()
-        add_or_update_one_cmd_arg(page_num_arg_name, arg)
-    else:
-        remove_one_cmd_arg(page_num_arg_name)
-
-    return TRUE
-
 pageNumTextLabel = Label(
     paraFrame,
     text='Pages to Convert:',
@@ -1036,9 +1032,6 @@ pageNumTextLabel.grid(
     pady=0,
     padx=5,
 )
-
-def on_validate_page_nums_cb():
-    validate_and_update_page_nums()
 
 pageNumEntry = Entry(
     paraFrame,
@@ -1054,11 +1047,11 @@ pageNumEntry.grid(
     padx=5,
 )
 
-fixed_font_size_arg_name = '-fs'  # -fs 0/-fs <font size>[+]
-ocr_arg_name = '-ocr'  # -ocr-/-ocr t
-ocr_cpu_arg_name = '-nt'  # -nt -50/-nt <percentage>
-landscape_arg_name = '-ls'  # -ls[-][pagelist]
-linebreak_arg_name = '-ws'  # -ws <spacing>
+fixed_font_size_arg_name = '-fs'    # -fs 0/-fs <font size>[+]
+ocr_arg_name = '-ocr'               # -ocr-/-ocr t
+ocr_cpu_arg_name = '-nt'            # -nt -50/-nt <percentage>
+landscape_arg_name = '-ls'          # -ls[-][pagelist]
+linebreak_arg_name = '-ws'          # -ws <spacing>
 
 isFixedFontSize = BooleanVar()
 isOCR = BooleanVar()
@@ -1088,7 +1081,7 @@ def on_command_fixed_font_size_cb():
 
 fontSizeCheckButton = Checkbutton(
     paraFrame,
-    text='Fixed Output Font Size:',
+    text='Fixed Output Font Size',
     variable=isFixedFontSize,
     command=on_command_fixed_font_size_cb,
 )
@@ -1122,7 +1115,7 @@ para_frame_row_num += 1
 def on_command_ocr_and_cpu_cb():
     if isOCR.get():
         # ocr conflicts with native pdf
-        isNativePdf.set(FALSE)
+        isNativePdf.set(False)
         remove_one_cmd_arg(native_pdf_arg_name)
 
         ocr_arg = ocr_arg_name
@@ -1143,7 +1136,7 @@ def on_command_ocr_and_cpu_cb():
 
 ocrCheckButton = Checkbutton(
     paraFrame,
-    text='OCR (Tesseract) and CPU %:',
+    text='OCR (Tesseract) and CPU %',
     variable=isOCR,
     command=on_command_ocr_and_cpu_cb,
 )
@@ -1184,7 +1177,7 @@ def on_command_and_validate_landscape_cb():
             message='Invalide Landscape Page Argument!',
         )
 
-        return FALSE
+        return False
 
     if isLandscape.get():
         arg = '-ls'
@@ -1196,11 +1189,11 @@ def on_command_and_validate_landscape_cb():
     else:
         remove_one_cmd_arg(landscape_arg_name)
 
-    return TRUE
+    return True
 
 landscapeCheckButton = Checkbutton(
     paraFrame,
-    text='Output in Landscape:',
+    text='Output in Landscape',
     variable=isLandscape,
     command=on_command_and_validate_landscape_cb,
 )
@@ -1240,7 +1233,7 @@ def on_command_line_break_cb():
 
 lineBreakCheckButton = Checkbutton(
     paraFrame,
-    text='Smart Line Breaks:',
+    text='Smart Line Breaks',
     variable=isLinebreak,
     command=on_command_line_break_cb,
 )
@@ -1276,19 +1269,19 @@ conversion_tab_right_part_row_num = -1
 # options
 conversion_tab_right_part_row_num += 1
 
-auto_straignten_arg_name = '-as'  # -as-/-as
-break_page_avoid_overlap_arg_name = '-bp'  # -bp-/-bp
-color_output_arg_name = '-c'  # -c-/-c
-native_pdf_arg_name = '-n'  # -n-/-n
-right_to_left_arg_name = '-r'  # -r-/-r
-post_gs_arg_name = '-ppgs'  # -ppgs-/-ppgs
-marked_source_arg_name = '-sm'  # -sm-/-sm
-reflow_text_arg_name = '-wrap'  # -wrap+/-wrap-
-erase_vertical_line_arg_name = '-evl'  # -evl 0/-evl 1
-erase_horizontal_line_arg_name = '-ehl'  # -ehl 0/-ehl 1
-fast_preview_arg_name = '-rt'  # -rt /-rt 0
-ign_small_defects_arg_name = '-de'  # -de 1.0/-de 1.5
-auto_crop_arg_name = '-ac'  # -ac-/-ac
+auto_straignten_arg_name = '-as'            # -as-/-as
+break_page_avoid_overlap_arg_name = '-bp'   # -bp-/-bp
+color_output_arg_name = '-c'                # -c-/-c
+native_pdf_arg_name = '-n'                  # -n-/-n
+right_to_left_arg_name = '-r'               # -r-/-r
+post_gs_arg_name = '-ppgs'                  # -ppgs-/-ppgs
+marked_source_arg_name = '-sm'              # -sm-/-sm
+reflow_text_arg_name = '-wrap'              # -wrap+/-wrap-
+erase_vertical_line_arg_name = '-evl'       # -evl 0/-evl 1
+erase_horizontal_line_arg_name = '-ehl'     # -ehl 0/-ehl 1
+fast_preview_arg_name = '-rt'               # -rt /-rt 0
+ign_small_defects_arg_name = '-de'          # -de 1.0/-de 1.5
+auto_crop_arg_name = '-ac'                  # -ac-/-ac
 
 isAutoStraighten = BooleanVar()
 isBreakPage = BooleanVar()
@@ -1306,7 +1299,7 @@ isIgnSmallDefects = BooleanVar()
 isAutoCrop = BooleanVar()
 
 optionFrame = Labelframe(
-    conversionTab,
+    conversion_tab,
     text='Options',
 )
 optionFrame.grid(
@@ -1345,7 +1338,7 @@ option_frame_row_num += 1
 def on_command_break_page_cb():
     if isBreakPage.get():
         # break page conflicts with avoid overlap since they are both -bp flag
-        isAvoidOverlap.set(FALSE)
+        isAvoidOverlap.set(False)
         remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
         arg = break_page_avoid_overlap_arg_name
@@ -1396,11 +1389,11 @@ option_frame_row_num += 1
 def on_command_native_pdf_cb():
     if isNativePdf.get():
         # native pdf conflicts with ocr and reflow text
-        isOCR.set(FALSE)
+        isOCR.set(False)
         remove_one_cmd_arg(ocr_arg_name)
         remove_one_cmd_arg(ocr_cpu_arg_name)
 
-        isReflowText.set(FALSE)
+        isReflowText.set(False)
         remove_one_cmd_arg(reflow_text_arg_name)
 
         arg = native_pdf_arg_name
@@ -1497,7 +1490,7 @@ option_frame_row_num = 0
 def on_command_reflow_text_cb():
     if isReflowText.get():
         # reflow text conflicts with native pdf
-        isNativePdf.set(FALSE)
+        isNativePdf.set(False)
         remove_one_cmd_arg(native_pdf_arg_name)
 
         arg = reflow_text_arg_name + '+'
@@ -1598,7 +1591,7 @@ option_frame_row_num += 1
 def on_command_avoid_text_selection_overlap_cb():
     if isAvoidOverlap.get():
         # avoid overlap conflicts with break page since they are both -bp flag
-        isBreakPage.set(FALSE)
+        isBreakPage.set(False)
         remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
         arg = break_page_avoid_overlap_arg_name + ' m'
@@ -1736,19 +1729,19 @@ def generate_one_preview_image(preview_page_index):
     if not check_pdf_conversion_done():
         return
 
-    if not os.path.exists(strvarFilePath.get().strip()):
+    if not os.path.exists(strvar_input_file_path.get().strip()):
         tkinter.messagebox.showerror(
             message=(
                 "Failed to Find Input PDF File to convert for Preview: %s"
                 %
-                strvarFilePath.get().strip()
+                strvar_input_file_path.get().strip()
             ),
         )
         return
 
     remove_preview_img_and_clear_canvas()
 
-    (base_path, file_ext) = os.path.splitext(strvarFilePath.get().strip())
+    (base_path, file_ext) = os.path.splitext(strvar_input_file_path.get().strip())
 
     output_arg = ' '.join([preview_output_arg_name, str(preview_page_index)])
 
@@ -1765,7 +1758,7 @@ def generate_one_preview_image(preview_page_index):
 
     background_future.add_done_callback(preview_image_future_cb)
 
-previewFrame = Labelframe(conversionTab, text='Preview & Convert')
+previewFrame = Labelframe(conversion_tab, text='Preview & Convert')
 previewFrame.grid(
     column=conversion_tab_right_part_column_num,
     row=conversion_tab_right_part_row_num,
@@ -1982,11 +1975,11 @@ previewImageCanvas.grid(
 xScrollBar.config(command=previewImageCanvas.xview)
 yScrollBar.config(command=previewImageCanvas.yview)
 
-conversionTab.columnconfigure(
+conversion_tab.columnconfigure(
     conversion_tab_right_part_column_num,
     weight=1,
 )
-conversionTab.rowconfigure(
+conversion_tab.rowconfigure(
     conversion_tab_right_part_row_num,
     weight=1,
 )
@@ -2033,15 +2026,15 @@ bool_var_list = [
 ]
 
 string_var_list = [
-    strvarFilePath,
-    strvarDevice,
-    strvarConversionMode,
-    strvarScreenUnit,
-    strvarScreenWidth,
-    strvarScreenHeight,
+    strvar_input_file_path,
+    strvar_device,
+    strvar_conversion_mode,
+    strvar_screen_unit,
+    strvar_screen_width,
+    strvar_screen_height,
 
-    strvarOutputFilePath,
-    strvarCmdArgs,
+    strvar_output_file_path,
+    strvar_command_args,
 
     strvarColumnNum,
     strvarResolutionMultiplier,
@@ -2062,15 +2055,15 @@ string_var_list = [
 ]
 
 combo_box_list = [
-    deviceComboBox,
-    modeComboBox,
-    unitComboBox,
+    device_combobox,
+    mode_combobox,
+    unit_combobox,
 ]
 
 entry_list = [
-    inputPathEntry,
-    outputPathEntry,
-    cmdArgEntry,
+    input_path_entry,
+    output_path_entry,
+    command_arg_entry,
     pageNumEntry,
     landscapePageNumEntry,
     currentPreviewPageNumEntry,
@@ -2084,48 +2077,48 @@ default_var_map = {
     conversion_mode_arg_name:           ['Default'],
     output_path_arg_name:               [''],
 
-    column_num_arg_name:                [FALSE, '2'],
-    resolution_multiplier_arg_name:     [FALSE, '1.0'],
+    column_num_arg_name:                [False, '2'],
+    resolution_multiplier_arg_name:     [False, '1.0'],
     crop_margin_arg_name:               [
-                                            FALSE,
+                                            False,
                                             '',
                                             '0.00',
                                             '0.00',
                                             '0.00',
                                             '0.00',
                                         ],
-    dpi_arg_name:                       [FALSE, '167'],
+    dpi_arg_name:                       [False, '167'],
     page_num_arg_name:                  [''],
-    fixed_font_size_arg_name:           [FALSE, '12'],
-    ocr_arg_name:                       [FALSE, '50'],
-    ocr_cpu_arg_name:                   [FALSE, '50'],
-    landscape_arg_name:                 [FALSE, ''],
-    linebreak_arg_name:                 [TRUE, '0.200'],
+    fixed_font_size_arg_name:           [False, '12'],
+    ocr_arg_name:                       [False, '50'],
+    ocr_cpu_arg_name:                   [False, '50'],
+    landscape_arg_name:                 [False, ''],
+    linebreak_arg_name:                 [True, '0.200'],
 
-    auto_straignten_arg_name:           [FALSE],
-    break_page_avoid_overlap_arg_name:  [FALSE, FALSE],
-    color_output_arg_name:              [FALSE],
-    native_pdf_arg_name:                [FALSE],
-    right_to_left_arg_name:             [FALSE],
-    post_gs_arg_name:                   [FALSE],
-    marked_source_arg_name:             [FALSE],
-    reflow_text_arg_name:               [TRUE],
-    erase_vertical_line_arg_name:       [FALSE],
-    erase_horizontal_line_arg_name:     [FALSE],
-    fast_preview_arg_name:              [TRUE],
-    ign_small_defects_arg_name:         [FALSE],
-    auto_crop_arg_name:                 [FALSE],
+    auto_straignten_arg_name:           [False],
+    break_page_avoid_overlap_arg_name:  [False, False],
+    color_output_arg_name:              [False],
+    native_pdf_arg_name:                [False],
+    right_to_left_arg_name:             [False],
+    post_gs_arg_name:                   [False],
+    marked_source_arg_name:             [False],
+    reflow_text_arg_name:               [True],
+    erase_vertical_line_arg_name:       [False],
+    erase_horizontal_line_arg_name:     [False],
+    fast_preview_arg_name:              [True],
+    ign_small_defects_arg_name:         [False],
+    auto_crop_arg_name:                 [False],
 
     preview_output_arg_name:            []
 }
 
 arg_var_map = {
-    device_arg_name:                    [strvarDevice],
-    screen_unit_prefix:                 [strvarScreenUnit],
-    width_arg_name:                     [strvarScreenWidth],
-    height_arg_name:                    [strvarScreenHeight],
-    conversion_mode_arg_name:           [strvarConversionMode],
-    output_path_arg_name:               [strvarOutputFilePath],
+    device_arg_name:                    [strvar_device],
+    screen_unit_prefix:                 [strvar_screen_unit],
+    width_arg_name:                     [strvar_screen_width],
+    height_arg_name:                    [strvar_screen_height],
+    conversion_mode_arg_name:           [strvar_conversion_mode],
+    output_path_arg_name:               [strvar_output_file_path],
 
     column_num_arg_name:                [
                                             isColumnNum,
@@ -2227,7 +2220,7 @@ arg_cb_map = {
 
 # k2pdfopt stdout
 
-stdoutFrame = Labelframe(logTab, text='k2pdfopt STDOUT:')
+stdoutFrame = Labelframe(log_tab, text='k2pdfopt STDOUT:')
 stdoutFrame.pack(expand=1, fill='both')
 
 def on_command_clear_log_cb():
