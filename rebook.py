@@ -626,20 +626,20 @@ information_frame.grid(
     padx=5,
 )
 
-save_text_label = Label(information_frame, text='Save Current Setting as Preset')
-save_text_label.grid(column=0, row=0, sticky=N+W, pady=0, padx=5)
+save_label = Label(information_frame, text='Save Current Setting as Preset')
+save_label.grid(column=0, row=0, sticky=N+W, pady=0, padx=5)
 
 save_button = Button(information_frame, text='Save', command=on_command_save_cb)
 save_button.grid(column=1, row=0, sticky=N+W, pady=0, padx=5)
 
-output_text_label = Label(information_frame, text='Output Pdf File Path')
-output_text_label.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
+output_label = Label(information_frame, text='Output Pdf File Path')
+output_label.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
 
 output_path_entry = Entry(information_frame, state='readonly', textvariable=strvar_output_file_path)
 output_path_entry.grid(column=1, row=1, sticky=N+W, pady=0, padx=5)
 
-command_arg_text_label = Label(information_frame, text='Command-line Options')
-command_arg_text_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
+command_arg_label = Label(information_frame, text='Command-line Options')
+command_arg_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
 
 command_arg_entry = Entry(information_frame, state='readonly', textvariable=strvar_command_args)
 command_arg_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
@@ -656,28 +656,41 @@ resolution_multiplier_arg_name = '-dr'  # -dr <value>
 crop_margin_arg_name = '-cbox'          # -cbox[<pagelist>|u|-]
 dpi_arg_name = '-dpi'                   # -dpi <dpival>
 page_num_arg_name = '-p'                # -p <pagelist>
+fixed_font_size_arg_name = '-fs'        # -fs 0/-fs <font size>[+]
+ocr_arg_name = '-ocr'                   # -ocr-/-ocr t
+ocr_cpu_arg_name = '-nt'                # -nt -50/-nt <percentage>
+landscape_arg_name = '-ls'              # -ls[-][pagelist]
+linebreak_arg_name = '-ws'              # -ws <spacing>
 
-isColumnNum = BooleanVar()
-isResolutionMultipler = BooleanVar()
-isCropMargin = BooleanVar()
-isDPI = BooleanVar()
+is_column_num_checked = BooleanVar()
+is_resolution_multipler_checked = BooleanVar()
+is_crop_margin_checked = BooleanVar()
+is_dpi_checked = BooleanVar()
+is_fixed_font_size_checked = BooleanVar()
+is_ocr_cpu_limitation_checked = BooleanVar()
+is_landscape_checked = BooleanVar()
+is_smart_linebreak_checked = BooleanVar()  # -ws 0.01~10
 
-strvarColumnNum = StringVar()
-strvarResolutionMultiplier = StringVar()
-strvarCropPageRange = StringVar()
-strvarLeftMargin = StringVar()
-strvarRightMargin = StringVar()
-strvarTopMargin = StringVar()
-strvarBottomMargin = StringVar()
-strvarDPI = StringVar()
-strvarPageNums = StringVar()
+strvar_column_num = StringVar()
+strvar_resolution_multiplier = StringVar()
+strvar_crop_page_range = StringVar()
+strvar_left_margin = StringVar()
+strvar_top_margin = StringVar()
+strvarRightMargin = StringVar()         # Must it be "width" ?
+strvarBottomMargin = StringVar()        # Must if be "height" ?
+strvar_dpi = StringVar()
+strvar_page_numbers = StringVar()
+strvar_fixed_font_size = StringVar()
+strvar_ocr_cpu_percentage = StringVar()
+strvar_landscape_pages = StringVar()      # 1,3,5-10
+strvar_linebreak_space = StringVar()
 
 
 def on_command_column_num_cb():
-    if isColumnNum.get():
+    if is_column_num_checked.get():
         arg = (
             column_num_arg_name + ' ' +
-            strvarColumnNum.get().strip()
+            strvar_column_num.get().strip()
         )
         add_or_update_one_cmd_arg(column_num_arg_name, arg)
     else:
@@ -685,10 +698,10 @@ def on_command_column_num_cb():
 
 
 def on_command_resolution_multipler_cb():
-    if isResolutionMultipler.get():
+    if is_resolution_multipler_checked.get():
         arg = (
             resolution_multiplier_arg_name + ' ' +
-            strvarResolutionMultiplier.get().strip()
+            strvar_resolution_multiplier.get().strip()
         )
         add_or_update_one_cmd_arg(resolution_multiplier_arg_name, arg)
     else:
@@ -696,10 +709,10 @@ def on_command_resolution_multipler_cb():
 
 
 def on_command_and_validate_crop_margin_cb():
-    if (len(strvarCropPageRange.get().strip()) > 0 and
-            not check_page_nums(strvarCropPageRange.get().strip())):
+    if (len(strvar_crop_page_range.get().strip()) > 0 and
+            not check_page_nums(strvar_crop_page_range.get().strip())):
         remove_one_cmd_arg(crop_margin_arg_name)
-        strvarCropPageRange.set('')
+        strvar_crop_page_range.set('')
 
         tkinter.messagebox.showerror(
             message='Invalide Crop Page Range! Should be like 2-5e,3-7o,9-',
@@ -707,18 +720,18 @@ def on_command_and_validate_crop_margin_cb():
 
         return False
 
-    if isCropMargin.get():
-        page_range_arg = strvarCropPageRange.get().strip()
+    if is_crop_margin_checked.get():
+        page_range_arg = strvar_crop_page_range.get().strip()
         margin_args = [
-            strvarLeftMargin.get(),
-            strvarTopMargin.get(),
+            strvar_left_margin.get(),
+            strvar_top_margin.get(),
             strvarRightMargin.get(),
             strvarBottomMargin.get(),
         ]
         arg = (
             # no space between -cbox and page range
             crop_margin_arg_name + page_range_arg + ' '
-            'in,'.join(map(str.strip, margin_args)) + 'in'
+            + 'in,'.join(map(str.strip, margin_args)) + 'in'
         )
         add_or_update_one_cmd_arg(crop_margin_arg_name, arg)
     else:
@@ -726,18 +739,18 @@ def on_command_and_validate_crop_margin_cb():
 
 
 def on_command_dpi_cb():
-    if isDPI.get():
-        arg = dpi_arg_name + ' ' + strvarDPI.get().strip()
+    if is_dpi_checked.get():
+        arg = dpi_arg_name + ' ' + strvar_dpi.get().strip()
         add_or_update_one_cmd_arg(dpi_arg_name, arg)
     else:
         remove_one_cmd_arg(dpi_arg_name)
 
 
 def validate_and_update_page_nums():
-    if (len(strvarPageNums.get().strip()) > 0 and
-            not check_page_nums(strvarPageNums.get().strip())):
+    if (len(strvar_page_numbers.get().strip()) > 0 and
+            not check_page_nums(strvar_page_numbers.get().strip())):
         remove_one_cmd_arg(page_num_arg_name)
-        strvarPageNums.set('')
+        strvar_page_numbers.set('')
 
         tkinter.messagebox.showerror(
             message='Invalide Page Argument! Should be like 2-5e,3-7o,9-',
@@ -745,8 +758,8 @@ def validate_and_update_page_nums():
 
         return False
 
-    if len(strvarPageNums.get().strip()) > 0:
-        arg = page_num_arg_name + ' ' + strvarPageNums.get().strip()
+    if len(strvar_page_numbers.get().strip()) > 0:
+        arg = page_num_arg_name + ' ' + strvar_page_numbers.get().strip()
         add_or_update_one_cmd_arg(page_num_arg_name, arg)
     else:
         remove_one_cmd_arg(page_num_arg_name)
@@ -758,319 +771,11 @@ def on_validate_page_nums_cb():
     validate_and_update_page_nums()
 
 
-paraFrame = Labelframe(conversion_tab, text='Parameters')
-paraFrame.grid(
-    column=conversion_tab_left_part_column_num,
-    row=conversion_tab_left_part_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num = 0
-
-colNumCheckButton = Checkbutton(
-    paraFrame,
-    text='Max Columns',
-    variable=isColumnNum,
-    command=on_command_column_num_cb,
-)
-colNumCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-colNumSpinBox = Spinbox(
-    paraFrame,
-    from_=1,
-    to=10,
-    increment=1,
-    state='readonly',
-    textvariable=strvarColumnNum,
-    command=on_command_column_num_cb,
-)
-colNumSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-resolutionCheckButton = Checkbutton(
-    paraFrame,
-    text='Document Resolution Factor',
-    variable=isResolutionMultipler,
-    command=on_command_resolution_multipler_cb,
-)
-resolutionCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-resolutionSpinBox = Spinbox(
-    paraFrame,
-    from_=0.1,
-    to=10.0,
-    increment=0.1,
-    state='readonly',
-    textvariable=strvarResolutionMultiplier,
-    command=on_command_resolution_multipler_cb,
-)
-resolutionSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-marginCheckButton = Checkbutton(
-    paraFrame,
-    text='Crop Margins (in)',
-    variable=isCropMargin,
-    command=on_command_and_validate_crop_margin_cb,
-)
-marginCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-cropPageRangeTextLabel = Label(paraFrame, text='      Page Range')
-cropPageRangeTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-cropPageRangeEntry = Entry(
-    paraFrame,
-    textvariable=strvarCropPageRange,
-    validate='focusout',
-    validatecommand=on_command_and_validate_crop_margin_cb,
-)
-cropPageRangeEntry.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-leftMarginTextLabel = Label(paraFrame, text='      Left Margin')
-leftMarginTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-leftMarginSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=0.01,
-    state='readonly',
-    textvariable=strvarLeftMargin,
-    command=on_command_and_validate_crop_margin_cb,
-)
-leftMarginSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-rightMarginTextLabel = Label(paraFrame, text='      Right Margin')
-rightMarginTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-rightMarginSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=0.01,
-    state='readonly',
-    textvariable=strvarRightMargin,
-    command=on_command_and_validate_crop_margin_cb,
-)
-rightMarginSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-topMarginTextLabel = Label(paraFrame, text='      Top Margin')
-topMarginTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-topMarginSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=0.01,
-    state='readonly',
-    textvariable=strvarTopMargin,
-    command=on_command_and_validate_crop_margin_cb,
-)
-topMarginSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-bottomMarginTextLabel = Label(paraFrame, text='      Bottom Margin')
-bottomMarginTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-bottomMarginSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=0.01,
-    state='readonly',
-    textvariable=strvarBottomMargin,
-    command=on_command_and_validate_crop_margin_cb,
-)
-bottomMarginSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-dpiCheckButton = Checkbutton(
-    paraFrame,
-    text='DPI:',
-    variable=isDPI,
-    command=on_command_dpi_cb,
-)
-dpiCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-dpiSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=1000,
-    increment=1,
-    state='readonly',
-    textvariable=strvarDPI,
-    command=on_command_dpi_cb,
-)
-dpiSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
-
-pageNumTextLabel = Label(
-    paraFrame,
-    text='Pages to Convert:',
-)
-pageNumTextLabel.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-pageNumEntry = Entry(
-    paraFrame,
-    textvariable=strvarPageNums,
-    validate='focusout',
-    validatecommand=on_validate_page_nums_cb,
-)
-pageNumEntry.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-fixed_font_size_arg_name = '-fs'    # -fs 0/-fs <font size>[+]
-ocr_arg_name = '-ocr'               # -ocr-/-ocr t
-ocr_cpu_arg_name = '-nt'            # -nt -50/-nt <percentage>
-landscape_arg_name = '-ls'          # -ls[-][pagelist]
-linebreak_arg_name = '-ws'          # -ws <spacing>
-
-isFixedFontSize = BooleanVar()
-isOCR = BooleanVar()
-isLandscape = BooleanVar()
-isLinebreak = BooleanVar()  # -ws 0.01~10
-
-strvarFixedFontSize = StringVar()
-strvarOcrCpuPercentage = StringVar()
-strvarLandscapePages = StringVar()  # 1,3,5-10
-strvarLinebreakSpace = StringVar()
-
-# checkbox with value options
-para_frame_row_num += 1
-
 def on_command_fixed_font_size_cb():
-    if isFixedFontSize.get():
+    if is_fixed_font_size_checked.get():
         arg = (
             fixed_font_size_arg_name + ' ' +
-            strvarFixedFontSize.get().strip()
+            strvar_fixed_font_size.get().strip()
         )
         add_or_update_one_cmd_arg(
             fixed_font_size_arg_name,
@@ -1079,41 +784,9 @@ def on_command_fixed_font_size_cb():
     else:
         remove_one_cmd_arg(fixed_font_size_arg_name)
 
-fontSizeCheckButton = Checkbutton(
-    paraFrame,
-    text='Fixed Output Font Size',
-    variable=isFixedFontSize,
-    command=on_command_fixed_font_size_cb,
-)
-fontSizeCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-fontSizeSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=1,
-    state='readonly',
-    textvariable=strvarFixedFontSize,
-    command=on_command_fixed_font_size_cb,
-)
-fontSizeSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
 
 def on_command_ocr_and_cpu_cb():
-    if isOCR.get():
+    if is_ocr_cpu_limitation_checked.get():
         # ocr conflicts with native pdf
         isNativePdf.set(False)
         remove_one_cmd_arg(native_pdf_arg_name)
@@ -1124,7 +797,7 @@ def on_command_ocr_and_cpu_cb():
         # negtive integer means percentage
         ocr_cpu_arg = (
             ocr_cpu_arg_name + '-' +
-            strvarOcrCpuPercentage.get().strip()
+            strvar_ocr_cpu_percentage.get().strip()
         )
         add_or_update_one_cmd_arg(
             ocr_cpu_arg_name,
@@ -1134,44 +807,12 @@ def on_command_ocr_and_cpu_cb():
         remove_one_cmd_arg(ocr_arg_name)
         remove_one_cmd_arg(ocr_cpu_arg_name)
 
-ocrCheckButton = Checkbutton(
-    paraFrame,
-    text='OCR (Tesseract) and CPU %',
-    variable=isOCR,
-    command=on_command_ocr_and_cpu_cb,
-)
-ocrCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-ocrCpuSpinBox = Spinbox(
-    paraFrame,
-    from_=0,
-    to=100,
-    increment=1,
-    state='readonly',
-    textvariable=strvarOcrCpuPercentage,
-    command=on_command_ocr_and_cpu_cb,
-)
-ocrCpuSpinBox.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
 
 def on_command_and_validate_landscape_cb():
-    if (len(strvarLandscapePages.get().strip()) > 0 and
-            not check_page_nums(strvarLandscapePages.get().strip())):
+    if (len(strvar_landscape_pages.get().strip()) > 0 and
+            not check_page_nums(strvar_landscape_pages.get().strip())):
         remove_one_cmd_arg(landscape_arg_name)
-        strvarLandscapePages.set('')
+        strvar_landscape_pages.set('')
 
         tkinter.messagebox.showerror(
             message='Invalide Landscape Page Argument!',
@@ -1179,11 +820,11 @@ def on_command_and_validate_landscape_cb():
 
         return False
 
-    if isLandscape.get():
+    if is_landscape_checked.get():
         arg = '-ls'
-        if len(strvarLandscapePages.get().strip()) > 0:
+        if len(strvar_landscape_pages.get().strip()) > 0:
             # no space between -ls and page numbers
-            arg += strvarLandscapePages.get()
+            arg += strvar_landscape_pages.get()
 
         add_or_update_one_cmd_arg(landscape_arg_name, arg.strip())
     else:
@@ -1191,82 +832,445 @@ def on_command_and_validate_landscape_cb():
 
     return True
 
-landscapeCheckButton = Checkbutton(
-    paraFrame,
-    text='Output in Landscape',
-    variable=isLandscape,
-    command=on_command_and_validate_landscape_cb,
-)
-landscapeCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-landscapePageNumEntry = Entry(
-    paraFrame,
-    textvariable=strvarLandscapePages,
-    validate='focusout',
-    validatecommand=on_command_and_validate_landscape_cb,
-)
-landscapePageNumEntry.grid(
-    column=1,
-    row=para_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-
-para_frame_row_num += 1
 
 def on_command_line_break_cb():
-    if isLinebreak.get():
+    if is_smart_linebreak_checked.get():
         arg = (
             linebreak_arg_name + ' ' +
-            strvarLinebreakSpace.get().strip()
+            strvar_linebreak_space.get().strip()
         )
         add_or_update_one_cmd_arg(linebreak_arg_name, arg)
     else:
         remove_one_cmd_arg(linebreak_arg_name)
 
-lineBreakCheckButton = Checkbutton(
-    paraFrame,
-    text='Smart Line Breaks',
-    variable=isLinebreak,
-    command=on_command_line_break_cb,
-)
-lineBreakCheckButton.grid(
-    column=0,
-    row=para_frame_row_num,
+
+parameters_frame = Labelframe(conversion_tab, text='Parameters')
+parameters_frame.grid(
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
     sticky=N+W,
     pady=0,
     padx=5,
 )
 
-lineBreakSpinBox = Spinbox(
-    paraFrame,
+parameters_frame_row_number = 0
+
+max_column_check_button = Checkbutton(
+    parameters_frame,
+    text='Max Columns',
+    variable=is_column_num_checked,
+    command=on_command_column_num_cb,
+)
+max_column_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+max_column_spinbox = Spinbox(
+    parameters_frame,
+    from_=1,
+    to=10,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_column_num,
+    command=on_command_column_num_cb,
+)
+max_column_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+resolution_check_button = Checkbutton(
+    parameters_frame,
+    text='Document Resolution Factor',
+    variable=is_resolution_multipler_checked,
+    command=on_command_resolution_multipler_cb,
+)
+resolution_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+resolution_spinbox = Spinbox(
+    parameters_frame,
+    from_=0.1,
+    to=10.0,
+    increment=0.1,
+    state='readonly',
+    textvariable=strvar_resolution_multiplier,
+    command=on_command_resolution_multipler_cb,
+)
+resolution_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+margin_check_button = Checkbutton(
+    parameters_frame,
+    text='Crop Margins (in)',
+    variable=is_crop_margin_checked,
+    command=on_command_and_validate_crop_margin_cb,
+)
+margin_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+crop_page_range_label = Label(parameters_frame, text='      Page Range')
+crop_page_range_label.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+crop_page_range_entry = Entry(
+    parameters_frame,
+    textvariable=strvar_crop_page_range,
+    validate='focusout',
+    validatecommand=on_command_and_validate_crop_margin_cb,
+)
+crop_page_range_entry.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+left_margin_label = Label(parameters_frame, text='      Left Margin')
+left_margin_label.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+left_margin_spinbox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvar_left_margin,
+    command=on_command_and_validate_crop_margin_cb,
+)
+left_margin_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+top_margin_label = Label(parameters_frame, text='      Top Margin')
+top_margin_label.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+top_margin_spinbox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvar_top_margin,
+    command=on_command_and_validate_crop_margin_cb,
+)
+top_margin_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+rightMarginTextLabel = Label(parameters_frame, text='      Width')
+rightMarginTextLabel.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+rightMarginSpinBox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvarRightMargin,
+    command=on_command_and_validate_crop_margin_cb,
+)
+rightMarginSpinBox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+bottomMarginTextLabel = Label(parameters_frame, text='      Height')
+bottomMarginTextLabel.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+bottomMarginSpinBox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvarBottomMargin,
+    command=on_command_and_validate_crop_margin_cb,
+)
+bottomMarginSpinBox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+dpi_check_button = Checkbutton(
+    parameters_frame,
+    text='DPI:',
+    variable=is_dpi_checked,
+    command=on_command_dpi_cb,
+)
+dpi_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+dpi_spinbox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=1000,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_dpi,
+    command=on_command_dpi_cb,
+)
+dpi_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+page_number_label = Label(  parameters_frame, text='Pages to Convert')
+page_number_label.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+page_number_entry = Entry(
+    parameters_frame,
+    textvariable=strvar_page_numbers,
+    validate='focusout',
+    validatecommand=on_validate_page_nums_cb,
+)
+page_number_entry.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+# checkbox with value options
+parameters_frame_row_number += 1
+
+fixed_font_size_check_button = Checkbutton(
+    parameters_frame,
+    text='Fixed Output Font Size',
+    variable=is_fixed_font_size_checked,
+    command=on_command_fixed_font_size_cb,
+)
+fixed_font_size_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+fixed_font_size_spinbox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_fixed_font_size,
+    command=on_command_fixed_font_size_cb,
+)
+fixed_font_size_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+ocr_check_button = Checkbutton(
+    parameters_frame,
+    text='OCR (Tesseract) and CPU %',
+    variable=is_ocr_cpu_limitation_checked,
+    command=on_command_ocr_and_cpu_cb,
+)
+ocr_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+ocr_cpu_spinbox = Spinbox(
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_ocr_cpu_percentage,
+    command=on_command_ocr_and_cpu_cb,
+)
+ocr_cpu_spinbox.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+landscape_check_button = Checkbutton(
+    parameters_frame,
+    text='Output in Landscape',
+    variable=is_landscape_checked,
+    command=on_command_and_validate_landscape_cb,
+)
+landscape_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+landscapepage_number_entry = Entry(
+    parameters_frame,
+    textvariable=strvar_landscape_pages,
+    validate='focusout',
+    validatecommand=on_command_and_validate_landscape_cb,
+)
+landscapepage_number_entry.grid(
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+parameters_frame_row_number += 1
+
+smart_line_break_check_button = Checkbutton(
+    parameters_frame,
+    text='Smart Line Breaks',
+    variable=is_smart_linebreak_checked,
+    command=on_command_line_break_cb,
+)
+smart_line_break_check_button.grid(
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+
+smart_line_break_spinbox = Spinbox(
+    parameters_frame,
     from_=0.01,
     to=2.00,
     increment=0.01,
     state='readonly',
-    textvariable=strvarLinebreakSpace,
+    textvariable=strvar_linebreak_space,
     command=on_command_line_break_cb,
 )
-lineBreakSpinBox.grid(
+smart_line_break_spinbox.grid(
     column=1,
-    row=para_frame_row_num,
+    row=parameters_frame_row_number,
     sticky=N+W,
     pady=0,
     padx=5,
 )
 
-# right side of conversion tab
+
+# ############################################################################################### #
+# RIGHT SIDE OF CONVERSION TAB
+# ############################################################################################### #
 conversion_tab_right_part_column_num = 1
 conversion_tab_right_part_row_num = -1
 
-# options
+
+# ############################################################################################### #
+# OPTIONS FRAME
+# ############################################################################################### #
 conversion_tab_right_part_row_num += 1
 
 auto_straignten_arg_name = '-as'            # -as-/-as
@@ -1313,6 +1317,7 @@ optionFrame.grid(
 option_frame_left_part_col_num = 0
 option_frame_row_num = 0
 
+
 def on_command_auto_straighten_cb():
     if isAutoStraighten.get():
         arg = auto_straignten_arg_name
@@ -1320,20 +1325,6 @@ def on_command_auto_straighten_cb():
     else:
         remove_one_cmd_arg(auto_straignten_arg_name)
 
-opt1 = Checkbutton(
-    optionFrame,
-    text='Autostraighten',
-    variable=isAutoStraighten,
-    command=on_command_auto_straighten_cb,
-)
-opt1.grid(
-    column=option_frame_left_part_col_num,
-    row=option_frame_row_num,
-    sticky=N+W,
-    pady=0,
-    padx=5,
-)
-option_frame_row_num += 1
 
 def on_command_break_page_cb():
     if isBreakPage.get():
@@ -1348,6 +1339,145 @@ def on_command_break_page_cb():
         )
     else:
         remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
+
+
+def on_command_color_output_cb():
+    if isColorOutput.get():
+        arg = color_output_arg_name
+        add_or_update_one_cmd_arg(color_output_arg_name, arg)
+    else:
+        remove_one_cmd_arg(color_output_arg_name)
+
+
+def on_command_native_pdf_cb():
+    if isNativePdf.get():
+        # native pdf conflicts with ocr and reflow text
+        is_ocr_cpu_limitation_checked.set(False)
+        remove_one_cmd_arg(ocr_arg_name)
+        remove_one_cmd_arg(ocr_cpu_arg_name)
+
+        isReflowText.set(False)
+        remove_one_cmd_arg(reflow_text_arg_name)
+
+        arg = native_pdf_arg_name
+        add_or_update_one_cmd_arg(native_pdf_arg_name, arg)
+    else:
+        remove_one_cmd_arg(native_pdf_arg_name)
+
+
+def on_command_right_to_left_cb():
+    if isRight2Left.get():
+        arg = right_to_left_arg_name
+        add_or_update_one_cmd_arg(right_to_left_arg_name, arg)
+    else:
+        remove_one_cmd_arg(right_to_left_arg_name)
+
+
+def on_command_post_gs_cb():
+    if isPostGs.get():
+        arg = post_gs_arg_name
+        add_or_update_one_cmd_arg(post_gs_arg_name, arg)
+    else:
+        remove_one_cmd_arg(post_gs_arg_name)
+
+
+def on_command_marked_src_cb():
+    if isMarkedSrc.get():
+        arg = marked_source_arg_name
+        add_or_update_one_cmd_arg(
+            marked_source_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(marked_source_arg_name)
+
+
+def on_command_reflow_text_cb():
+    if isReflowText.get():
+        # reflow text conflicts with native pdf
+        isNativePdf.set(False)
+        remove_one_cmd_arg(native_pdf_arg_name)
+
+        arg = reflow_text_arg_name + '+'
+        add_or_update_one_cmd_arg(
+            reflow_text_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(reflow_text_arg_name)
+
+
+def on_command_erase_vertical_line_cb():
+    if isEraseVerticalLine.get():
+        arg = erase_vertical_line_arg_name + ' 1'
+        add_or_update_one_cmd_arg(
+            erase_vertical_line_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(erase_vertical_line_arg_name)
+
+
+def on_command_fast_preview_cb():
+    if isFastPreview.get():
+        arg = fast_preview_arg_name + ' 0'
+        add_or_update_one_cmd_arg(fast_preview_arg_name, arg)
+    else:
+        remove_one_cmd_arg(fast_preview_arg_name)
+
+
+def on_command_avoid_text_selection_overlap_cb():
+    if isAvoidOverlap.get():
+        # avoid overlap conflicts with break page since they are both -bp flag
+        isBreakPage.set(False)
+        remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
+
+        arg = break_page_avoid_overlap_arg_name + ' m'
+        add_or_update_one_cmd_arg(
+            break_page_avoid_overlap_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
+
+
+def on_command_ign_small_defect_cb():
+    if isIgnSmallDefects.get():
+        arg = (
+            ign_small_defects_arg_name + ' 1.5'
+        )
+        add_or_update_one_cmd_arg(
+            ign_small_defects_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(ign_small_defects_arg_name)
+
+
+def on_command_erase_horizontal_line_cb():
+    if isEraseHorizontalLine.get():
+        arg = erase_horizontal_line_arg_name + ' 1'
+        add_or_update_one_cmd_arg(
+            erase_horizontal_line_arg_name,
+            arg,
+        )
+    else:
+        remove_one_cmd_arg(erase_horizontal_line_arg_name)
+
+autostraighten_check_button = Checkbutton(
+    optionFrame,
+    text='Autostraighten',
+    variable=isAutoStraighten,
+    command=on_command_auto_straighten_cb,
+)
+autostraighten_check_button.grid(
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=N+W,
+    pady=0,
+    padx=5,
+)
+option_frame_row_num += 1
 
 opt2 = Checkbutton(
     optionFrame,
@@ -1364,20 +1494,13 @@ opt2.grid(
 )
 option_frame_row_num += 1
 
-def on_command_color_output_cb():
-    if isColorOutput.get():
-        arg = color_output_arg_name
-        add_or_update_one_cmd_arg(color_output_arg_name, arg)
-    else:
-        remove_one_cmd_arg(color_output_arg_name)
-
-opt3 = Checkbutton(
+color_output_check_button = Checkbutton(
     optionFrame,
     text='Color Output',
     variable=isColorOutput,
     command=on_command_color_output_cb,
 )
-opt3.grid(
+color_output_check_button.grid(
     column=option_frame_left_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1386,28 +1509,13 @@ opt3.grid(
 )
 option_frame_row_num += 1
 
-def on_command_native_pdf_cb():
-    if isNativePdf.get():
-        # native pdf conflicts with ocr and reflow text
-        isOCR.set(False)
-        remove_one_cmd_arg(ocr_arg_name)
-        remove_one_cmd_arg(ocr_cpu_arg_name)
-
-        isReflowText.set(False)
-        remove_one_cmd_arg(reflow_text_arg_name)
-
-        arg = native_pdf_arg_name
-        add_or_update_one_cmd_arg(native_pdf_arg_name, arg)
-    else:
-        remove_one_cmd_arg(native_pdf_arg_name)
-
-opt4 = Checkbutton(
+native_pdf_output_check_button = Checkbutton(
     optionFrame,
     text='Native PDF Output',
     variable=isNativePdf,
     command=on_command_native_pdf_cb,
 )
-opt4.grid(
+native_pdf_output_check_button.grid(
     column=option_frame_left_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1416,20 +1524,13 @@ opt4.grid(
 )
 option_frame_row_num += 1
 
-def on_command_right_to_left_cb():
-    if isRight2Left.get():
-        arg = right_to_left_arg_name
-        add_or_update_one_cmd_arg(right_to_left_arg_name, arg)
-    else:
-        remove_one_cmd_arg(right_to_left_arg_name)
-
-opt5 = Checkbutton(
+right_to_left_check_button = Checkbutton(
     optionFrame,
     text='Right-to-Left Text',
     variable=isRight2Left,
     command=on_command_right_to_left_cb,
 )
-opt5.grid(
+right_to_left_check_button.grid(
     column=option_frame_left_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1438,20 +1539,13 @@ opt5.grid(
 )
 option_frame_row_num += 1
 
-def on_command_post_gs_cb():
-    if isPostGs.get():
-        arg = post_gs_arg_name
-        add_or_update_one_cmd_arg(post_gs_arg_name, arg)
-    else:
-        remove_one_cmd_arg(post_gs_arg_name)
-
-opt6 = Checkbutton(
+post_process_ghostscript_check_button = Checkbutton(
     optionFrame,
     text='Post Process w/GhostScript',
     variable=isPostGs,
     command=on_command_post_gs_cb,
 )
-opt6.grid(
+post_process_ghostscript_check_button.grid(
     column=option_frame_left_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1460,23 +1554,13 @@ opt6.grid(
 )
 option_frame_row_num += 1
 
-def on_command_marked_src_cb():
-    if isMarkedSrc.get():
-        arg = marked_source_arg_name
-        add_or_update_one_cmd_arg(
-            marked_source_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(marked_source_arg_name)
-
-opt7 = Checkbutton(
+generate_markup_source_check_button = Checkbutton(
     optionFrame,
     text='Generate Marked-up Source',
     variable=isMarkedSrc,
     command=on_command_marked_src_cb,
 )
-opt7.grid(
+generate_markup_source_check_button.grid(
     column=option_frame_left_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1487,27 +1571,13 @@ opt7.grid(
 option_frace_right_part_col_num = 1
 option_frame_row_num = 0
 
-def on_command_reflow_text_cb():
-    if isReflowText.get():
-        # reflow text conflicts with native pdf
-        isNativePdf.set(False)
-        remove_one_cmd_arg(native_pdf_arg_name)
-
-        arg = reflow_text_arg_name + '+'
-        add_or_update_one_cmd_arg(
-            reflow_text_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(reflow_text_arg_name)
-
-opt8 = Checkbutton(
+reflow_text_check_button = Checkbutton(
     optionFrame,
     text='Re-flow Text',
     variable=isReflowText,
     command=on_command_reflow_text_cb,
 )
-opt8.grid(
+reflow_text_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1516,23 +1586,13 @@ opt8.grid(
 )
 option_frame_row_num += 1
 
-def on_command_erase_vertical_line_cb():
-    if isEraseVerticalLine.get():
-        arg = erase_vertical_line_arg_name + ' 1'
-        add_or_update_one_cmd_arg(
-            erase_vertical_line_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(erase_vertical_line_arg_name)
-
-opt9 = Checkbutton(
+erase_vline_check_button = Checkbutton(
     optionFrame,
     text='Erase Vertical Lines',
     variable=isEraseVerticalLine,
     command=on_command_erase_vertical_line_cb,
 )
-opt9.grid(
+erase_vline_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1541,23 +1601,13 @@ opt9.grid(
 )
 option_frame_row_num += 1
 
-def on_command_erase_horizontal_line_cb():
-    if isEraseHorizontalLine.get():
-        arg = erase_horizontal_line_arg_name + ' 1'
-        add_or_update_one_cmd_arg(
-            erase_horizontal_line_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(erase_horizontal_line_arg_name)
-
-opt14 = Checkbutton(
+erase_hline_check_button = Checkbutton(
     optionFrame,
     text='Erase Horizontal Lines',
     variable=isEraseHorizontalLine,
     command=on_command_erase_horizontal_line_cb,
 )
-opt14.grid(
+erase_hline_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1566,20 +1616,13 @@ opt14.grid(
 )
 option_frame_row_num += 1
 
-def on_command_fast_preview_cb():
-    if isFastPreview.get():
-        arg = fast_preview_arg_name + ' 0'
-        add_or_update_one_cmd_arg(fast_preview_arg_name, arg)
-    else:
-        remove_one_cmd_arg(fast_preview_arg_name)
-
-opt10 = Checkbutton(
+fast_preview_check_button = Checkbutton(
     optionFrame,
     text='Fast Preview',
     variable=isFastPreview,
     command=on_command_fast_preview_cb,
 )
-opt10.grid(
+fast_preview_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1587,20 +1630,6 @@ opt10.grid(
     padx=5,
 )
 option_frame_row_num += 1
-
-def on_command_avoid_text_selection_overlap_cb():
-    if isAvoidOverlap.get():
-        # avoid overlap conflicts with break page since they are both -bp flag
-        isBreakPage.set(False)
-        remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
-
-        arg = break_page_avoid_overlap_arg_name + ' m'
-        add_or_update_one_cmd_arg(
-            break_page_avoid_overlap_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
 opt11 = Checkbutton(
     optionFrame,
@@ -1617,25 +1646,13 @@ opt11.grid(
 )
 option_frame_row_num += 1
 
-def on_command_ign_small_defect_cb():
-    if isIgnSmallDefects.get():
-        arg = (
-            ign_small_defects_arg_name + ' 1.5'
-        )
-        add_or_update_one_cmd_arg(
-            ign_small_defects_arg_name,
-            arg,
-        )
-    else:
-        remove_one_cmd_arg(ign_small_defects_arg_name)
-
-opt12 = Checkbutton(
+ignore_defect_check_button = Checkbutton(
     optionFrame,
     text='Ignore Small Defects',
     variable=isIgnSmallDefects,
     command=on_command_ign_small_defect_cb,
 )
-opt12.grid(
+ignore_defect_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1651,13 +1668,13 @@ def on_command_auto_crop_cb():
     else:
         remove_one_cmd_arg(auto_crop_arg_name)
 
-opt13 = Checkbutton(
+autocrop_check_button = Checkbutton(
     optionFrame,
     text='Auto-Crop',
     variable=isAutoCrop,
     command=on_command_auto_crop_cb,
 )
-opt13.grid(
+autocrop_check_button.grid(
     column=option_frace_right_part_col_num,
     row=option_frame_row_num,
     sticky=N+W,
@@ -1666,7 +1683,10 @@ opt13.grid(
 )
 option_frame_row_num += 1
 
-# preview frame
+
+# ############################################################################################### #
+# PREVIEW FRAME
+# ############################################################################################### #
 conversion_tab_right_part_row_num += 1
 
 preview_output_arg_name = '-bmp'
@@ -1676,7 +1696,6 @@ current_preview_page_index = 1
 # global variable to hold opened preview image to prevent gc collecting it
 preview_img = None
 canvas_image_tag = None
-
 
 strvarCurrentPreviewPageNum = StringVar()
 
@@ -1834,11 +1853,11 @@ convertButton.grid(
 
 preview_frame_row_num += 1
 
-currentPreviewPageNumEntry = Entry(
+currentPreviewpage_number_entry = Entry(
     previewFrame,
     state='readonly',
     textvariable=strvarCurrentPreviewPageNum)
-currentPreviewPageNumEntry.grid(
+currentPreviewpage_number_entry.grid(
     column=0,
     row=preview_frame_row_num,
     columnspan=2,
@@ -2000,14 +2019,14 @@ preview_frame_row_num += 1
 # collect all vars
 
 bool_var_list = [
-    isColumnNum,
-    isResolutionMultipler,
-    isCropMargin,
-    isDPI,
-    isFixedFontSize,
-    isOCR,
-    isLandscape,
-    isLinebreak,
+    is_column_num_checked,
+    is_resolution_multipler_checked,
+    is_crop_margin_checked,
+    is_dpi_checked,
+    is_fixed_font_size_checked,
+    is_ocr_cpu_limitation_checked,
+    is_landscape_checked,
+    is_smart_linebreak_checked,
 
     isAutoStraighten,
     isBreakPage,
@@ -2036,20 +2055,20 @@ string_var_list = [
     strvar_output_file_path,
     strvar_command_args,
 
-    strvarColumnNum,
-    strvarResolutionMultiplier,
-    strvarCropPageRange,
-    strvarLeftMargin,
+    strvar_column_num,
+    strvar_resolution_multiplier,
+    strvar_crop_page_range,
+    strvar_left_margin,
     strvarRightMargin,
-    strvarTopMargin,
+    strvar_top_margin,
     strvarBottomMargin,
-    strvarDPI,
-    strvarPageNums,
+    strvar_dpi,
+    strvar_page_numbers,
 
-    strvarFixedFontSize,
-    strvarOcrCpuPercentage,
-    strvarLandscapePages,
-    strvarLinebreakSpace,
+    strvar_fixed_font_size,
+    strvar_ocr_cpu_percentage,
+    strvar_landscape_pages,
+    strvar_linebreak_space,
 
     strvarCurrentPreviewPageNum,
 ]
@@ -2064,9 +2083,9 @@ entry_list = [
     input_path_entry,
     output_path_entry,
     command_arg_entry,
-    pageNumEntry,
-    landscapePageNumEntry,
-    currentPreviewPageNumEntry,
+    page_number_entry,
+    landscapepage_number_entry,
+    currentPreviewpage_number_entry,
 ]
 
 default_var_map = {
@@ -2121,48 +2140,48 @@ arg_var_map = {
     output_path_arg_name:               [strvar_output_file_path],
 
     column_num_arg_name:                [
-                                            isColumnNum,
-                                            strvarColumnNum,
+                                            is_column_num_checked,
+                                            strvar_column_num,
                                         ],
     resolution_multiplier_arg_name:     [
-                                            isResolutionMultipler,
-                                            strvarResolutionMultiplier,
+                                            is_resolution_multipler_checked,
+                                            strvar_resolution_multiplier,
                                         ],
     crop_margin_arg_name:               [
-                                            isCropMargin,
-                                            strvarCropPageRange,
-                                            strvarLeftMargin,
-                                            strvarTopMargin,
+                                            is_crop_margin_checked,
+                                            strvar_crop_page_range,
+                                            strvar_left_margin,
+                                            strvar_top_margin,
                                             strvarRightMargin,
                                             strvarBottomMargin,
                                         ],
     dpi_arg_name:                       [
-                                            isDPI,
-                                            strvarDPI,
+                                            is_dpi_checked,
+                                            strvar_dpi,
                                         ],
     page_num_arg_name:                  [
-                                            strvarPageNums,
+                                            strvar_page_numbers,
                                         ],
 
     fixed_font_size_arg_name:           [
-                                            isFixedFontSize,
-                                            strvarFixedFontSize,
+                                            is_fixed_font_size_checked,
+                                            strvar_fixed_font_size,
                                         ],
     ocr_arg_name:                       [
-                                            isOCR,
-                                            strvarOcrCpuPercentage,
+                                            is_ocr_cpu_limitation_checked,
+                                            strvar_ocr_cpu_percentage,
                                         ],
     ocr_cpu_arg_name:                   [
-                                            isOCR,
-                                            strvarOcrCpuPercentage,
+                                            is_ocr_cpu_limitation_checked,
+                                            strvar_ocr_cpu_percentage,
                                         ],
     landscape_arg_name:                 [
-                                            isLandscape,
-                                            strvarLandscapePages,
+                                            is_landscape_checked,
+                                            strvar_landscape_pages,
                                         ],
     linebreak_arg_name:                 [
-                                            isLinebreak,
-                                            strvarLinebreakSpace,
+                                            is_smart_linebreak_checked,
+                                            strvar_linebreak_space,
                                         ],
 
     auto_straignten_arg_name:           [isAutoStraighten],
