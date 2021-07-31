@@ -25,18 +25,18 @@ def check_page_nums(input_pages):
 # Generating k2pdfopt command line
 # ############################################################################################### #
 def update_cmd_arg_entry_strvar():
-	global strvar_command_args
-	strvar_command_args.set(generate_cmd_arg_str())
+	global STRVAR_COMMAND_ARGS
+	STRVAR_COMMAND_ARGS.set(generate_cmd_arg_str())
 
 
 def add_or_update_one_cmd_arg(arg_key, arg_value):
-	global k2pdfopt_cmd_args
-	k2pdfopt_cmd_args[arg_key] = arg_value
+	global K2PDFOPT_CMD_ARGS
+	K2PDFOPT_CMD_ARGS[arg_key] = arg_value
 
 
 def remove_one_cmd_arg(arg_key):
-	global k2pdfopt_cmd_args
-	previous = k2pdfopt_cmd_args.pop(arg_key, None)
+	global K2PDFOPT_CMD_ARGS
+	previous = K2PDFOPT_CMD_ARGS.pop(arg_key, None)
 	return previous
 
 
@@ -91,7 +91,7 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 # global variables and functions
 k2pdfopt_path = './k2pdfopt'
 custom_preset_file_path = 'rebook_preset.json'
-k2pdfopt_cmd_args = {}
+K2PDFOPT_CMD_ARGS = {}
 
 
 def check_k2pdfopt_path_exists():
@@ -105,7 +105,7 @@ def check_k2pdfopt_path_exists():
 
 
 def load_custom_preset():
-	global strvar_output_file_path
+	global STRVAR_OUTPUT_FILE_PATH
 
 	if os.path.exists(custom_preset_file_path):
 		with open(custom_preset_file_path) as preset_file:
@@ -120,31 +120,31 @@ def load_custom_preset():
 
 
 def log_string(str_line):
-	global stdoutText
+	global STDOUT_TEXT
 
 	log_content = str_line.strip()
 
 	if len(log_content) > 0:
-		stdoutText.config(state=NORMAL)
+		STDOUT_TEXT.config(state=NORMAL)
 		print('=== ' + log_content)  # TODO: remove print
-		stdoutText.insert(END, log_content + '\n')
-		stdoutText.config(state=DISABLED)
+		STDOUT_TEXT.insert(END, log_content + '\n')
+		STDOUT_TEXT.config(state=DISABLED)
 
 
 def clear_logs():
-	stdoutText.config(state=NORMAL)
-	stdoutText.delete(1.0, END)
-	stdoutText.config(state=DISABLED)
+	STDOUT_TEXT.config(state=NORMAL)
+	STDOUT_TEXT.delete(1.0, END)
+	STDOUT_TEXT.config(state=DISABLED)
 
 
 def initialize_vars(dict_vars):
-	global k2pdfopt_cmd_args
+	global K2PDFOPT_CMD_ARGS
 
 	for k, v in dict_vars.items():
 		for i in range(len(v)):
 			arg_var_map[k][i].set(v[i])
 
-	k2pdfopt_cmd_args = {}
+	K2PDFOPT_CMD_ARGS = {}
 
 	for cb_func in arg_cb_map.values():
 		if cb_func is not None:
@@ -155,7 +155,7 @@ def initialize_vars(dict_vars):
 
 def restore_default_values():
 	clear_logs()
-	remove_preview_img_and_clear_canvas()
+	remove_PREVIEW_IMAGE_and_clear_canvas()
 
 	for sv in string_var_list:
 		sv.set('')
@@ -181,8 +181,8 @@ run_loop_thread = Thread(
 )
 run_loop_thread.start()
 
-background_process = None
-background_future = None
+BACKGROUND_PROCESS = None
+BACKGROUND_FUTURE = None
 
 device_argument_map =   {
                             0: 'k2',
@@ -275,24 +275,24 @@ unit_choice_map =   {
 
 def generate_cmd_arg_str():
 	must_have_args = '-a- -ui- -x'
-	device_arg = k2pdfopt_cmd_args.pop(device_arg_name, None)
+	device_arg = K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
 
 	if device_arg is None:
-		width_arg = k2pdfopt_cmd_args.pop(width_arg_name)
-		height_arg = k2pdfopt_cmd_args.pop(height_arg_name)
+		width_arg = K2PDFOPT_CMD_ARGS.pop(width_arg_name)
+		height_arg = K2PDFOPT_CMD_ARGS.pop(height_arg_name)
 
-	mode_arg = k2pdfopt_cmd_args.pop(conversion_mode_arg_name)
-	arg_list = [mode_arg] + list(k2pdfopt_cmd_args.values())
-	k2pdfopt_cmd_args[conversion_mode_arg_name] = mode_arg
+	mode_arg = K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
+	arg_list = [mode_arg] + list(K2PDFOPT_CMD_ARGS.values())
+	K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
 
 	if device_arg is not None:
 		arg_list.append(device_arg)
-		k2pdfopt_cmd_args[device_arg_name] = device_arg
+		K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
 	else:
 		arg_list.append(width_arg)
 		arg_list.append(height_arg)
-		k2pdfopt_cmd_args[width_arg_name] = width_arg
-		k2pdfopt_cmd_args[height_arg_name] = height_arg
+		K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
+		K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
 
 	arg_list.append(must_have_args)
 	log_string('Generate Argument List: ' + str(arg_list))
@@ -305,7 +305,7 @@ def convert_pdf_file(output_arg):
 	check_k2pdfopt_path_exists()
 
 	async def async_run_cmd_and_log(exec_cmd):
-		global background_process
+		global BACKGROUND_PROCESS
 
 		executed = exec_cmd.strip()
 
@@ -319,7 +319,7 @@ def convert_pdf_file(output_arg):
 			stdout=asyncio.subprocess.PIPE,
 			stderr=asyncio.subprocess.PIPE,
 		)
-		background_process = p
+		BACKGROUND_PROCESS = p
 
 		while True:
 			line = await p.stdout.readline()
@@ -332,33 +332,22 @@ def convert_pdf_file(output_arg):
 
 	input_pdf_path = strvar_input_file_path.get().strip()
 
+    # in case the file name contains space
 	if ' ' in input_pdf_path:
-		# in case the file name contains space
 		input_pdf_path = '\"' + input_pdf_path + '\"'
 
-	executed = ' '.join([
-		k2pdfopt_path,
-		input_pdf_path,
-		output_arg,
-		generate_cmd_arg_str(),
-	])
-	future = asyncio.run_coroutine_threadsafe(
-		async_run_cmd_and_log(executed),
-		thread_loop,
-	)
+	executed = ' '.join([k2pdfopt_path, input_pdf_path, output_arg, generate_cmd_arg_str()])
+	future = asyncio.run_coroutine_threadsafe(async_run_cmd_and_log(executed), thread_loop)
 
 	return future
 
 
 def check_pdf_conversion_done():
-	if (background_future is None) or (background_future.done()):
-		if ((background_process is None) or
-				(background_process.returncode is not None)):
+	if (BACKGROUND_FUTURE is None) or (BACKGROUND_FUTURE.done()):
+		if ((BACKGROUND_PROCESS is None) or (BACKGROUND_PROCESS.returncode is not None)):
 			return True
 
-	tkinter.messagebox.showerror(
-		message='Background Conversion Not Finished Yet! Please Wait.',
-	)
+	tkinter.messagebox.showerror(message='Background Conversion Not Finished Yet! Please Wait...')
 	return False
 
 # conversion tab
@@ -399,7 +388,7 @@ def on_command_open_pdf_file_cb():
 	if filename is not None and len(filename.strip()) > 0:
 		strvar_input_file_path.set(filename)
 		(base_path, file_ext) = os.path.splitext(filename)
-		strvar_output_file_path.set(base_path + output_pdf_suffix)
+		STRVAR_OUTPUT_FILE_PATH.set(base_path + output_pdf_suffix)
 
 
 def update_device_unit_width_height():
@@ -412,16 +401,10 @@ def update_device_unit_width_height():
 	else:
 		screen_unit = unit_argument_map[unit_combobox.current()]
 
-		width_arg = (
-			width_arg_name + ' ' +
-			strvar_screen_width.get().strip() + screen_unit
-		)
+		width_arg = (width_arg_name + ' ' + strvar_screen_width.get().strip() + screen_unit)
 		add_or_update_one_cmd_arg(width_arg_name, width_arg)
 
-		height_arg = (
-			height_arg_name + ' ' +
-			strvar_screen_height.get().strip() + screen_unit
-		)
+		height_arg = (height_arg_name + ' ' + strvar_screen_height.get().strip() + screen_unit)
 		add_or_update_one_cmd_arg(height_arg_name, height_arg)
 
 		remove_one_cmd_arg(device_arg_name)
@@ -600,8 +583,8 @@ mode_combobox.grid(
 # ############################################################################################### #
 conversion_tab_left_part_row_num += 1
 
-strvar_output_file_path = StringVar()
-strvar_command_args = StringVar()
+STRVAR_OUTPUT_FILE_PATH = StringVar()
+STRVAR_COMMAND_ARGS = StringVar()
 
 
 def on_command_save_cb():
@@ -635,15 +618,15 @@ save_button.grid(column=1, row=0, sticky=N+W, pady=0, padx=5)
 output_label = Label(information_frame, text='Output Pdf File Path')
 output_label.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
 
-output_path_entry = Entry(information_frame, state='readonly', textvariable=strvar_output_file_path)
+output_path_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_OUTPUT_FILE_PATH)
 output_path_entry.grid(column=1, row=1, sticky=N+W, pady=0, padx=5)
 
-command_arg_label = Label(information_frame, text='Command-line Options')
-command_arg_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
+command_arguments_label = Label(information_frame, text='Command-line Options')
+command_arguments_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
 
-command_arg_entry = Entry(information_frame, state='readonly', textvariable=strvar_command_args)
-command_arg_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
-command_arg_entry.grid(column=1, row=2, sticky=N+W, pady=0, padx=5)
+command_arguments_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_COMMAND_ARGS)
+command_arguments_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
+command_arguments_entry.grid(column=1, row=2, sticky=N+W, pady=0, padx=5)
 
 
 # ############################################################################################### #
@@ -688,10 +671,7 @@ strvar_linebreak_space = StringVar()
 
 def on_command_column_num_cb():
     if is_column_num_checked.get():
-        arg = (
-            column_num_arg_name + ' ' +
-            strvar_column_num.get().strip()
-        )
+        arg = (column_num_arg_name + ' ' + strvar_column_num.get().strip())
         add_or_update_one_cmd_arg(column_num_arg_name, arg)
     else:
         remove_one_cmd_arg(column_num_arg_name)
@@ -715,7 +695,7 @@ def on_command_and_validate_crop_margin_cb():
         strvar_crop_page_range.set('')
 
         tkinter.messagebox.showerror(
-            message='Invalide Crop Page Range! Should be like 2-5e,3-7o,9-',
+            message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
         )
 
         return False
@@ -731,7 +711,7 @@ def on_command_and_validate_crop_margin_cb():
         arg = (
             # no space between -cbox and page range
             crop_margin_arg_name + page_range_arg + ' '
-            + 'in,'.join(map(str.strip, margin_args)) + 'in'
+            + 'in,' . join(map(str.strip, margin_args)) + 'in'
         )
         add_or_update_one_cmd_arg(crop_margin_arg_name, arg)
     else:
@@ -749,13 +729,10 @@ def on_command_dpi_cb():
 def validate_and_update_page_nums():
     if (len(strvar_page_numbers.get().strip()) > 0 and
             not check_page_nums(strvar_page_numbers.get().strip())):
+
         remove_one_cmd_arg(page_num_arg_name)
         strvar_page_numbers.set('')
-
-        tkinter.messagebox.showerror(
-            message='Invalide Page Argument! Should be like 2-5e,3-7o,9-',
-        )
-
+        tkinter.messagebox.showerror(message='Invalide Page Argument! Should be like 2-5e,3-7o,9-')
         return False
 
     if len(strvar_page_numbers.get().strip()) > 0:
@@ -773,14 +750,8 @@ def on_validate_page_nums_cb():
 
 def on_command_fixed_font_size_cb():
     if is_fixed_font_size_checked.get():
-        arg = (
-            fixed_font_size_arg_name + ' ' +
-            strvar_fixed_font_size.get().strip()
-        )
-        add_or_update_one_cmd_arg(
-            fixed_font_size_arg_name,
-            arg,
-        )
+        arg = (fixed_font_size_arg_name + ' ' + strvar_fixed_font_size.get().strip())
+        add_or_update_one_cmd_arg(fixed_font_size_arg_name, arg)
     else:
         remove_one_cmd_arg(fixed_font_size_arg_name)
 
@@ -790,19 +761,12 @@ def on_command_ocr_and_cpu_cb():
         # ocr conflicts with native pdf
         isNativePdf.set(False)
         remove_one_cmd_arg(native_pdf_arg_name)
-
         ocr_arg = ocr_arg_name
         add_or_update_one_cmd_arg(ocr_arg_name, ocr_arg)
 
         # negtive integer means percentage
-        ocr_cpu_arg = (
-            ocr_cpu_arg_name + '-' +
-            strvar_ocr_cpu_percentage.get().strip()
-        )
-        add_or_update_one_cmd_arg(
-            ocr_cpu_arg_name,
-            ocr_cpu_arg,
-        )
+        ocr_cpu_arg = (ocr_cpu_arg_name + '-' + strvar_ocr_cpu_percentage.get().strip())
+        add_or_update_one_cmd_arg(ocr_cpu_arg_name, ocr_cpu_arg)
     else:
         remove_one_cmd_arg(ocr_arg_name)
         remove_one_cmd_arg(ocr_cpu_arg_name)
@@ -811,12 +775,10 @@ def on_command_ocr_and_cpu_cb():
 def on_command_and_validate_landscape_cb():
     if (len(strvar_landscape_pages.get().strip()) > 0 and
             not check_page_nums(strvar_landscape_pages.get().strip())):
+
         remove_one_cmd_arg(landscape_arg_name)
         strvar_landscape_pages.set('')
-
-        tkinter.messagebox.showerror(
-            message='Invalide Landscape Page Argument!',
-        )
+        tkinter.messagebox.showerror(message='Invalide Landscape Page Argument!')
 
         return False
 
@@ -835,10 +797,7 @@ def on_command_and_validate_landscape_cb():
 
 def on_command_line_break_cb():
     if is_smart_linebreak_checked.get():
-        arg = (
-            linebreak_arg_name + ' ' +
-            strvar_linebreak_space.get().strip()
-        )
+        arg = (linebreak_arg_name + ' ' + strvar_linebreak_space.get().strip())
         add_or_update_one_cmd_arg(linebreak_arg_name, arg)
     else:
         remove_one_cmd_arg(linebreak_arg_name)
@@ -1691,59 +1650,62 @@ conversion_tab_right_part_row_num += 1
 
 preview_output_arg_name = '-bmp'
 preview_image_path = './k2pdfopt_out.png'
-current_preview_page_index = 1
+CURRENT_PREVIEW_PAGE_INDEX = 1
 
 # global variable to hold opened preview image to prevent gc collecting it
-preview_img = None
-canvas_image_tag = None
+PREVIEW_IMAGE = None
+CANVAS_IMAGE_TAG = None
 
-strvarCurrentPreviewPageNum = StringVar()
+STRVAR_CURRENT_PREVIEW_PAGE_NUM = StringVar()
 
-def remove_preview_img_and_clear_canvas():
-    global canvas_image_tag
-    global strvarCurrentPreviewPageNum
+def remove_PREVIEW_IMAGE_and_clear_canvas():
+    global CANVAS_IMAGE_TAG
+    global STRVAR_CURRENT_PREVIEW_PAGE_NUM
 
     if os.path.exists(preview_image_path):
 
         os.remove(preview_image_path)
 
-    previewImageCanvas.delete(ALL)
-    canvas_image_tag = None
+    PREVIEW_IMAGE_CANVAS.delete(ALL)
+    CANVAS_IMAGE_TAG = None
+
 
 def load_image_to_canvas(photo_img, canvas):
-        load_image_to_canvas(preview_img, previewImageCanvas)
+        load_image_to_canvas(PREVIEW_IMAGE, PREVIEW_IMAGE_CANVAS)
+
 
 def load_preview_image(img_path, preview_page_index):
     # PhotoImage must be global var to prevent gc collect it
-    global preview_img
-    global previewImageCanvas
+    global PREVIEW_IMAGE
+    global PREVIEW_IMAGE_CANVAS
 
     if os.path.exists(img_path):
-        preview_img = PhotoImage(file=img_path)
+        PREVIEW_IMAGE = PhotoImage(file=img_path)
 
-        canvas_image_tag = previewImageCanvas.create_image(
+        CANVAS_IMAGE_TAG = PREVIEW_IMAGE_CANVAS.create_image(
             (0, 0),
             anchor=NW,
-            image=preview_img,
+            image=PREVIEW_IMAGE,
             tags='preview',
         )
 
         (left_pos, top_pos, right_pos, bottom_pos) = (
             0,
             0,
-            preview_img.width(),
-            preview_img.height(),
+            PREVIEW_IMAGE.width(),
+            PREVIEW_IMAGE.height(),
         )
-        previewImageCanvas.config(
+        PREVIEW_IMAGE_CANVAS.config(
             scrollregion=(left_pos, top_pos, right_pos, bottom_pos),
         )
         # canvas.scale('preview', 0, 0, 0.1, 0.1)
-        strvarCurrentPreviewPageNum.set('Page: ' + str(preview_page_index))
+        STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Page: ' + str(preview_page_index))
     else:
-        strvarCurrentPreviewPageNum.set('No Page ' + str(preview_page_index))
+        STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('No Page: ' + str(preview_page_index))
+
 
 def generate_one_preview_image(preview_page_index):
-    global background_future
+    global BACKGROUND_FUTURE
 
     if not check_pdf_conversion_done():
         return
@@ -1758,15 +1720,11 @@ def generate_one_preview_image(preview_page_index):
         )
         return
 
-    remove_preview_img_and_clear_canvas()
-
+    remove_PREVIEW_IMAGE_and_clear_canvas()
     (base_path, file_ext) = os.path.splitext(strvar_input_file_path.get().strip())
-
     output_arg = ' '.join([preview_output_arg_name, str(preview_page_index)])
-
-    background_future = convert_pdf_file(output_arg)
-
-    strvarCurrentPreviewPageNum.set('Preview Generating...')
+    BACKGROUND_FUTURE = convert_pdf_file(output_arg)
+    STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Preview Generating...')
 
     def preview_image_future_cb(bgf):
         load_preview_image(preview_image_path, preview_page_index)
@@ -1775,10 +1733,63 @@ def generate_one_preview_image(preview_page_index):
             preview_page_index
         )
 
-    background_future.add_done_callback(preview_image_future_cb)
+    BACKGROUND_FUTURE.add_done_callback(preview_image_future_cb)
 
-previewFrame = Labelframe(conversion_tab, text='Preview & Convert')
-previewFrame.grid(
+
+def on_command_restore_default_cb():
+    restore_default_values()
+
+
+def on_command_abort_conversion_cb():
+    global BACKGROUND_FUTURE
+    global BACKGROUND_PROCESS
+
+    if BACKGROUND_FUTURE is not None:
+        BACKGROUND_FUTURE.cancel()
+
+    if (BACKGROUND_PROCESS is not None and BACKGROUND_PROCESS.returncode is None):
+        BACKGROUND_PROCESS.terminate()
+
+
+def on_command_convert_pdf_cb():
+    if not check_pdf_conversion_done():
+        return
+
+    global BACKGROUND_FUTURE
+
+    pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
+    BACKGROUND_FUTURE = convert_pdf_file(pdf_output_arg)
+
+
+def on_command_ten_page_up_cb():
+    global CURRENT_PREVIEW_PAGE_INDEX
+    CURRENT_PREVIEW_PAGE_INDEX -= 10
+    if CURRENT_PREVIEW_PAGE_INDEX < 1:
+        CURRENT_PREVIEW_PAGE_INDEX = 1
+    generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+
+
+def on_command_page_up_cb():
+    global CURRENT_PREVIEW_PAGE_INDEX
+    if CURRENT_PREVIEW_PAGE_INDEX > 1:
+        CURRENT_PREVIEW_PAGE_INDEX -= 1
+    generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+
+
+def on_command_page_down_cb():
+    global CURRENT_PREVIEW_PAGE_INDEX
+    CURRENT_PREVIEW_PAGE_INDEX += 1
+    generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+
+
+def on_command_ten_page_down_cb():
+    global CURRENT_PREVIEW_PAGE_INDEX
+    CURRENT_PREVIEW_PAGE_INDEX += 10
+    generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+
+
+preview_frame = Labelframe(conversion_tab, text='Preview & Convert')
+preview_frame.grid(
     column=conversion_tab_right_part_column_num,
     row=conversion_tab_right_part_row_num,
     rowspan=3,
@@ -1789,15 +1800,8 @@ previewFrame.grid(
 
 preview_frame_row_num = 0
 
-def on_command_restore_default_cb():
-    restore_default_values()
-
-resetButton = Button(
-    previewFrame,
-    text='Reset Default',
-    command=on_command_restore_default_cb,
-)
-resetButton.grid(
+reset_button = Button(preview_frame, text='Reset Default', command=on_command_restore_default_cb)
+reset_button.grid(
     column=0,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1805,23 +1809,8 @@ resetButton.grid(
     padx=5,
 )
 
-def on_command_abort_conversion_cb():
-    global background_future
-    global background_process
-
-    if background_future is not None:
-        background_future.cancel()
-
-    if (background_process is not None and
-            background_process.returncode is None):
-        background_process.terminate()
-
-cancelButton = Button(
-    previewFrame,
-    text='Abort',
-    command=on_command_abort_conversion_cb,
-)
-cancelButton.grid(
+cancel_button = Button(preview_frame, text='Abort', command=on_command_abort_conversion_cb)
+cancel_button.grid(
     column=1,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1829,21 +1818,8 @@ cancelButton.grid(
     padx=5,
 )
 
-def on_command_convert_pdf_cb():
-    if not check_pdf_conversion_done():
-        return
-
-    global background_future
-
-    pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
-    background_future = convert_pdf_file(pdf_output_arg)
-
-convertButton = Button(
-    previewFrame,
-    text='Convert',
-    command=on_command_convert_pdf_cb,
-)
-convertButton.grid(
+convert_button = Button(preview_frame, text='Convert', command=on_command_convert_pdf_cb)
+convert_button.grid(
     column=2,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1853,11 +1829,12 @@ convertButton.grid(
 
 preview_frame_row_num += 1
 
-currentPreviewpage_number_entry = Entry(
-    previewFrame,
+current_preview_page_number_entry = Entry(
+    preview_frame,
     state='readonly',
-    textvariable=strvarCurrentPreviewPageNum)
-currentPreviewpage_number_entry.grid(
+    textvariable=STRVAR_CURRENT_PREVIEW_PAGE_NUM
+)
+current_preview_page_number_entry.grid(
     column=0,
     row=preview_frame_row_num,
     columnspan=2,
@@ -1866,19 +1843,8 @@ currentPreviewpage_number_entry.grid(
     padx=5,
 )
 
-def on_command_ten_page_up_cb():
-    global current_preview_page_index
-    current_preview_page_index -= 10
-    if current_preview_page_index < 1:
-        current_preview_page_index = 1
-    generate_one_preview_image(current_preview_page_index)
-
-previewButton = Button(
-    previewFrame,
-    text='Preview',
-    command=on_command_ten_page_up_cb,
-)
-previewButton.grid(
+preview_button = Button(preview_frame, text='Preview', command=on_command_ten_page_up_cb)
+preview_button.grid(
     column=2,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1889,12 +1855,8 @@ previewButton.grid(
 preview_frame_column_num = 0
 preview_frame_row_num += 1
 
-firstButton = Button(
-    previewFrame,
-    text='<<',
-    command=on_command_ten_page_up_cb,
-)
-firstButton.grid(
+first_button = Button(preview_frame, text='<<', command=on_command_ten_page_up_cb)
+first_button.grid(
     column=preview_frame_column_num,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1903,18 +1865,8 @@ firstButton.grid(
 )
 preview_frame_column_num += 1
 
-def on_command_page_up_cb():
-    global current_preview_page_index
-    if current_preview_page_index > 1:
-        current_preview_page_index -= 1
-    generate_one_preview_image(current_preview_page_index)
-
-previousButton = Button(
-    previewFrame,
-    text='<',
-    command=on_command_page_up_cb,
-)
-previousButton.grid(
+previous_button = Button(preview_frame, text='<', command=on_command_page_up_cb)
+previous_button.grid(
     column=preview_frame_column_num,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1923,17 +1875,8 @@ previousButton.grid(
 )
 preview_frame_column_num += 1
 
-def on_command_page_down_cb():
-    global current_preview_page_index
-    current_preview_page_index += 1
-    generate_one_preview_image(current_preview_page_index)
-
-nextButton = Button(
-    previewFrame,
-    text='>',
-    command=on_command_page_down_cb,
-)
-nextButton.grid(
+next_button = Button(preview_frame, text='>', command=on_command_page_down_cb)
+next_button.grid(
     column=preview_frame_column_num,
     row=preview_frame_row_num,
     sticky=N+W,
@@ -1942,28 +1885,19 @@ nextButton.grid(
 )
 preview_frame_column_num += 1
 
-def on_command_ten_page_down_cb():
-    global current_preview_page_index
-    current_preview_page_index += 10
-    generate_one_preview_image(current_preview_page_index)
-
-lastButton = Button(
-    previewFrame,
-    text='>>',
-    command=on_command_ten_page_down_cb,
-)
-lastButton.grid(
+last_button = Button(preview_frame, text='>>', command=on_command_ten_page_down_cb)
+last_button.grid(
     column=preview_frame_column_num,
     row=preview_frame_row_num,
     sticky=N+W,
     pady=0,
     padx=5,
 )
-preview_frame_column_num += 1
 
+preview_frame_column_num += 1
 preview_frame_row_num += 1
 
-xScrollBar = Scrollbar(previewFrame, orient=HORIZONTAL)
+xScrollBar = Scrollbar(preview_frame, orient=HORIZONTAL)
 xScrollBar.grid(
     column=0,
     row=preview_frame_row_num+1,
@@ -1971,28 +1905,28 @@ xScrollBar.grid(
     sticky=E+W,
 )
 
-yScrollBar = Scrollbar(previewFrame)
+yScrollBar = Scrollbar(preview_frame)
 yScrollBar.grid(
     column=preview_frame_column_num,
     row=preview_frame_row_num,
     sticky=N+S,
 )
 
-previewImageCanvas = Canvas(
-    previewFrame,
+PREVIEW_IMAGE_CANVAS = Canvas(
+    preview_frame,
     bd=0,
     xscrollcommand=xScrollBar.set,
     yscrollcommand=yScrollBar.set,
 )
-previewImageCanvas.grid(
+PREVIEW_IMAGE_CANVAS.grid(
     column=0,
     row=preview_frame_row_num,
     columnspan=preview_frame_column_num,
     sticky=N+S+E+W,
 )
 
-xScrollBar.config(command=previewImageCanvas.xview)
-yScrollBar.config(command=previewImageCanvas.yview)
+xScrollBar.config(command=PREVIEW_IMAGE_CANVAS.xview)
+yScrollBar.config(command=PREVIEW_IMAGE_CANVAS.yview)
 
 conversion_tab.columnconfigure(
     conversion_tab_right_part_column_num,
@@ -2002,17 +1936,17 @@ conversion_tab.rowconfigure(
     conversion_tab_right_part_row_num,
     weight=1,
 )
-previewFrame.columnconfigure(0, weight=1)
-previewFrame.rowconfigure(preview_frame_row_num, weight=1)
+preview_frame.columnconfigure(0, weight=1)
+preview_frame.rowconfigure(preview_frame_row_num, weight=1)
 
 def yscroll_canvas(event):
-    previewImageCanvas.yview_scroll(-1 * event.delta, 'units')
+    PREVIEW_IMAGE_CANVAS.yview_scroll(-1 * event.delta, 'units')
 
 def xscroll_canvas(event):
-    previewImageCanvas.xview_scroll(-1 * event.delta, 'units')
+    PREVIEW_IMAGE_CANVAS.xview_scroll(-1 * event.delta, 'units')
 
-previewImageCanvas.bind('<MouseWheel>', yscroll_canvas)
-previewImageCanvas.bind("<Shift-MouseWheel>", xscroll_canvas)
+PREVIEW_IMAGE_CANVAS.bind('<MouseWheel>', yscroll_canvas)
+PREVIEW_IMAGE_CANVAS.bind("<Shift-MouseWheel>", xscroll_canvas)
 
 preview_frame_row_num += 1
 
@@ -2052,8 +1986,8 @@ string_var_list = [
     strvar_screen_width,
     strvar_screen_height,
 
-    strvar_output_file_path,
-    strvar_command_args,
+    STRVAR_OUTPUT_FILE_PATH,
+    STRVAR_COMMAND_ARGS,
 
     strvar_column_num,
     strvar_resolution_multiplier,
@@ -2070,7 +2004,7 @@ string_var_list = [
     strvar_landscape_pages,
     strvar_linebreak_space,
 
-    strvarCurrentPreviewPageNum,
+    STRVAR_CURRENT_PREVIEW_PAGE_NUM,
 ]
 
 combo_box_list = [
@@ -2082,10 +2016,10 @@ combo_box_list = [
 entry_list = [
     input_path_entry,
     output_path_entry,
-    command_arg_entry,
+    command_arguments_entry,
     page_number_entry,
     landscapepage_number_entry,
-    currentPreviewpage_number_entry,
+    current_preview_page_number_entry,
 ]
 
 default_var_map = {
@@ -2137,7 +2071,7 @@ arg_var_map = {
     width_arg_name:                     [strvar_screen_width],
     height_arg_name:                    [strvar_screen_height],
     conversion_mode_arg_name:           [strvar_conversion_mode],
-    output_path_arg_name:               [strvar_output_file_path],
+    output_path_arg_name:               [STRVAR_OUTPUT_FILE_PATH],
 
     column_num_arg_name:                [
                                             is_column_num_checked,
@@ -2237,18 +2171,16 @@ arg_cb_map = {
     preview_output_arg_name:           None
 }
 
-# k2pdfopt stdout
-
-stdoutFrame = Labelframe(log_tab, text='k2pdfopt STDOUT:')
-stdoutFrame.pack(expand=1, fill='both')
+# ############################################################################################### #
+# K2PDFOPT STDOUT TAB
+# ############################################################################################### #
+stdout_frame = Labelframe(log_tab, text='k2pdfopt STDOUT:')
+stdout_frame.pack(expand=1, fill='both')
 
 def on_command_clear_log_cb():
     clear_logs()
 
-clearButton = Button(
-    stdoutFrame,
-    text='Clear',
-    command=on_command_clear_log_cb)
+clearButton = Button(stdout_frame, text='Clear', command=on_command_clear_log_cb)
 clearButton.grid(
     column=0,
     row=0,
@@ -2257,17 +2189,13 @@ clearButton.grid(
     padx=5,
 )
 
-stdoutText = scrltxt.ScrolledText(
-    stdoutFrame,
-    state=DISABLED, wrap='word',
-)
-stdoutText.grid(column=0, row=1, sticky=N+S+E+W)
-stdoutFrame.columnconfigure(0, weight=1)
-stdoutFrame.rowconfigure(1, weight=1)
-# stdoutText.pack(expand=1, fill='both')
+STDOUT_TEXT = scrltxt.ScrolledText(stdout_frame, state=DISABLED, wrap='word')
+STDOUT_TEXT.grid(column=0, row=1, sticky=N+S+E+W)
+stdout_frame.columnconfigure(0, weight=1)
+stdout_frame.rowconfigure(1, weight=1)
+# STDOUT_TEXT.pack(expand=1, fill='both')
 
 # initialization
-
 def initialize():
     check_k2pdfopt_path_exists()
 
@@ -2280,5 +2208,4 @@ def initialize():
 initialize()
 
 # start TclTk loop
-
 root.mainloop()
