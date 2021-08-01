@@ -24,8 +24,12 @@ And install the dependancies
 pip install -r requirements.txt
 ```
 
-To check if the dependencies are correctly installed, just run `python3 -m tkinter`.
+To check if the dependencies are correctly installed, just run 
+
+```
+python3 -m tkinter
+```
 
 To run rebook, put k2pdfopt binary and rebook.py into the same directory and run `python3 rebook.py`
 
-rebook is still under developing, feel free to report any issue.
+rebook is still under developing, please feel free to report any issue.
