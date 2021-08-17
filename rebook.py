@@ -7,10 +7,10 @@ import tkinter.filedialog
 import tkinter.messagebox
 import tkinter.scrolledtext as scrltxt
 import asyncio
-import glob     # a supprimer... ?
+# import glob     # a supprimer... ?
 import json
 import os
-import subprocess as sub     # a supprimer... ?
+# import subprocess as sub     # a supprimer... ?
 
 import globals
 
@@ -33,7 +33,7 @@ def update_cmd_arg_entry_strvar():
 	STRVAR_COMMAND_ARGS.set(generate_cmd_arg_str())
 
 
-def add_or_update_one_cmd_arg(arg_key, arg_value):
+def add_or_update_command_argument(arg_key, arg_value):
 	globals.K2PDFOPT_CMD_ARGS[arg_key] = arg_value
 
 
@@ -279,20 +279,18 @@ unit_choice_map =   {
 
 def generate_cmd_arg_str():
 	must_have_args = '-a- -ui- -x'
-	device_arg = globals.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
-
-	if device_arg is None:
-		width_arg = globals.K2PDFOPT_CMD_ARGS.pop(width_arg_name)
-		height_arg = globals.K2PDFOPT_CMD_ARGS.pop(height_arg_name)
 
 	mode_arg = globals.K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
 	arg_list = [mode_arg] + list(globals.K2PDFOPT_CMD_ARGS.values())
 	globals.K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
 
+	device_arg = globals.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
 	if device_arg is not None:
 		arg_list.append(device_arg)
 		globals.K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
 	else:
+		width_arg = globals.K2PDFOPT_CMD_ARGS.pop(width_arg_name)
+		height_arg = globals.K2PDFOPT_CMD_ARGS.pop(height_arg_name)
 		arg_list.append(width_arg)
 		arg_list.append(height_arg)
 		globals.K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
@@ -399,17 +397,17 @@ def update_device_unit_width_height():
 	if device_combobox.current() != 20:  # non-other type
 		device_type = device_argument_map[device_combobox.current()]
 		arg = device_arg_name + ' ' + device_type
-		add_or_update_one_cmd_arg(device_arg_name, arg)
+		add_or_update_command_argument(device_arg_name, arg)
 		remove_one_cmd_arg(width_arg_name)
 		remove_one_cmd_arg(height_arg_name)
 	else:
 		screen_unit = unit_argument_map[unit_combobox.current()]
 
 		width_arg = (width_arg_name + ' ' + strvar_screen_width.get().strip() + screen_unit)
-		add_or_update_one_cmd_arg(width_arg_name, width_arg)
+		add_or_update_command_argument(width_arg_name, width_arg)
 
 		height_arg = (height_arg_name + ' ' + strvar_screen_height.get().strip() + screen_unit)
-		add_or_update_one_cmd_arg(height_arg_name, height_arg)
+		add_or_update_command_argument(height_arg_name, height_arg)
 
 		remove_one_cmd_arg(device_arg_name)
 
@@ -425,7 +423,7 @@ def on_command_width_height_cb():
 def on_bind_event_mode_cb(e=None):
 	conversion_mode = mode_argument_map[mode_combobox.current()]
 	arg = (conversion_mode_arg_name + ' ' + conversion_mode)
-	add_or_update_one_cmd_arg(conversion_mode_arg_name, arg)
+	add_or_update_command_argument(conversion_mode_arg_name, arg)
 
 
 required_input_frame = ttk.Labelframe(conversion_tab, text='Required Inputs')
@@ -673,7 +671,7 @@ strvar_linebreak_space = tk.StringVar()
 def on_command_column_num_cb():
 	if is_column_num_checked.get():
 		arg = (column_num_arg_name + ' ' + strvar_column_num.get().strip())
-		add_or_update_one_cmd_arg(column_num_arg_name, arg)
+		add_or_update_command_argument(column_num_arg_name, arg)
 	else:
 		remove_one_cmd_arg(column_num_arg_name)
 
@@ -684,7 +682,7 @@ def on_command_resolution_multipler_cb():
 			resolution_multiplier_arg_name + ' ' +
 			strvar_resolution_multiplier.get().strip()
 		)
-		add_or_update_one_cmd_arg(resolution_multiplier_arg_name, arg)
+		add_or_update_command_argument(resolution_multiplier_arg_name, arg)
 	else:
 		remove_one_cmd_arg(resolution_multiplier_arg_name)
 
@@ -714,7 +712,7 @@ def on_command_and_validate_crop_margin_cb():
 			crop_margin_arg_name + page_range_arg + ' '
 			+ 'in,' . join(map(str.strip, margin_args)) + 'in'
 		)
-		add_or_update_one_cmd_arg(crop_margin_arg_name, arg)
+		add_or_update_command_argument(crop_margin_arg_name, arg)
 	else:
 		remove_one_cmd_arg(crop_margin_arg_name)
 
@@ -722,7 +720,7 @@ def on_command_and_validate_crop_margin_cb():
 def on_command_dpi_cb():
 	if is_dpi_checked.get():
 		arg = dpi_arg_name + ' ' + strvar_dpi.get().strip()
-		add_or_update_one_cmd_arg(dpi_arg_name, arg)
+		add_or_update_command_argument(dpi_arg_name, arg)
 	else:
 		remove_one_cmd_arg(dpi_arg_name)
 
@@ -740,7 +738,7 @@ def validate_and_update_page_nums():
 
 	if len(strvar_page_numbers.get().strip()) > 0:
 		arg = page_num_arg_name + ' ' + strvar_page_numbers.get().strip()
-		add_or_update_one_cmd_arg(page_num_arg_name, arg)
+		add_or_update_command_argument(page_num_arg_name, arg)
 	else:
 		remove_one_cmd_arg(page_num_arg_name)
 
@@ -754,7 +752,7 @@ def on_validate_page_nums_cb():
 def on_command_fixed_font_size_cb():
 	if is_fixed_font_size_checked.get():
 		arg = (fixed_font_size_arg_name + ' ' + strvar_fixed_font_size.get().strip())
-		add_or_update_one_cmd_arg(fixed_font_size_arg_name, arg)
+		add_or_update_command_argument(fixed_font_size_arg_name, arg)
 	else:
 		remove_one_cmd_arg(fixed_font_size_arg_name)
 
@@ -764,11 +762,11 @@ def on_command_ocr_and_cpu_cb():
 		is_native_pdf_checked.set(False)  # ocr conflicts with native pdf
 		remove_one_cmd_arg(native_pdf_arg_name)
 		ocr_arg = ocr_arg_name
-		add_or_update_one_cmd_arg(ocr_arg_name, ocr_arg)
+		add_or_update_command_argument(ocr_arg_name, ocr_arg)
 
 		# negtive integer means percentage
 		ocr_cpu_arg = (ocr_cpu_arg_name + '-' + strvar_ocr_cpu_percentage.get().strip())
-		add_or_update_one_cmd_arg(ocr_cpu_arg_name, ocr_cpu_arg)
+		add_or_update_command_argument(ocr_cpu_arg_name, ocr_cpu_arg)
 	else:
 		remove_one_cmd_arg(ocr_arg_name)
 		remove_one_cmd_arg(ocr_cpu_arg_name)
@@ -790,7 +788,7 @@ def on_command_and_validate_landscape_cb():
 			# no space between -ls and page numbers
 			arg += strvar_landscape_pages.get()
 
-		add_or_update_one_cmd_arg(landscape_arg_name, arg.strip())
+		add_or_update_command_argument(landscape_arg_name, arg.strip())
 	else:
 		remove_one_cmd_arg(landscape_arg_name)
 
@@ -800,7 +798,7 @@ def on_command_and_validate_landscape_cb():
 def on_command_line_break_cb():
 	if is_smart_linebreak_checked.get():
 		arg = (linebreak_arg_name + ' ' + strvar_linebreak_space.get().strip())
-		add_or_update_one_cmd_arg(linebreak_arg_name, arg)
+		add_or_update_command_argument(linebreak_arg_name, arg)
 	else:
 		remove_one_cmd_arg(linebreak_arg_name)
 
@@ -1267,7 +1265,7 @@ is_autocrop_checked = tk.BooleanVar()
 def on_command_auto_straighten_cb():
 	if is_autostraighten_checked.get():
 		arg = auto_straignten_arg_name
-		add_or_update_one_cmd_arg(auto_straignten_arg_name, arg)
+		add_or_update_command_argument(auto_straignten_arg_name, arg)
 	else:
 		remove_one_cmd_arg(auto_straignten_arg_name)
 
@@ -1279,7 +1277,7 @@ def on_command_break_page_cb():
 		remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
 		arg = break_page_avoid_overlap_arg_name
-		add_or_update_one_cmd_arg(break_page_avoid_overlap_arg_name, arg)
+		add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
 	else:
 		remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
@@ -1287,7 +1285,7 @@ def on_command_break_page_cb():
 def on_command_color_output_cb():
 	if isColorOutput.get():
 		arg = color_output_arg_name
-		add_or_update_one_cmd_arg(color_output_arg_name, arg)
+		add_or_update_command_argument(color_output_arg_name, arg)
 	else:
 		remove_one_cmd_arg(color_output_arg_name)
 
@@ -1303,7 +1301,7 @@ def on_command_native_pdf_cb():
 		remove_one_cmd_arg(reflow_text_arg_name)
 
 		arg = native_pdf_arg_name
-		add_or_update_one_cmd_arg(native_pdf_arg_name, arg)
+		add_or_update_command_argument(native_pdf_arg_name, arg)
 	else:
 		remove_one_cmd_arg(native_pdf_arg_name)
 
@@ -1311,7 +1309,7 @@ def on_command_native_pdf_cb():
 def on_command_right_to_left_cb():
 	if is_right_to_left_checked.get():
 		arg = right_to_left_arg_name
-		add_or_update_one_cmd_arg(right_to_left_arg_name, arg)
+		add_or_update_command_argument(right_to_left_arg_name, arg)
 	else:
 		remove_one_cmd_arg(right_to_left_arg_name)
 
@@ -1319,7 +1317,7 @@ def on_command_right_to_left_cb():
 def on_command_post_gs_cb():
 	if isPostGs.get():
 		arg = post_gs_arg_name
-		add_or_update_one_cmd_arg(post_gs_arg_name, arg)
+		add_or_update_command_argument(post_gs_arg_name, arg)
 	else:
 		remove_one_cmd_arg(post_gs_arg_name)
 
@@ -1327,7 +1325,7 @@ def on_command_post_gs_cb():
 def on_command_marked_src_cb():
 	if isMarkedSrc.get():
 		arg = marked_source_arg_name
-		add_or_update_one_cmd_arg(marked_source_arg_name, arg)
+		add_or_update_command_argument(marked_source_arg_name, arg)
 	else:
 		remove_one_cmd_arg(marked_source_arg_name)
 
@@ -1337,7 +1335,7 @@ def on_command_reflow_text_cb():
 		is_native_pdf_checked.set(False)  # reflow text conflicts with native pdf
 		remove_one_cmd_arg(native_pdf_arg_name)
 		arg = reflow_text_arg_name + '+'
-		add_or_update_one_cmd_arg(reflow_text_arg_name, arg)
+		add_or_update_command_argument(reflow_text_arg_name, arg)
 	else:
 		remove_one_cmd_arg(reflow_text_arg_name)
 
@@ -1345,7 +1343,7 @@ def on_command_reflow_text_cb():
 def on_command_erase_vertical_line_cb():
 	if is_erase_vertical_line_checked.get():
 		arg = erase_vertical_line_arg_name + ' 1'
-		add_or_update_one_cmd_arg(erase_vertical_line_arg_name, arg)
+		add_or_update_command_argument(erase_vertical_line_arg_name, arg)
 	else:
 		remove_one_cmd_arg(erase_vertical_line_arg_name)
 
@@ -1353,7 +1351,7 @@ def on_command_erase_vertical_line_cb():
 def on_command_fast_preview_cb():
 	if is_fast_preview_checked.get():
 		arg = fast_preview_arg_name + ' 0'
-		add_or_update_one_cmd_arg(fast_preview_arg_name, arg)
+		add_or_update_command_argument(fast_preview_arg_name, arg)
 	else:
 		remove_one_cmd_arg(fast_preview_arg_name)
 
@@ -1365,7 +1363,7 @@ def on_command_avoid_text_selection_overlap_cb():
 		remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
 		arg = break_page_avoid_overlap_arg_name + ' m'
-		add_or_update_one_cmd_arg(break_page_avoid_overlap_arg_name, arg)
+		add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
 	else:
 		remove_one_cmd_arg(break_page_avoid_overlap_arg_name)
 
@@ -1373,7 +1371,7 @@ def on_command_avoid_text_selection_overlap_cb():
 def on_command_ign_small_defect_cb():
 	if isIgnSmallDefects.get():
 		arg = (ign_small_defects_arg_name + ' 1.5')
-		add_or_update_one_cmd_arg(ign_small_defects_arg_name, arg)
+		add_or_update_command_argument(ign_small_defects_arg_name, arg)
 	else:
 		remove_one_cmd_arg(ign_small_defects_arg_name)
 
@@ -1381,7 +1379,7 @@ def on_command_ign_small_defect_cb():
 def on_command_erase_horizontal_line_cb():
 	if is_erase_horizontal_line_checked.get():
 		arg = erase_horizontal_line_arg_name + ' 1'
-		add_or_update_one_cmd_arg(erase_horizontal_line_arg_name, arg)
+		add_or_update_command_argument(erase_horizontal_line_arg_name, arg)
 	else:
 		remove_one_cmd_arg(erase_horizontal_line_arg_name)
 
@@ -1389,7 +1387,7 @@ def on_command_erase_horizontal_line_cb():
 def on_command_auto_crop_cb():
 	if is_autocrop_checked.get():
 		arg = auto_crop_arg_name
-		add_or_update_one_cmd_arg(auto_crop_arg_name, arg)
+		add_or_update_command_argument(auto_crop_arg_name, arg)
 	else:
 		remove_one_cmd_arg(auto_crop_arg_name)
 
@@ -1954,7 +1952,7 @@ string_var_list = [
 	strvar_linebreak_space,
 
 	STRVAR_CURRENT_PREVIEW_PAGE_NUM,
-    STRVAR_OUTPUT_FILE_PATH,
+	STRVAR_OUTPUT_FILE_PATH,
 	STRVAR_COMMAND_ARGS,
 ]
 
