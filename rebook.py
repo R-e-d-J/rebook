@@ -3,14 +3,15 @@
 from threading import Thread
 from tkinter import *
 from tkinter.ttk import *
+import tkinter.filedialog
+import tkinter.messagebox
+import tkinter.scrolledtext as scrltxt
 import asyncio
 import glob
 import json
 import os
 import subprocess as sub
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.scrolledtext as scrltxt
+import globals
 
 
 # https://willus.com/k2pdfopt/help/
@@ -22,6 +23,7 @@ def check_page_nums(input_pages):
 			return False
 	return True
 
+
 # ############################################################################################### #
 # Generating k2pdfopt command line
 # ############################################################################################### #
@@ -31,13 +33,11 @@ def update_cmd_arg_entry_strvar():
 
 
 def add_or_update_one_cmd_arg(arg_key, arg_value):
-	global K2PDFOPT_CMD_ARGS
-	K2PDFOPT_CMD_ARGS[arg_key] = arg_value
+	globals.K2PDFOPT_CMD_ARGS[arg_key] = arg_value
 
 
 def remove_one_cmd_arg(arg_key):
-	global K2PDFOPT_CMD_ARGS
-	previous = K2PDFOPT_CMD_ARGS.pop(arg_key, None)
+	previous = globals.K2PDFOPT_CMD_ARGS.pop(arg_key, None)
 	return previous
 
 
@@ -45,10 +45,10 @@ def remove_one_cmd_arg(arg_key):
 # GUI construction
 # ############################################################################################### #
 root = Tk()
+root.title('rebook')
 # screen_width = root.winfo_screenwidth()
 # screen_height = root.winfo_screenheight()
 # root.resizable(False, False)
-root.title('rebook')
 
 
 # ############################################################################################### #
@@ -89,10 +89,8 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 # root.createcommand('tkAboutDialog', on_command_about_box_cb)
 # root.createcommand('::tk::mac::ShowHelp', on_command_about_box_cb)
 
-# global variables and functions
 k2pdfopt_path = './k2pdfopt'
 custom_preset_file_path = 'rebook_preset.json'
-K2PDFOPT_CMD_ARGS = {}
 
 
 def check_k2pdfopt_path_exists():
@@ -139,8 +137,6 @@ def clear_logs():
 
 
 def initialize_vars(dict_vars):
-	global K2PDFOPT_CMD_ARGS
-	K2PDFOPT_CMD_ARGS = {}
 
 	for k, v in dict_vars.items():
 		for i in range(len(v)):
@@ -186,9 +182,6 @@ def start_loop(loop):
 thread_loop = asyncio.get_event_loop()
 run_loop_thread = Thread(target=start_loop, args=(thread_loop,), daemon=True)
 run_loop_thread.start()
-
-BACKGROUND_PROCESS = None
-BACKGROUND_FUTURE = None
 
 device_argument_map =   {
 							0: 'k2',
@@ -281,24 +274,24 @@ unit_choice_map =   {
 
 def generate_cmd_arg_str():
 	must_have_args = '-a- -ui- -x'
-	device_arg = K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
+	device_arg = globals.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
 
 	if device_arg is None:
-		width_arg = K2PDFOPT_CMD_ARGS.pop(width_arg_name)
-		height_arg = K2PDFOPT_CMD_ARGS.pop(height_arg_name)
+		width_arg = globals.K2PDFOPT_CMD_ARGS.pop(width_arg_name)
+		height_arg = globals.K2PDFOPT_CMD_ARGS.pop(height_arg_name)
 
-	mode_arg = K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
-	arg_list = [mode_arg] + list(K2PDFOPT_CMD_ARGS.values())
-	K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
+	mode_arg = globals.K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
+	arg_list = [mode_arg] + list(globals.K2PDFOPT_CMD_ARGS.values())
+	globals.K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
 
 	if device_arg is not None:
 		arg_list.append(device_arg)
-		K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
+		globals.K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
 	else:
 		arg_list.append(width_arg)
 		arg_list.append(height_arg)
-		K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
-		K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
+		globals.K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
+		globals.K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
 
 	arg_list.append(must_have_args)
 	log_string('Generate Argument List: ' + str(arg_list))
@@ -311,7 +304,6 @@ def convert_pdf_file(output_arg):
 	check_k2pdfopt_path_exists()
 
 	async def async_run_cmd_and_log(exec_cmd):
-		global BACKGROUND_PROCESS
 
 		executed = exec_cmd.strip()
 
@@ -325,7 +317,7 @@ def convert_pdf_file(output_arg):
 			stdout=asyncio.subprocess.PIPE,
 			stderr=asyncio.subprocess.PIPE,
 		)
-		BACKGROUND_PROCESS = p
+		globals.BACKGROUND_PROCESS = p
 
 		while True:
 			line = await p.stdout.readline()
@@ -349,8 +341,8 @@ def convert_pdf_file(output_arg):
 
 
 def check_pdf_conversion_done():
-	if (BACKGROUND_FUTURE is None) or (BACKGROUND_FUTURE.done()):
-		if ((BACKGROUND_PROCESS is None) or (BACKGROUND_PROCESS.returncode is not None)):
+	if (globals.BACKGROUND_FUTURE is None) or (globals.BACKGROUND_FUTURE.done()):
+		if ((globals.BACKGROUND_PROCESS is None) or (globals.BACKGROUND_PROCESS.returncode is not None)):
 			return True
 
 	tkinter.messagebox.showerror(message='Background Conversion Not Finished Yet! Please Wait...')
@@ -1637,50 +1629,43 @@ preview_output_arg_name = '-bmp'
 preview_image_path = './k2pdfopt_out.png'
 CURRENT_PREVIEW_PAGE_INDEX = 1
 
-# global variable to hold opened preview image to prevent gc collecting it
-PREVIEW_IMAGE = None
-CANVAS_IMAGE_TAG = None
-
 STRVAR_CURRENT_PREVIEW_PAGE_NUM = StringVar()
 
 def remove_preview_image_and_clear_canvas():
-	global CANVAS_IMAGE_TAG
+	globals.CANVAS_IMAGE_TAG
 	global STRVAR_CURRENT_PREVIEW_PAGE_NUM
 
 	if os.path.exists(preview_image_path):
 
 		os.remove(preview_image_path)
 
-	PREVIEW_IMAGE_CANVAS.delete(ALL)
-	CANVAS_IMAGE_TAG = None
+	globals.PREVIEW_IMAGE_CANVAS.delete(ALL)
+	globals.CANVAS_IMAGE_TAG = None
 
 
 def load_image_to_canvas(photo_img, canvas):
-		load_image_to_canvas(PREVIEW_IMAGE, PREVIEW_IMAGE_CANVAS)
+		load_image_to_canvas(globals.PREVIEW_IMAGE, globals.PREVIEW_IMAGE_CANVAS)
 
 
 def load_preview_image(img_path, preview_page_index):
-	# PhotoImage must be global var to prevent gc collect it
-	global PREVIEW_IMAGE
-	global PREVIEW_IMAGE_CANVAS
 
 	if os.path.exists(img_path):
-		PREVIEW_IMAGE = PhotoImage(file=img_path)
+		globals.PREVIEW_IMAGE = PhotoImage(file=img_path)
 
-		CANVAS_IMAGE_TAG = PREVIEW_IMAGE_CANVAS.create_image(
+		globals.CANVAS_IMAGE_TAG = globals.PREVIEW_IMAGE_CANVAS.create_image(
 			(0, 0),
 			anchor=NW,
-			image=PREVIEW_IMAGE,
+			image=globals.PREVIEW_IMAGE,
 			tags='preview',
 		)
 
 		(left_pos, top_pos, right_pos, bottom_pos) = (
 			0,
 			0,
-			PREVIEW_IMAGE.width(),
-			PREVIEW_IMAGE.height(),
+			globals.PREVIEW_IMAGE.width(),
+			globals.PREVIEW_IMAGE.height(),
 		)
-		PREVIEW_IMAGE_CANVAS.config(
+		globals.PREVIEW_IMAGE_CANVAS.config(
 			scrollregion=(left_pos, top_pos, right_pos, bottom_pos),
 		)
 		# canvas.scale('preview', 0, 0, 0.1, 0.1)
@@ -1690,7 +1675,6 @@ def load_preview_image(img_path, preview_page_index):
 
 
 def generate_one_preview_image(preview_page_index):
-	global BACKGROUND_FUTURE
 
 	if not check_pdf_conversion_done():
 		return
@@ -1708,7 +1692,7 @@ def generate_one_preview_image(preview_page_index):
 	remove_preview_image_and_clear_canvas()
 	(base_path, file_ext) = os.path.splitext(strvar_input_file_path.get().strip())
 	output_arg = ' '.join([preview_output_arg_name, str(preview_page_index)])
-	BACKGROUND_FUTURE = convert_pdf_file(output_arg)
+	globals.BACKGROUND_FUTURE = convert_pdf_file(output_arg)
 	STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Preview Generating...')
 
 	def preview_image_future_cb(bgf):
@@ -1718,7 +1702,7 @@ def generate_one_preview_image(preview_page_index):
 			preview_page_index
 		)
 
-	BACKGROUND_FUTURE.add_done_callback(preview_image_future_cb)
+	globals.BACKGROUND_FUTURE.add_done_callback(preview_image_future_cb)
 
 
 def on_command_restore_default_cb():
@@ -1726,24 +1710,20 @@ def on_command_restore_default_cb():
 
 
 def on_command_abort_conversion_cb():
-	global BACKGROUND_FUTURE
-	global BACKGROUND_PROCESS
 
-	if BACKGROUND_FUTURE is not None:
-		BACKGROUND_FUTURE.cancel()
+	if globals.BACKGROUND_FUTURE is not None:
+		globals.BACKGROUND_FUTURE.cancel()
 
-	if (BACKGROUND_PROCESS is not None and BACKGROUND_PROCESS.returncode is None):
-		BACKGROUND_PROCESS.terminate()
+	if (globals.BACKGROUND_PROCESS is not None and globals.BACKGROUND_PROCESS.returncode is None):
+		globals.BACKGROUND_PROCESS.terminate()
 
 
 def on_command_convert_pdf_cb():
 	if not check_pdf_conversion_done():
 		return
 
-	global BACKGROUND_FUTURE
-
 	pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
-	BACKGROUND_FUTURE = convert_pdf_file(pdf_output_arg)
+	globals.BACKGROUND_FUTURE = convert_pdf_file(pdf_output_arg)
 
 
 def on_command_ten_page_up_cb():
@@ -1897,21 +1877,21 @@ yScrollBar.grid(
 	sticky=N+S,
 )
 
-PREVIEW_IMAGE_CANVAS = Canvas(
+globals.PREVIEW_IMAGE_CANVAS = Canvas(
 	preview_frame,
 	bd=0,
 	xscrollcommand=xScrollBar.set,
 	yscrollcommand=yScrollBar.set,
 )
-PREVIEW_IMAGE_CANVAS.grid(
+globals.PREVIEW_IMAGE_CANVAS.grid(
 	column=0,
 	row=preview_frame_row_num,
 	columnspan=preview_frame_column_num,
 	sticky=N+S+E+W,
 )
 
-xScrollBar.config(command=PREVIEW_IMAGE_CANVAS.xview)
-yScrollBar.config(command=PREVIEW_IMAGE_CANVAS.yview)
+xScrollBar.config(command=globals.PREVIEW_IMAGE_CANVAS.xview)
+yScrollBar.config(command=globals.PREVIEW_IMAGE_CANVAS.yview)
 
 conversion_tab.columnconfigure(
 	conversion_tab_right_part_column_num,
@@ -1925,13 +1905,13 @@ preview_frame.columnconfigure(0, weight=1)
 preview_frame.rowconfigure(preview_frame_row_num, weight=1)
 
 def yscroll_canvas(event):
-	PREVIEW_IMAGE_CANVAS.yview_scroll(-1 * event.delta, 'units')
+	globals.PREVIEW_IMAGE_CANVAS.yview_scroll(-1 * event.delta, 'units')
 
 def xscroll_canvas(event):
-	PREVIEW_IMAGE_CANVAS.xview_scroll(-1 * event.delta, 'units')
+	globals.PREVIEW_IMAGE_CANVAS.xview_scroll(-1 * event.delta, 'units')
 
-PREVIEW_IMAGE_CANVAS.bind('<MouseWheel>', yscroll_canvas)
-PREVIEW_IMAGE_CANVAS.bind("<Shift-MouseWheel>", xscroll_canvas)
+globals.PREVIEW_IMAGE_CANVAS.bind('<MouseWheel>', yscroll_canvas)
+globals.PREVIEW_IMAGE_CANVAS.bind("<Shift-MouseWheel>", xscroll_canvas)
 
 preview_frame_row_num += 1
 

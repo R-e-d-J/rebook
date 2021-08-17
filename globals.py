@@ -1,0 +1,12 @@
+# Globals variables for rebook.
+import tkinter as tk
+
+# STRVAR_OUTPUT_FILE_PATH = tk.StringVar()
+# STRVAR_COMMAND_ARGS = tk.StringVar()
+# STRVAR_CURRENT_PREVIEW_PAGE_NUM = StringVar()
+# STDOUT_TEXT
+K2PDFOPT_CMD_ARGS = {}
+BACKGROUND_PROCESS = None
+BACKGROUND_FUTURE = None
+PREVIEW_IMAGE = None
+CANVAS_IMAGE_TAG = None
