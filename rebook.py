@@ -2,7 +2,7 @@
 
 from threading import Thread
 import tkinter as tk
-from tkinter.ttk import *
+import tkinter.ttk as ttk
 import tkinter.filedialog
 import tkinter.messagebox
 import tkinter.scrolledtext as scrltxt
@@ -11,6 +11,7 @@ import glob     # a supprimer... ?
 import json
 import os
 import subprocess as sub     # a supprimer... ?
+
 import globals
 
 
@@ -62,12 +63,12 @@ custom_preset_file_path = 'rebook_preset.json'
 # ############################################################################################### #
 # MAIN TAB
 # ############################################################################################### #
-base_tab = Notebook(root)
+base_tab = ttk.Notebook(root)
 
-conversion_tab = Frame(base_tab)
+conversion_tab = ttk.Frame(base_tab)
 base_tab.add(conversion_tab, text='Conversion')
 
-log_tab = Frame(base_tab)
+log_tab = ttk.Frame(base_tab)
 base_tab.add(log_tab, text='Logs')
 
 base_tab.pack(expand=1, fill='both')
@@ -427,7 +428,7 @@ def on_bind_event_mode_cb(e=None):
 	add_or_update_one_cmd_arg(conversion_mode_arg_name, arg)
 
 
-required_input_frame = Labelframe(conversion_tab, text='Required Inputs')
+required_input_frame = ttk.Labelframe(conversion_tab, text='Required Inputs')
 required_input_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -438,7 +439,7 @@ required_input_frame.grid(
 
 required_frame_row_num = 0
 
-input_path_entry = Entry(required_input_frame, state='readonly', textvariable=strvar_input_file_path)
+input_path_entry = ttk.Entry(required_input_frame, state='readonly', textvariable=strvar_input_file_path)
 input_path_entry.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -447,7 +448,7 @@ input_path_entry.grid(
 	padx=5,
 )
 
-open_button = Button(required_input_frame, text='Choose a File', command=on_command_open_pdf_file_cb)
+open_button = ttk.Button(required_input_frame, text='Choose a File', command=on_command_open_pdf_file_cb)
 open_button.grid(
 	column=1,
 	row=required_frame_row_num,
@@ -458,7 +459,7 @@ open_button.grid(
 
 required_frame_row_num += 1
 
-device_label = Label(required_input_frame, text='Device')
+device_label = ttk.Label(required_input_frame, text='Device')
 device_label.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -467,7 +468,7 @@ device_label.grid(
 	padx=5,
 )
 
-device_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_device)
+device_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_device)
 device_combobox['values'] = list(device_choice_map.values())
 device_combobox.current(0)
 device_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
@@ -481,7 +482,7 @@ device_combobox.grid(
 
 required_frame_row_num += 1
 
-unit_label = Label(required_input_frame, text='Unit')
+unit_label = ttk.Label(required_input_frame, text='Unit')
 unit_label.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -490,7 +491,7 @@ unit_label.grid(
 	padx=5,
 )
 
-unit_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_screen_unit)
+unit_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_screen_unit)
 unit_combobox['values'] = list(unit_choice_map.values())
 unit_combobox.current(0)
 unit_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
@@ -504,7 +505,7 @@ unit_combobox.grid(
 
 required_frame_row_num += 1
 
-width_label = Label(required_input_frame, text='Width')
+width_label = ttk.Label(required_input_frame, text='Width')
 width_label.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -513,7 +514,7 @@ width_label.grid(
 	padx=5,
 )
 
-width_spinbox = Spinbox(
+width_spinbox = ttk.Spinbox(
 	required_input_frame,
 	from_=0,
 	to=10000,
@@ -532,7 +533,7 @@ width_spinbox.grid(
 
 required_frame_row_num += 1
 
-height_label = Label(required_input_frame, text='Height')
+height_label = ttk.Label(required_input_frame, text='Height')
 height_label.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -540,7 +541,7 @@ height_label.grid(
 	pady=0,
 	padx=5,
 )
-height_spinbox = Spinbox(
+height_spinbox = ttk.Spinbox(
 	required_input_frame,
 	from_=0,
 	to=10000,
@@ -559,7 +560,7 @@ height_spinbox.grid(
 
 required_frame_row_num += 1
 
-conversion_mode_label = Label(required_input_frame, text='Conversion Mode')
+conversion_mode_label = ttk.Label(required_input_frame, text='Conversion Mode')
 conversion_mode_label.grid(
 	column=0,
 	row=required_frame_row_num,
@@ -568,7 +569,7 @@ conversion_mode_label.grid(
 	padx=5,
 )
 
-mode_combobox = Combobox(required_input_frame, state='readonly', textvariable=strvar_conversion_mode)
+mode_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_conversion_mode)
 mode_combobox['values'] = list(mode_choice_map.values())
 mode_combobox.current(0)
 mode_combobox.bind('<<ComboboxSelected>>', on_bind_event_mode_cb)
@@ -600,7 +601,7 @@ def on_bind_event_cmd_args_cb(e=None):
 	update_cmd_arg_entry_strvar()
 
 
-information_frame = Labelframe(conversion_tab, text='Related Informations')
+information_frame = ttk.Labelframe(conversion_tab, text='Related Informations')
 information_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -609,22 +610,22 @@ information_frame.grid(
 	padx=5,
 )
 
-save_label = Label(information_frame, text='Save Current Setting as Preset')
+save_label = ttk.Label(information_frame, text='Save Current Setting as Preset')
 save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-save_button = Button(information_frame, text='Save', command=on_command_save_cb)
+save_button = ttk.Button(information_frame, text='Save', command=on_command_save_cb)
 save_button.grid(column=1, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-output_label = Label(information_frame, text='Output Pdf File Path')
+output_label = ttk.Label(information_frame, text='Output Pdf File Path')
 output_label.grid(column=0, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
-output_path_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_OUTPUT_FILE_PATH)
+output_path_entry = ttk.Entry(information_frame, state='readonly', textvariable=STRVAR_OUTPUT_FILE_PATH)
 output_path_entry.grid(column=1, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
-command_arguments_label = Label(information_frame, text='Command-line Options')
+command_arguments_label = ttk.Label(information_frame, text='Command-line Options')
 command_arguments_label.grid(column=0, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
-command_arguments_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_COMMAND_ARGS)
+command_arguments_entry = ttk.Entry(information_frame, state='readonly', textvariable=STRVAR_COMMAND_ARGS)
 command_arguments_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
 command_arguments_entry.grid(column=1, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
@@ -804,7 +805,7 @@ def on_command_line_break_cb():
 		remove_one_cmd_arg(linebreak_arg_name)
 
 
-parameters_frame = Labelframe(conversion_tab, text='Parameters')
+parameters_frame = ttk.Labelframe(conversion_tab, text='Parameters')
 parameters_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
@@ -815,7 +816,7 @@ parameters_frame.grid(
 
 parameters_frame_row_number = 0
 
-max_column_check_button = Checkbutton(
+max_column_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Maximum Columns',
 	variable=is_column_num_checked,
@@ -829,7 +830,7 @@ max_column_check_button.grid(
 	padx=5,
 )
 
-max_column_spinbox = Spinbox(
+max_column_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=1,
 	to=10,
@@ -848,7 +849,7 @@ max_column_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-resolution_check_button = Checkbutton(
+resolution_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Document Resolution Factor',
 	variable=is_resolution_multipler_checked,
@@ -862,7 +863,7 @@ resolution_check_button.grid(
 	padx=5,
 )
 
-resolution_spinbox = Spinbox(
+resolution_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0.1,
 	to=10.0,
@@ -881,7 +882,7 @@ resolution_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-margin_check_button = Checkbutton(
+margin_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Crop Margins (in)',
 	variable=is_crop_margin_checked,
@@ -897,7 +898,7 @@ margin_check_button.grid(
 
 parameters_frame_row_number += 1
 
-crop_page_range_label = Label(parameters_frame, text='      Page Range')
+crop_page_range_label = ttk.Label(parameters_frame, text='      Page Range')
 crop_page_range_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -906,7 +907,7 @@ crop_page_range_label.grid(
 	padx=5,
 )
 
-crop_page_range_entry = Entry(
+crop_page_range_entry = ttk.Entry(
 	parameters_frame,
 	textvariable=strvar_crop_page_range,
 	validate='focusout',
@@ -922,7 +923,7 @@ crop_page_range_entry.grid(
 
 parameters_frame_row_number += 1
 
-left_margin_label = Label(parameters_frame, text='      Left Margin')
+left_margin_label = ttk.Label(parameters_frame, text='      Left Margin')
 left_margin_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -931,7 +932,7 @@ left_margin_label.grid(
 	padx=5,
 )
 
-left_margin_spinbox = Spinbox(
+left_margin_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -950,7 +951,7 @@ left_margin_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-top_margin_label = Label(parameters_frame, text='      Top Margin')
+top_margin_label = ttk.Label(parameters_frame, text='      Top Margin')
 top_margin_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -959,7 +960,7 @@ top_margin_label.grid(
 	padx=5,
 )
 
-top_margin_spinbox = Spinbox(
+top_margin_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -978,7 +979,7 @@ top_margin_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-rightMarginTextLabel = Label(parameters_frame, text='      Width')
+rightMarginTextLabel = ttk.Label(parameters_frame, text='      Width')
 rightMarginTextLabel.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -987,7 +988,7 @@ rightMarginTextLabel.grid(
 	padx=5,
 )
 
-rightMarginSpinBox = Spinbox(
+rightMarginSpinBox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -1006,7 +1007,7 @@ rightMarginSpinBox.grid(
 
 parameters_frame_row_number += 1
 
-bottomMarginTextLabel = Label(parameters_frame, text='      Height')
+bottomMarginTextLabel = ttk.Label(parameters_frame, text='      Height')
 bottomMarginTextLabel.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -1015,7 +1016,7 @@ bottomMarginTextLabel.grid(
 	padx=5,
 )
 
-bottomMarginSpinBox = Spinbox(
+bottomMarginSpinBox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -1034,7 +1035,7 @@ bottomMarginSpinBox.grid(
 
 parameters_frame_row_number += 1
 
-dpi_check_button = Checkbutton(
+dpi_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='DPI',
 	variable=is_dpi_checked,
@@ -1048,7 +1049,7 @@ dpi_check_button.grid(
 	padx=5,
 )
 
-dpi_spinbox = Spinbox(
+dpi_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=1000,
@@ -1067,7 +1068,7 @@ dpi_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-page_number_label = Label(  parameters_frame, text='Pages to Convert')
+page_number_label = ttk.Label(  parameters_frame, text='Pages to Convert')
 page_number_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
@@ -1076,7 +1077,7 @@ page_number_label.grid(
 	padx=5,
 )
 
-page_number_entry = Entry(
+page_number_entry = ttk.Entry(
 	parameters_frame,
 	textvariable=strvar_page_numbers,
 	validate='focusout',
@@ -1093,7 +1094,7 @@ page_number_entry.grid(
 # checkbox with value options
 parameters_frame_row_number += 1
 
-fixed_font_size_check_button = Checkbutton(
+fixed_font_size_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Fixed Output Font Size',
 	variable=is_fixed_font_size_checked,
@@ -1107,7 +1108,7 @@ fixed_font_size_check_button.grid(
 	padx=5,
 )
 
-fixed_font_size_spinbox = Spinbox(
+fixed_font_size_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -1126,7 +1127,7 @@ fixed_font_size_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-ocr_check_button = Checkbutton(
+ocr_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='OCR (Tesseract) and CPU %',
 	variable=is_ocr_cpu_limitation_checked,
@@ -1140,7 +1141,7 @@ ocr_check_button.grid(
 	padx=5,
 )
 
-ocr_cpu_spinbox = Spinbox(
+ocr_cpu_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0,
 	to=100,
@@ -1159,7 +1160,7 @@ ocr_cpu_spinbox.grid(
 
 parameters_frame_row_number += 1
 
-landscape_check_button = Checkbutton(
+landscape_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Output in Landscape',
 	variable=is_landscape_checked,
@@ -1173,7 +1174,7 @@ landscape_check_button.grid(
 	padx=5,
 )
 
-landscapepage_number_entry = Entry(
+landscapepage_number_entry = ttk.Entry(
 	parameters_frame,
 	textvariable=strvar_landscape_pages,
 	validate='focusout',
@@ -1189,7 +1190,7 @@ landscapepage_number_entry.grid(
 
 parameters_frame_row_number += 1
 
-smart_line_break_check_button = Checkbutton(
+smart_line_break_check_button = ttk.Checkbutton(
 	parameters_frame,
 	text='Smart Line Breaks',
 	variable=is_smart_linebreak_checked,
@@ -1203,7 +1204,7 @@ smart_line_break_check_button.grid(
 	padx=5,
 )
 
-smart_line_break_spinbox = Spinbox(
+smart_line_break_spinbox = ttk.Spinbox(
 	parameters_frame,
 	from_=0.01,
 	to=2.00,
@@ -1393,7 +1394,7 @@ def on_command_auto_crop_cb():
 		remove_one_cmd_arg(auto_crop_arg_name)
 
 
-optionFrame = Labelframe(
+optionFrame = ttk.Labelframe(
 	conversion_tab,
 	text='Options',
 )
@@ -1408,7 +1409,7 @@ optionFrame.grid(
 option_frame_left_part_col_num = 0
 option_frame_row_num = 0
 
-autostraighten_check_button = Checkbutton(
+autostraighten_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Autostraighten',
 	variable=is_autostraighten_checked,
@@ -1423,7 +1424,7 @@ autostraighten_check_button.grid(
 )
 option_frame_row_num += 1
 
-break_after_source_page_check_button = Checkbutton(
+break_after_source_page_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Break After Each Source Page',
 	variable=isBreakPage,
@@ -1438,7 +1439,7 @@ break_after_source_page_check_button.grid(
 )
 option_frame_row_num += 1
 
-color_output_check_button = Checkbutton(
+color_output_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Color Output',
 	variable=isColorOutput,
@@ -1453,7 +1454,7 @@ color_output_check_button.grid(
 )
 option_frame_row_num += 1
 
-native_pdf_output_check_button = Checkbutton(
+native_pdf_output_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Native PDF Output',
 	variable=is_native_pdf_checked,
@@ -1468,7 +1469,7 @@ native_pdf_output_check_button.grid(
 )
 option_frame_row_num += 1
 
-right_to_left_check_button = Checkbutton(
+right_to_left_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Right-to-Left Text',
 	variable=is_right_to_left_checked,
@@ -1483,7 +1484,7 @@ right_to_left_check_button.grid(
 )
 option_frame_row_num += 1
 
-post_process_ghostscript_check_button = Checkbutton(
+post_process_ghostscript_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Post Process w/GhostScript',
 	variable=isPostGs,
@@ -1498,7 +1499,7 @@ post_process_ghostscript_check_button.grid(
 )
 option_frame_row_num += 1
 
-generate_markup_source_check_button = Checkbutton(
+generate_markup_source_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Generate Marked-up Source',
 	variable=isMarkedSrc,
@@ -1515,7 +1516,7 @@ generate_markup_source_check_button.grid(
 option_frace_right_part_col_num = 1
 option_frame_row_num = 0
 
-reflow_text_check_button = Checkbutton(
+reflow_text_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Re-flow Text',
 	variable=is_reflow_text_checked,
@@ -1530,7 +1531,7 @@ reflow_text_check_button.grid(
 )
 option_frame_row_num += 1
 
-erase_vline_check_button = Checkbutton(
+erase_vline_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Erase Vertical Lines',
 	variable=is_erase_vertical_line_checked,
@@ -1545,7 +1546,7 @@ erase_vline_check_button.grid(
 )
 option_frame_row_num += 1
 
-erase_hline_check_button = Checkbutton(
+erase_hline_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Erase Horizontal Lines',
 	variable=is_erase_horizontal_line_checked,
@@ -1560,7 +1561,7 @@ erase_hline_check_button.grid(
 )
 option_frame_row_num += 1
 
-fast_preview_check_button = Checkbutton(
+fast_preview_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Fast Preview',
 	variable=is_fast_preview_checked,
@@ -1575,7 +1576,7 @@ fast_preview_check_button.grid(
 )
 option_frame_row_num += 1
 
-avoid_text_overlap_check_button = Checkbutton(
+avoid_text_overlap_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Avoid Text Selection Overlap',
 	variable=isAvoidOverlap,
@@ -1590,7 +1591,7 @@ avoid_text_overlap_check_button.grid(
 )
 option_frame_row_num += 1
 
-ignore_defect_check_button = Checkbutton(
+ignore_defect_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Ignore Small Defects',
 	variable=isIgnSmallDefects,
@@ -1605,7 +1606,7 @@ ignore_defect_check_button.grid(
 )
 option_frame_row_num += 1
 
-autocrop_check_button = Checkbutton(
+autocrop_check_button = ttk.Checkbutton(
 	optionFrame,
 	text='Auto-Crop',
 	variable=is_autocrop_checked,
@@ -1741,7 +1742,7 @@ def on_command_ten_page_down_cb():
 	generate_one_preview_image(globals.CURRENT_PREVIEW_PAGE_INDEX)
 
 
-preview_frame = Labelframe(conversion_tab, text='Preview & Convert')
+preview_frame = ttk.Labelframe(conversion_tab, text='Preview & Convert')
 preview_frame.grid(
 	column=conversion_tab_right_part_column_num,
 	row=conversion_tab_right_part_row_num,
@@ -1753,7 +1754,7 @@ preview_frame.grid(
 
 preview_frame_row_num = 0
 
-reset_button = Button(preview_frame, text='Reset Default', command=on_command_restore_default_cb)
+reset_button = ttk.Button(preview_frame, text='Reset Default', command=on_command_restore_default_cb)
 reset_button.grid(
 	column=0,
 	row=preview_frame_row_num,
@@ -1762,7 +1763,7 @@ reset_button.grid(
 	padx=5,
 )
 
-cancel_button = Button(preview_frame, text='Abort', command=on_command_abort_conversion_cb)
+cancel_button = ttk.Button(preview_frame, text='Abort', command=on_command_abort_conversion_cb)
 cancel_button.grid(
 	column=1,
 	row=preview_frame_row_num,
@@ -1771,7 +1772,7 @@ cancel_button.grid(
 	padx=5,
 )
 
-convert_button = Button(preview_frame, text='Convert', command=on_command_convert_pdf_cb)
+convert_button = ttk.Button(preview_frame, text='Convert', command=on_command_convert_pdf_cb)
 convert_button.grid(
 	column=2,
 	row=preview_frame_row_num,
@@ -1782,7 +1783,7 @@ convert_button.grid(
 
 preview_frame_row_num += 1
 
-current_preview_page_number_entry = Entry(
+current_preview_page_number_entry = ttk.Entry(
 	preview_frame,
 	state='readonly',
 	textvariable=STRVAR_CURRENT_PREVIEW_PAGE_NUM
@@ -1796,7 +1797,7 @@ current_preview_page_number_entry.grid(
 	padx=5,
 )
 
-preview_button = Button(preview_frame, text='Preview', command=on_command_ten_page_up_cb)
+preview_button = ttk.Button(preview_frame, text='Preview', command=on_command_ten_page_up_cb)
 preview_button.grid(
 	column=2,
 	row=preview_frame_row_num,
@@ -1808,7 +1809,7 @@ preview_button.grid(
 preview_frame_column_num = 0
 preview_frame_row_num += 1
 
-first_button = Button(preview_frame, text='<<', command=on_command_ten_page_up_cb)
+first_button = ttk.Button(preview_frame, text='<<', command=on_command_ten_page_up_cb)
 first_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
@@ -1818,7 +1819,7 @@ first_button.grid(
 )
 preview_frame_column_num += 1
 
-previous_button = Button(preview_frame, text='<', command=on_command_page_up_cb)
+previous_button = ttk.Button(preview_frame, text='<', command=on_command_page_up_cb)
 previous_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
@@ -1828,7 +1829,7 @@ previous_button.grid(
 )
 preview_frame_column_num += 1
 
-next_button = Button(preview_frame, text='>', command=on_command_page_down_cb)
+next_button = ttk.Button(preview_frame, text='>', command=on_command_page_down_cb)
 next_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
@@ -1838,7 +1839,7 @@ next_button.grid(
 )
 preview_frame_column_num += 1
 
-last_button = Button(preview_frame, text='>>', command=on_command_ten_page_down_cb)
+last_button = ttk.Button(preview_frame, text='>>', command=on_command_ten_page_down_cb)
 last_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
@@ -1850,7 +1851,7 @@ last_button.grid(
 preview_frame_column_num += 1
 preview_frame_row_num += 1
 
-xScrollBar = Scrollbar(preview_frame, orient=tk.HORIZONTAL)
+xScrollBar = ttk.Scrollbar(preview_frame, orient=tk.HORIZONTAL)
 xScrollBar.grid(
 	column=0,
 	row=preview_frame_row_num+1,
@@ -1858,7 +1859,7 @@ xScrollBar.grid(
 	sticky=tk.E+tk.W,
 )
 
-yScrollBar = Scrollbar(preview_frame)
+yScrollBar = ttk.Scrollbar(preview_frame)
 yScrollBar.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
@@ -2124,7 +2125,7 @@ arg_cb_map = {
 # ############################################################################################### #
 # K2PDFOPT STDOUT TAB
 # ############################################################################################### #
-stdout_frame = Labelframe(log_tab, text='k2pdfopt STDOUT:')
+stdout_frame = ttk.Labelframe(log_tab, text='k2pdfopt STDOUT:')
 stdout_frame.pack(expand=1, fill='both')
 
 
@@ -2142,7 +2143,7 @@ def initialize():
 	log_string('Current directory: ' + pwd)
 
 
-clear_button = Button(stdout_frame, text='Clear', command=on_command_clear_log_cb)
+clear_button = ttk.Button(stdout_frame, text='Clear', command=on_command_clear_log_cb)
 clear_button.grid(
 	column=0,
 	row=0,
