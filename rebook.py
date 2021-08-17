@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 from threading import Thread
-from tkinter import *
+import tkinter as tk
 from tkinter.ttk import *
 import tkinter.filedialog
 import tkinter.messagebox
 import tkinter.scrolledtext as scrltxt
 import asyncio
-import glob
+import glob     # a supprimer... ?
 import json
 import os
-import subprocess as sub
+import subprocess as sub     # a supprimer... ?
 import globals
 
 
@@ -44,11 +44,19 @@ def remove_one_cmd_arg(arg_key):
 # ############################################################################################### #
 # GUI construction
 # ############################################################################################### #
-root = Tk()
+root = tk.Tk()
 root.title('rebook')
 # screen_width = root.winfo_screenwidth()
 # screen_height = root.winfo_screenheight()
 # root.resizable(False, False)
+
+STDOUT_TEXT = None
+STRVAR_COMMAND_ARGS = tk.StringVar()
+STRVAR_OUTPUT_FILE_PATH = tk.StringVar()
+STRVAR_CURRENT_PREVIEW_PAGE_NUM = tk.StringVar()
+
+k2pdfopt_path = './k2pdfopt'
+custom_preset_file_path = 'rebook_preset.json'
 
 
 # ############################################################################################### #
@@ -68,7 +76,7 @@ base_tab.pack(expand=1, fill='both')
 # ############################################################################################### #
 # MENU
 # ############################################################################################### #
-menu_bar = Menu(root)
+menu_bar = tk.Menu(root)
 root['menu'] = menu_bar
 
 def on_command_about_box_cb():
@@ -82,16 +90,12 @@ http://github.com/pwang7/rebook/rebook.py'''
 
 	tkinter.messagebox.showinfo(message=about_message)
 
-menu_file = Menu(menu_bar)
+menu_file = tk.Menu(menu_bar)
 menu_bar.add_cascade(menu=menu_file, label='File')
 menu_file.add_command(label='About', command=on_command_about_box_cb)
 
 # root.createcommand('tkAboutDialog', on_command_about_box_cb)
 # root.createcommand('::tk::mac::ShowHelp', on_command_about_box_cb)
-
-k2pdfopt_path = './k2pdfopt'
-custom_preset_file_path = 'rebook_preset.json'
-
 
 def check_k2pdfopt_path_exists():
 	if not os.path.exists(k2pdfopt_path):
@@ -104,7 +108,7 @@ def check_k2pdfopt_path_exists():
 
 
 def load_custom_preset():
-	global STRVAR_OUTPUT_FILE_PATH
+	# global STRVAR_OUTPUT_FILE_PATH    # unused
 
 	if os.path.exists(custom_preset_file_path):
 		with open(custom_preset_file_path) as preset_file:
@@ -124,16 +128,16 @@ def log_string(str_line):
 	log_content = str_line.strip()
 
 	if len(log_content) > 0:
-		STDOUT_TEXT.config(state=NORMAL)
+		STDOUT_TEXT.config(state=tk.NORMAL)
 		print('=== ' + log_content)  # TODO: remove print
-		STDOUT_TEXT.insert(END, log_content + '\n')
-		STDOUT_TEXT.config(state=DISABLED)
+		STDOUT_TEXT.insert(tk.END, log_content + '\n')
+		STDOUT_TEXT.config(state=tk.DISABLED)
 
 
 def clear_logs():
-	STDOUT_TEXT.config(state=NORMAL)
-	STDOUT_TEXT.delete(1.0, END)
-	STDOUT_TEXT.config(state=DISABLED)
+	STDOUT_TEXT.config(state=tk.NORMAL)
+	STDOUT_TEXT.delete(1.0, tk.END)
+	STDOUT_TEXT.config(state=tk.DISABLED)
 
 
 def initialize_vars(dict_vars):
@@ -340,7 +344,7 @@ def convert_pdf_file(output_arg):
 	return future
 
 
-def check_pdf_conversion_done():
+def pdf_conversion_is_done():
 	if (globals.BACKGROUND_FUTURE is None) or (globals.BACKGROUND_FUTURE.done()):
 		if ((globals.BACKGROUND_PROCESS is None) or (globals.BACKGROUND_PROCESS.returncode is not None)):
 			return True
@@ -350,6 +354,7 @@ def check_pdf_conversion_done():
 
 # ############################################################################################### #
 # CONVERSION TAB
+# ############################################################################################### #
 conversion_tab_left_part_column_num = 0
 conversion_tab_left_part_row_num = -1
 
@@ -367,13 +372,12 @@ output_path_arg_name = '-o'         # -o <namefmt>
 output_pdf_suffix = '-output.pdf'
 screen_unit_prefix = '-screen_unit'
 
-strvar_input_file_path = StringVar()
-strvar_device = StringVar()
-strvar_conversion_mode = StringVar()
-strvar_screen_unit = StringVar()
-strvar_screen_width = StringVar()
-strvar_screen_height = StringVar()
-
+strvar_device = tk.StringVar()
+strvar_screen_unit = tk.StringVar()
+strvar_screen_width = tk.StringVar()
+strvar_screen_height = tk.StringVar()
+strvar_input_file_path = tk.StringVar()
+strvar_conversion_mode = tk.StringVar()
 
 def on_command_open_pdf_file_cb():
 	supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
@@ -427,7 +431,7 @@ required_input_frame = Labelframe(conversion_tab, text='Required Inputs')
 required_input_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -438,7 +442,7 @@ input_path_entry = Entry(required_input_frame, state='readonly', textvariable=st
 input_path_entry.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -447,7 +451,7 @@ open_button = Button(required_input_frame, text='Choose a File', command=on_comm
 open_button.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -458,7 +462,7 @@ device_label = Label(required_input_frame, text='Device')
 device_label.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -470,7 +474,7 @@ device_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
 device_combobox.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -481,7 +485,7 @@ unit_label = Label(required_input_frame, text='Unit')
 unit_label.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -493,7 +497,7 @@ unit_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
 unit_combobox.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -504,7 +508,7 @@ width_label = Label(required_input_frame, text='Width')
 width_label.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -521,7 +525,7 @@ width_spinbox = Spinbox(
 width_spinbox.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -532,7 +536,7 @@ height_label = Label(required_input_frame, text='Height')
 height_label.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -548,7 +552,7 @@ height_spinbox = Spinbox(
 height_spinbox.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -559,7 +563,7 @@ conversion_mode_label = Label(required_input_frame, text='Conversion Mode')
 conversion_mode_label.grid(
 	column=0,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -571,7 +575,7 @@ mode_combobox.bind('<<ComboboxSelected>>', on_bind_event_mode_cb)
 mode_combobox.grid(
 	column=1,
 	row=required_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -581,9 +585,6 @@ mode_combobox.grid(
 # INFORMATIONS FRAME
 # ############################################################################################### #
 conversion_tab_left_part_row_num += 1
-
-STRVAR_OUTPUT_FILE_PATH = StringVar()
-STRVAR_COMMAND_ARGS = StringVar()
 
 
 def on_command_save_cb():
@@ -603,29 +604,29 @@ information_frame = Labelframe(conversion_tab, text='Related Informations')
 information_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
 
 save_label = Label(information_frame, text='Save Current Setting as Preset')
-save_label.grid(column=0, row=0, sticky=N+W, pady=0, padx=5)
+save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
 save_button = Button(information_frame, text='Save', command=on_command_save_cb)
-save_button.grid(column=1, row=0, sticky=N+W, pady=0, padx=5)
+save_button.grid(column=1, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
 output_label = Label(information_frame, text='Output Pdf File Path')
-output_label.grid(column=0, row=1, sticky=N+W, pady=0, padx=5)
+output_label.grid(column=0, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
 output_path_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_OUTPUT_FILE_PATH)
-output_path_entry.grid(column=1, row=1, sticky=N+W, pady=0, padx=5)
+output_path_entry.grid(column=1, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
 command_arguments_label = Label(information_frame, text='Command-line Options')
-command_arguments_label.grid(column=0, row=2, sticky=N+W, pady=0, padx=5)
+command_arguments_label.grid(column=0, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
 command_arguments_entry = Entry(information_frame, state='readonly', textvariable=STRVAR_COMMAND_ARGS)
 command_arguments_entry.bind('<Button-1>', on_bind_event_cmd_args_cb)
-command_arguments_entry.grid(column=1, row=2, sticky=N+W, pady=0, padx=5)
+command_arguments_entry.grid(column=1, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
 
 # ############################################################################################### #
@@ -644,28 +645,28 @@ ocr_cpu_arg_name = '-nt'                # -nt -50/-nt <percentage>
 landscape_arg_name = '-ls'              # -ls[-][pagelist]
 linebreak_arg_name = '-ws'              # -ws <spacing>
 
-is_column_num_checked = BooleanVar()
-is_resolution_multipler_checked = BooleanVar()
-is_crop_margin_checked = BooleanVar()
-is_dpi_checked = BooleanVar()
-is_fixed_font_size_checked = BooleanVar()
-is_ocr_cpu_limitation_checked = BooleanVar()
-is_landscape_checked = BooleanVar()
-is_smart_linebreak_checked = BooleanVar()  # -ws 0.01~10
+is_column_num_checked = tk.BooleanVar()
+is_resolution_multipler_checked = tk.BooleanVar()
+is_crop_margin_checked = tk.BooleanVar()
+is_dpi_checked = tk.BooleanVar()
+is_fixed_font_size_checked = tk.BooleanVar()
+is_ocr_cpu_limitation_checked = tk.BooleanVar()
+is_landscape_checked = tk.BooleanVar()
+is_smart_linebreak_checked = tk.BooleanVar()  # -ws 0.01~10
 
-strvar_column_num = StringVar()
-strvar_resolution_multiplier = StringVar()
-strvar_crop_page_range = StringVar()
-strvar_left_margin = StringVar()
-strvar_top_margin = StringVar()
-strvarRightMargin = StringVar()         # Must it be "width" ?
-strvarBottomMargin = StringVar()        # Must if be "height" ?
-strvar_dpi = StringVar()
-strvar_page_numbers = StringVar()
-strvar_fixed_font_size = StringVar()
-strvar_ocr_cpu_percentage = StringVar()
-strvar_landscape_pages = StringVar()      # 1,3,5-10
-strvar_linebreak_space = StringVar()
+strvar_column_num = tk.StringVar()
+strvar_resolution_multiplier = tk.StringVar()
+strvar_crop_page_range = tk.StringVar()
+strvar_left_margin = tk.StringVar()
+strvar_top_margin = tk.StringVar()
+strvarRightMargin = tk.StringVar()         # Must it be "width" ?
+strvarBottomMargin = tk.StringVar()        # Must if be "height" ?
+strvar_dpi = tk.StringVar()
+strvar_page_numbers = tk.StringVar()
+strvar_fixed_font_size = tk.StringVar()
+strvar_ocr_cpu_percentage = tk.StringVar()
+strvar_landscape_pages = tk.StringVar()      # 1,3,5-10
+strvar_linebreak_space = tk.StringVar()
 
 
 def on_command_column_num_cb():
@@ -807,7 +808,7 @@ parameters_frame = Labelframe(conversion_tab, text='Parameters')
 parameters_frame.grid(
 	column=conversion_tab_left_part_column_num,
 	row=conversion_tab_left_part_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -823,7 +824,7 @@ max_column_check_button = Checkbutton(
 max_column_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -840,7 +841,7 @@ max_column_spinbox = Spinbox(
 max_column_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -856,7 +857,7 @@ resolution_check_button = Checkbutton(
 resolution_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -873,7 +874,7 @@ resolution_spinbox = Spinbox(
 resolution_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -889,7 +890,7 @@ margin_check_button = Checkbutton(
 margin_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -900,7 +901,7 @@ crop_page_range_label = Label(parameters_frame, text='      Page Range')
 crop_page_range_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -914,7 +915,7 @@ crop_page_range_entry = Entry(
 crop_page_range_entry.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -925,7 +926,7 @@ left_margin_label = Label(parameters_frame, text='      Left Margin')
 left_margin_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -942,7 +943,7 @@ left_margin_spinbox = Spinbox(
 left_margin_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -953,7 +954,7 @@ top_margin_label = Label(parameters_frame, text='      Top Margin')
 top_margin_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -970,7 +971,7 @@ top_margin_spinbox = Spinbox(
 top_margin_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -981,7 +982,7 @@ rightMarginTextLabel = Label(parameters_frame, text='      Width')
 rightMarginTextLabel.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -998,7 +999,7 @@ rightMarginSpinBox = Spinbox(
 rightMarginSpinBox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1009,7 +1010,7 @@ bottomMarginTextLabel = Label(parameters_frame, text='      Height')
 bottomMarginTextLabel.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1026,7 +1027,7 @@ bottomMarginSpinBox = Spinbox(
 bottomMarginSpinBox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1042,7 +1043,7 @@ dpi_check_button = Checkbutton(
 dpi_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1059,7 +1060,7 @@ dpi_spinbox = Spinbox(
 dpi_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1070,7 +1071,7 @@ page_number_label = Label(  parameters_frame, text='Pages to Convert')
 page_number_label.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1084,7 +1085,7 @@ page_number_entry = Entry(
 page_number_entry.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1101,7 +1102,7 @@ fixed_font_size_check_button = Checkbutton(
 fixed_font_size_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1118,7 +1119,7 @@ fixed_font_size_spinbox = Spinbox(
 fixed_font_size_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1134,7 +1135,7 @@ ocr_check_button = Checkbutton(
 ocr_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1151,7 +1152,7 @@ ocr_cpu_spinbox = Spinbox(
 ocr_cpu_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1167,7 +1168,7 @@ landscape_check_button = Checkbutton(
 landscape_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1181,7 +1182,7 @@ landscapepage_number_entry = Entry(
 landscapepage_number_entry.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1197,7 +1198,7 @@ smart_line_break_check_button = Checkbutton(
 smart_line_break_check_button.grid(
 	column=0,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1214,7 +1215,7 @@ smart_line_break_spinbox = Spinbox(
 smart_line_break_spinbox.grid(
 	column=1,
 	row=parameters_frame_row_number,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1246,20 +1247,20 @@ fast_preview_arg_name = '-rt'               # -rt /-rt 0
 ign_small_defects_arg_name = '-de'          # -de 1.0/-de 1.5
 auto_crop_arg_name = '-ac'                  # -ac-/-ac
 
-is_autostraighten_checked = BooleanVar()
-isBreakPage = BooleanVar()
-isColorOutput = BooleanVar()
-is_native_pdf_checked = BooleanVar()
-is_right_to_left_checked = BooleanVar()
-isPostGs = BooleanVar()
-isMarkedSrc = BooleanVar()
-is_reflow_text_checked = BooleanVar()
-is_erase_vertical_line_checked = BooleanVar()
-is_erase_horizontal_line_checked = BooleanVar()
-is_fast_preview_checked = BooleanVar()
-isAvoidOverlap = BooleanVar()
-isIgnSmallDefects = BooleanVar()
-is_autocrop_checked = BooleanVar()
+is_autostraighten_checked = tk.BooleanVar()
+isBreakPage = tk.BooleanVar()
+isColorOutput = tk.BooleanVar()
+is_native_pdf_checked = tk.BooleanVar()
+is_right_to_left_checked = tk.BooleanVar()
+isPostGs = tk.BooleanVar()
+isMarkedSrc = tk.BooleanVar()
+is_reflow_text_checked = tk.BooleanVar()
+is_erase_vertical_line_checked = tk.BooleanVar()
+is_erase_horizontal_line_checked = tk.BooleanVar()
+is_fast_preview_checked = tk.BooleanVar()
+isAvoidOverlap = tk.BooleanVar()
+isIgnSmallDefects = tk.BooleanVar()
+is_autocrop_checked = tk.BooleanVar()
 
 
 def on_command_auto_straighten_cb():
@@ -1399,7 +1400,7 @@ optionFrame = Labelframe(
 optionFrame.grid(
 	column=conversion_tab_right_part_column_num,
 	row=conversion_tab_right_part_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1416,22 +1417,22 @@ autostraighten_check_button = Checkbutton(
 autostraighten_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
 option_frame_row_num += 1
 
-opt2 = Checkbutton(
+break_after_source_page_check_button = Checkbutton(
 	optionFrame,
 	text='Break After Each Source Page',
 	variable=isBreakPage,
 	command=on_command_break_page_cb,
 )
-opt2.grid(
+break_after_source_page_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1446,7 +1447,7 @@ color_output_check_button = Checkbutton(
 color_output_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1461,7 +1462,7 @@ native_pdf_output_check_button = Checkbutton(
 native_pdf_output_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1476,7 +1477,7 @@ right_to_left_check_button = Checkbutton(
 right_to_left_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1491,7 +1492,7 @@ post_process_ghostscript_check_button = Checkbutton(
 post_process_ghostscript_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1506,7 +1507,7 @@ generate_markup_source_check_button = Checkbutton(
 generate_markup_source_check_button.grid(
 	column=option_frame_left_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1523,7 +1524,7 @@ reflow_text_check_button = Checkbutton(
 reflow_text_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1538,7 +1539,7 @@ erase_vline_check_button = Checkbutton(
 erase_vline_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1553,7 +1554,7 @@ erase_hline_check_button = Checkbutton(
 erase_hline_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1568,22 +1569,22 @@ fast_preview_check_button = Checkbutton(
 fast_preview_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
 option_frame_row_num += 1
 
-opt11 = Checkbutton(
+avoid_text_overlap_check_button = Checkbutton(
 	optionFrame,
 	text='Avoid Text Selection Overlap',
 	variable=isAvoidOverlap,
 	command=on_command_avoid_text_selection_overlap_cb,
 )
-opt11.grid(
+avoid_text_overlap_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1598,7 +1599,7 @@ ignore_defect_check_button = Checkbutton(
 ignore_defect_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1613,7 +1614,7 @@ autocrop_check_button = Checkbutton(
 autocrop_check_button.grid(
 	column=option_frace_right_part_col_num,
 	row=option_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1627,34 +1628,26 @@ conversion_tab_right_part_row_num += 1
 
 preview_output_arg_name = '-bmp'
 preview_image_path = './k2pdfopt_out.png'
-CURRENT_PREVIEW_PAGE_INDEX = 1
-
-STRVAR_CURRENT_PREVIEW_PAGE_NUM = StringVar()
 
 def remove_preview_image_and_clear_canvas():
 	globals.CANVAS_IMAGE_TAG
-	global STRVAR_CURRENT_PREVIEW_PAGE_NUM
+	# global STRVAR_CURRENT_PREVIEW_PAGE_NUM    # unused !
 
 	if os.path.exists(preview_image_path):
-
 		os.remove(preview_image_path)
 
-	globals.PREVIEW_IMAGE_CANVAS.delete(ALL)
+	globals.PREVIEW_IMAGE_CANVAS.delete(tk.ALL)
 	globals.CANVAS_IMAGE_TAG = None
-
-
-def load_image_to_canvas(photo_img, canvas):
-		load_image_to_canvas(globals.PREVIEW_IMAGE, globals.PREVIEW_IMAGE_CANVAS)
 
 
 def load_preview_image(img_path, preview_page_index):
 
 	if os.path.exists(img_path):
-		globals.PREVIEW_IMAGE = PhotoImage(file=img_path)
+		globals.PREVIEW_IMAGE = tk.PhotoImage(file=img_path)
 
 		globals.CANVAS_IMAGE_TAG = globals.PREVIEW_IMAGE_CANVAS.create_image(
 			(0, 0),
-			anchor=NW,
+			anchor=tk.NW,
 			image=globals.PREVIEW_IMAGE,
 			tags='preview',
 		)
@@ -1676,7 +1669,7 @@ def load_preview_image(img_path, preview_page_index):
 
 def generate_one_preview_image(preview_page_index):
 
-	if not check_pdf_conversion_done():
+	if not pdf_conversion_is_done():
 		return
 
 	if not os.path.exists(strvar_input_file_path.get().strip()):
@@ -1710,7 +1703,6 @@ def on_command_restore_default_cb():
 
 
 def on_command_abort_conversion_cb():
-
 	if globals.BACKGROUND_FUTURE is not None:
 		globals.BACKGROUND_FUTURE.cancel()
 
@@ -1719,7 +1711,7 @@ def on_command_abort_conversion_cb():
 
 
 def on_command_convert_pdf_cb():
-	if not check_pdf_conversion_done():
+	if not pdf_conversion_is_done():
 		return
 
 	pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
@@ -1727,30 +1719,26 @@ def on_command_convert_pdf_cb():
 
 
 def on_command_ten_page_up_cb():
-	global CURRENT_PREVIEW_PAGE_INDEX
-	CURRENT_PREVIEW_PAGE_INDEX -= 10
-	if CURRENT_PREVIEW_PAGE_INDEX < 1:
-		CURRENT_PREVIEW_PAGE_INDEX = 1
-	generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+	globals.CURRENT_PREVIEW_PAGE_INDEX -= 10
+	if globals.CURRENT_PREVIEW_PAGE_INDEX < 1:
+		globals.CURRENT_PREVIEW_PAGE_INDEX = 1
+	generate_one_preview_image(globals.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_page_up_cb():
-	global CURRENT_PREVIEW_PAGE_INDEX
-	if CURRENT_PREVIEW_PAGE_INDEX > 1:
-		CURRENT_PREVIEW_PAGE_INDEX -= 1
-	generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+	if globals.CURRENT_PREVIEW_PAGE_INDEX > 1:
+		globals.CURRENT_PREVIEW_PAGE_INDEX -= 1
+	generate_one_preview_image(globals.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_page_down_cb():
-	global CURRENT_PREVIEW_PAGE_INDEX
-	CURRENT_PREVIEW_PAGE_INDEX += 1
-	generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+	globals.CURRENT_PREVIEW_PAGE_INDEX += 1
+	generate_one_preview_image(globals.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_ten_page_down_cb():
-	global CURRENT_PREVIEW_PAGE_INDEX
-	CURRENT_PREVIEW_PAGE_INDEX += 10
-	generate_one_preview_image(CURRENT_PREVIEW_PAGE_INDEX)
+	globals.CURRENT_PREVIEW_PAGE_INDEX += 10
+	generate_one_preview_image(globals.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 preview_frame = Labelframe(conversion_tab, text='Preview & Convert')
@@ -1758,7 +1746,7 @@ preview_frame.grid(
 	column=conversion_tab_right_part_column_num,
 	row=conversion_tab_right_part_row_num,
 	rowspan=3,
-	sticky=N+S+E+W,
+	sticky=tk.N+tk.S+tk.E+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1769,7 +1757,7 @@ reset_button = Button(preview_frame, text='Reset Default', command=on_command_re
 reset_button.grid(
 	column=0,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1778,7 +1766,7 @@ cancel_button = Button(preview_frame, text='Abort', command=on_command_abort_con
 cancel_button.grid(
 	column=1,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1787,7 +1775,7 @@ convert_button = Button(preview_frame, text='Convert', command=on_command_conver
 convert_button.grid(
 	column=2,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1803,7 +1791,7 @@ current_preview_page_number_entry.grid(
 	column=0,
 	row=preview_frame_row_num,
 	columnspan=2,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1812,7 +1800,7 @@ preview_button = Button(preview_frame, text='Preview', command=on_command_ten_pa
 preview_button.grid(
 	column=2,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1824,7 +1812,7 @@ first_button = Button(preview_frame, text='<<', command=on_command_ten_page_up_c
 first_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1834,7 +1822,7 @@ previous_button = Button(preview_frame, text='<', command=on_command_page_up_cb)
 previous_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1844,7 +1832,7 @@ next_button = Button(preview_frame, text='>', command=on_command_page_down_cb)
 next_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1854,7 +1842,7 @@ last_button = Button(preview_frame, text='>>', command=on_command_ten_page_down_
 last_button.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
@@ -1862,22 +1850,22 @@ last_button.grid(
 preview_frame_column_num += 1
 preview_frame_row_num += 1
 
-xScrollBar = Scrollbar(preview_frame, orient=HORIZONTAL)
+xScrollBar = Scrollbar(preview_frame, orient=tk.HORIZONTAL)
 xScrollBar.grid(
 	column=0,
 	row=preview_frame_row_num+1,
 	columnspan=preview_frame_column_num,
-	sticky=E+W,
+	sticky=tk.E+tk.W,
 )
 
 yScrollBar = Scrollbar(preview_frame)
 yScrollBar.grid(
 	column=preview_frame_column_num,
 	row=preview_frame_row_num,
-	sticky=N+S,
+	sticky=tk.N+tk.S,
 )
 
-globals.PREVIEW_IMAGE_CANVAS = Canvas(
+globals.PREVIEW_IMAGE_CANVAS = tk.Canvas(
 	preview_frame,
 	bd=0,
 	xscrollcommand=xScrollBar.set,
@@ -1887,7 +1875,7 @@ globals.PREVIEW_IMAGE_CANVAS.grid(
 	column=0,
 	row=preview_frame_row_num,
 	columnspan=preview_frame_column_num,
-	sticky=N+S+E+W,
+	sticky=tk.N+tk.S+tk.E+tk.W,
 )
 
 xScrollBar.config(command=globals.PREVIEW_IMAGE_CANVAS.xview)
@@ -1916,7 +1904,6 @@ globals.PREVIEW_IMAGE_CANVAS.bind("<Shift-MouseWheel>", xscroll_canvas)
 preview_frame_row_num += 1
 
 # collect all vars
-
 bool_var_list = [
 	is_column_num_checked,
 	is_resolution_multipler_checked,
@@ -1950,10 +1937,6 @@ string_var_list = [
 	strvar_screen_unit,
 	strvar_screen_width,
 	strvar_screen_height,
-
-	STRVAR_OUTPUT_FILE_PATH,
-	STRVAR_COMMAND_ARGS,
-
 	strvar_column_num,
 	strvar_resolution_multiplier,
 	strvar_crop_page_range,
@@ -1970,6 +1953,8 @@ string_var_list = [
 	strvar_linebreak_space,
 
 	STRVAR_CURRENT_PREVIEW_PAGE_NUM,
+    STRVAR_OUTPUT_FILE_PATH,
+	STRVAR_COMMAND_ARGS,
 ]
 
 combo_box_list = [
@@ -2161,21 +2146,21 @@ clear_button = Button(stdout_frame, text='Clear', command=on_command_clear_log_c
 clear_button.grid(
 	column=0,
 	row=0,
-	sticky=N+W,
+	sticky=tk.N+tk.W,
 	pady=0,
 	padx=5,
 )
 
-STDOUT_TEXT = scrltxt.ScrolledText(stdout_frame, state=DISABLED, wrap='word')
-STDOUT_TEXT.grid(column=0, row=1, sticky=N+S+E+W)
+STDOUT_TEXT = scrltxt.ScrolledText(stdout_frame, state=tk.DISABLED, wrap='word')
+STDOUT_TEXT.grid(column=0, row=1, sticky=tk.N+tk.S+tk.E+tk.W)
 stdout_frame.columnconfigure(0, weight=1)
 stdout_frame.rowconfigure(1, weight=1)
 # STDOUT_TEXT.pack(expand=1, fill='both')
 
+
 # initialization
-
-
 initialize()
+
 
 # start TclTk loop
 root.mainloop()
