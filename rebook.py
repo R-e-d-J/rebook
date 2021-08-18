@@ -43,10 +43,11 @@ def remove_command_argument(arg_key):
 
 
 def generate_command_argument_string():
-	""" 
-		This function transforms the global dictionary `K2PDFOPT_CMD_ARGS` into a command line.
+	""" Transforms the global dictionary `K2PDFOPT_CMD_ARGS` into a command line arguments list.
+
+		Remarks:	at the end, the chosen argument are completed by `mandatory` arguments
+					('-a- -ui- -x').
 	"""
-	must_have_args = '-a- -ui- -x'
 
 	device_arg = global_var.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
 	if device_arg is None:
@@ -66,7 +67,7 @@ def generate_command_argument_string():
 		global_var.K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
 		global_var.K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
 
-	arg_list.append(must_have_args)
+	arg_list.append('-a- -ui- -x')
 	log_string('Generate Argument List: ' + str(arg_list))
 	cmd_arg_str = ' '.join(arg_list)
 	return cmd_arg_str
