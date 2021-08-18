@@ -3,74 +3,64 @@
 from threading import Thread
 import tkinter as tk
 import tkinter.ttk as ttk
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.scrolledtext as scrltxt
+import tkinter.filedialog as filedialog
+import tkinter.messagebox as messagebox
+import tkinter.scrolledtext as scrolledtext
 import asyncio
-# import glob     # a supprimer... ?
 import json
 import os
-# import subprocess as sub     # a supprimer... ?
 
 import global_var
+import tools
 
 
 # https://willus.com/k2pdfopt/help/
-def check_page_nums(input_pages):
-	page_num_list = re.split(',|-|o|e', input_pages)
-
-	for page_num in page_num_list:
-		if len(page_num) > 0 and not page_num.isdigit():
-			return False
-	return True
-
 
 # ############################################################################################### #
 # Generating k2pdfopt command line
 # ############################################################################################### #
 def update_cmd_arg_entry_strvar():
-	global STRVAR_COMMAND_ARGS
-	STRVAR_COMMAND_ARGS.set(generate_command_argument_string())
+    global STRVAR_COMMAND_ARGS
+    STRVAR_COMMAND_ARGS.set(generate_command_argument_string())
 
 
 def add_or_update_command_argument(arg_key, arg_value):
-	global_var.K2PDFOPT_CMD_ARGS[arg_key] = arg_value
+    global_var.K2PDFOPT_CMD_ARGS[arg_key] = arg_value
 
 
 def remove_command_argument(arg_key):
-	previous = global_var.K2PDFOPT_CMD_ARGS.pop(arg_key, None)
-	return previous
+    global_var.K2PDFOPT_CMD_ARGS.pop(arg_key, None)
 
 
 def generate_command_argument_string():
-	""" Transforms the global dictionary `K2PDFOPT_CMD_ARGS` into a command line arguments list.
+    """ Transforms the global dictionary `K2PDFOPT_CMD_ARGS` into a command line arguments list.
 
-		Remarks:	at the end, the chosen argument are completed by `mandatory` arguments
-					('-a- -ui- -x').
-	"""
+        Remarks: at the end, the chosen argument are completed by `mandatory` arguments
+                 ('-a- -ui- -x').
+    """
 
-	device_arg = global_var.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
-	if device_arg is None:
-		width_arg = global_var.K2PDFOPT_CMD_ARGS.pop(width_arg_name)
-		height_arg = global_var.K2PDFOPT_CMD_ARGS.pop(height_arg_name)
+    device_arg = global_var.K2PDFOPT_CMD_ARGS.pop(device_arg_name, None)
+    if device_arg is None:
+        width_arg = global_var.K2PDFOPT_CMD_ARGS.pop(width_arg_name)
+        height_arg = global_var.K2PDFOPT_CMD_ARGS.pop(height_arg_name)
 
-	mode_arg = global_var.K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
-	arg_list = [mode_arg] + list(global_var.K2PDFOPT_CMD_ARGS.values())
-	global_var.K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
+    mode_arg = global_var.K2PDFOPT_CMD_ARGS.pop(conversion_mode_arg_name)
+    arg_list = [mode_arg] + list(global_var.K2PDFOPT_CMD_ARGS.values())
+    global_var.K2PDFOPT_CMD_ARGS[conversion_mode_arg_name] = mode_arg
 
-	if device_arg is not None:
-		arg_list.append(device_arg)
-		global_var.K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
-	else:
-		arg_list.append(width_arg)
-		arg_list.append(height_arg)
-		global_var.K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
-		global_var.K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
+    if device_arg is not None:
+        arg_list.append(device_arg)
+        global_var.K2PDFOPT_CMD_ARGS[device_arg_name] = device_arg
+    else:
+        arg_list.append(width_arg)
+        arg_list.append(height_arg)
+        global_var.K2PDFOPT_CMD_ARGS[width_arg_name] = width_arg
+        global_var.K2PDFOPT_CMD_ARGS[height_arg_name] = height_arg
 
-	arg_list.append('-a- -ui- -x')
-	log_string('Generate Argument List: ' + str(arg_list))
-	cmd_arg_str = ' '.join(arg_list)
-	return cmd_arg_str
+    arg_list.append('-a- -ui- -x')
+    log_string('Generate Argument List: ' + str(arg_list))
+    cmd_arg_str = ' '.join(arg_list)
+    return cmd_arg_str
 
 
 # def generate_command_argument_string():
@@ -136,15 +126,15 @@ menu_bar = tk.Menu(root)
 root['menu'] = menu_bar
 
 def on_command_about_box_cb():
-	about_message = \
-		'''rebook
+    about_message = \
+        '''rebook
 
 TclTk GUI for k2pdfopt by Pu Wang
 
 The source code can be found at:
 http://github.com/pwang7/rebook/rebook.py'''
 
-	tkinter.messagebox.showinfo(message=about_message)
+    messagebox.showinfo(message=about_message)
 
 menu_file = tk.Menu(menu_bar)
 menu_bar.add_cascade(menu=menu_file, label='File')
@@ -153,90 +143,89 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 # root.createcommand('tkAboutDialog', on_command_about_box_cb)
 # root.createcommand('::tk::mac::ShowHelp', on_command_about_box_cb)
 
+
 def check_k2pdfopt_path_exists():
-	if not os.path.exists(k2pdfopt_path):
-		tkinter.messagebox.showerror(
-			message='Failed to find k2pdfopt, ' +
-			'please put it under the same directory ' +
-			'as rebook and then restart.'
-		)
-		quit()
+    if not os.path.exists(k2pdfopt_path):
+        messagebox.showerror(
+            message='Failed to find k2pdfopt, ' +
+            'please put it under the same directory ' +
+            'as rebook and then restart.'
+        )
+        quit()
 
 
 def load_custom_preset():
-	# global STRVAR_OUTPUT_FILE_PATH    # unused
+    if os.path.exists(custom_preset_file_path):
+        with open(custom_preset_file_path) as preset_file:
+            dict_to_load = json.load(preset_file)
 
-	if os.path.exists(custom_preset_file_path):
-		with open(custom_preset_file_path) as preset_file:
-			dict_to_load = json.load(preset_file)
+            if dict_to_load:
+                log_string('Load Preset: ' + str(dict_to_load))
+                initialize_vars(dict_to_load)
+                return True
 
-			if dict_to_load:
-				log_string('Load Preset: ' + str(dict_to_load))
-				initialize_vars(dict_to_load)
-				return True
-
-	return False
+    return False
 
 
 def log_string(str_line):
-	global STDOUT_TEXT
+    global STDOUT_TEXT
 
-	log_content = str_line.strip()
+    log_content = str_line.strip()
 
-	if len(log_content) > 0:
-		STDOUT_TEXT.config(state=tk.NORMAL)
-		print('=== ' + log_content)  # TODO: remove print
-		STDOUT_TEXT.insert(tk.END, log_content + '\n')
-		STDOUT_TEXT.config(state=tk.DISABLED)
+    if len(log_content) > 0:
+        STDOUT_TEXT.config(state=tk.NORMAL)
+        print('=== ' + log_content)  # TODO: remove print
+        STDOUT_TEXT.insert(tk.END, log_content + '\n')
+        STDOUT_TEXT.config(state=tk.DISABLED)
 
 
 def clear_logs():
-	STDOUT_TEXT.config(state=tk.NORMAL)
-	STDOUT_TEXT.delete(1.0, tk.END)
-	STDOUT_TEXT.config(state=tk.DISABLED)
+    STDOUT_TEXT.config(state=tk.NORMAL)
+    STDOUT_TEXT.delete(1.0, tk.END)
+    STDOUT_TEXT.config(state=tk.DISABLED)
 
 
 def initialize_vars(dict_vars):
 
-	for k, v in dict_vars.items():
-		for i in range(len(v)):
-			arg_var_map[k][i].set(v[i])
+    for k, v in dict_vars.items():
+        for i in range(len(v)):
+            arg_var_map[k][i].set(v[i])
 
-	for cb_func in arg_cb_map.values():
-		if cb_func is not None:
-			cb_func()
+    for cb_func in arg_cb_map.values():
+        if cb_func is not None:
+            cb_func()
 
-	update_cmd_arg_entry_strvar()	# must be after loading preset values
+    update_cmd_arg_entry_strvar()	# must be after loading preset values
 
 
 def restore_default_values():
-	"""
-		Clear logs, preview and reset all the default values
+    """
+        Clear logs, preview and reset all the default values
 
-		THINKING :
-		1. Not sure the next 3 for loop are necessary
-		2. Why erase input and output file path ?
-		3. Why not restore with the custom preset ?
-			or have another button to reload custom preset ?
-	"""
-	clear_logs()
-	remove_preview_image_and_clear_canvas()
+        THINKING :
+        1. Not sure the next 3 for loop are necessary
+        2. Why erase input and output file path ?
+        3. Why not restore with the custom preset ?
+            or have another button to reload custom preset ?
+    """
+    clear_logs()
+    remove_preview_image_and_clear_canvas()
 
-	for sv in string_var_list:
-		sv.set('')
+    for sv in string_var_list:
+        sv.set('')
 
-	for bv in bool_var_list:
-		bv.set(False)
+    for bv in bool_var_list:
+        bv.set(False)
 
-	for b in combo_box_list:
-		b.current(0)
+    for b in combo_box_list:
+        b.current(0)
 
-	initialize_vars(default_var_map)
+    initialize_vars(default_var_map)
 
 
 def start_loop(loop):
-	asyncio.set_event_loop(loop)
-	loop.run_forever()
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
 
 
 thread_loop = asyncio.get_event_loop()
@@ -244,141 +233,141 @@ run_loop_thread = Thread(target=start_loop, args=(thread_loop,), daemon=True)
 run_loop_thread.start()
 
 device_argument_map =   {
-							0: 'k2',
-							1: 'dx',
-							2: 'kpw',
-							3: 'kp2',
-							4: 'kp3',
-							5: 'kv',
-							6: 'ko2',
-							7: 'pb2',
-							8: 'nookst',
-							9: 'kbt',
-							10: 'kbg',
-							11: 'kghd',
-							12: 'kghdfs',
-							13: 'kbm',
-							14: 'kba',
-							15: 'kbhd',
-							16: 'kbh2o',
-							17: 'kbh2ofs',
-							18: 'kao',
-							19: 'nex7',
-							20: None,
-						}
+                            0: 'k2',
+                            1: 'dx',
+                            2: 'kpw',
+                            3: 'kp2',
+                            4: 'kp3',
+                            5: 'kv',
+                            6: 'ko2',
+                            7: 'pb2',
+                            8: 'nookst',
+                            9: 'kbt',
+                            10: 'kbg',
+                            11: 'kghd',
+                            12: 'kghdfs',
+                            13: 'kbm',
+                            14: 'kba',
+                            15: 'kbhd',
+                            16: 'kbh2o',
+                            17: 'kbh2ofs',
+                            18: 'kao',
+                            19: 'nex7',
+                            20: None,
+                        }
 
 device_choice_map = {
-						0: 'Kindle 1-5',
-						1: 'Kindle DX',
-						2: 'Kindle Paperwhite',
-						3: 'Kindle Paperwhite 2',
-						4: 'Kindle Paperwhite 3',
-						5: 'Kindle Voyage/PW3+/Oasis',
-						6: 'Kindle Oasis 2',
-						7: 'Pocketbook Basic 2',
-						8: 'Nook Simple Touch',
-						9: 'Kobo Touch',
-						10: 'Kobo Glo',
-						11: 'Kobo Glo HD',
-						12: 'Kobo Glo HD Full Screen',
-						13: 'Kobo Mini',
-						14: 'Kobo Aura',
-						15: 'Kobo Aura HD',
-						16: 'Kobo H2O',
-						17: 'Kobo H2O Full Screen',
-						18: 'Kobo Aura One',
-						19: 'Nexus 7',
-						20: 'Other (specify width & height)',
-					}
+                        0: 'Kindle 1-5',
+                        1: 'Kindle DX',
+                        2: 'Kindle Paperwhite',
+                        3: 'Kindle Paperwhite 2',
+                        4: 'Kindle Paperwhite 3',
+                        5: 'Kindle Voyage/PW3+/Oasis',
+                        6: 'Kindle Oasis 2',
+                        7: 'Pocketbook Basic 2',
+                        8: 'Nook Simple Touch',
+                        9: 'Kobo Touch',
+                        10: 'Kobo Glo',
+                        11: 'Kobo Glo HD',
+                        12: 'Kobo Glo HD Full Screen',
+                        13: 'Kobo Mini',
+                        14: 'Kobo Aura',
+                        15: 'Kobo Aura HD',
+                        16: 'Kobo H2O',
+                        17: 'Kobo H2O Full Screen',
+                        18: 'Kobo Aura One',
+                        19: 'Nexus 7',
+                        20: 'Other (specify width & height)',
+                    }
 
 mode_argument_map = {
-						0: 'def',
-						1: 'copy',
-						2: 'fp',
-						3: 'fw',
-						4: '2col',
-						5: 'tm',
-						6: 'crop',
-						7: 'concat',
-					}
+                        0: 'def',
+                        1: 'copy',
+                        2: 'fp',
+                        3: 'fw',
+                        4: '2col',
+                        5: 'tm',
+                        6: 'crop',
+                        7: 'concat',
+                    }
 
 mode_choice_map =   {
-						0: 'Default',
-						1: 'Copy',
-						2: 'Fit Page',
-						3: 'Fit Width',
-						4: '2 Columns',
-						5: 'Trim Margins',
-						6: 'Crop',
-						7: 'Concat',
-					}
+                        0: 'Default',
+                        1: 'Copy',
+                        2: 'Fit Page',
+                        3: 'Fit Width',
+                        4: '2 Columns',
+                        5: 'Trim Margins',
+                        6: 'Crop',
+                        7: 'Concat',
+                    }
 
 unit_argument_map = {
-						0: 'in',
-						1: 'cm',
-						2: 's',
-						3: 't',
-						4: 'p',
-						5: 'x',
-					}
+                        0: 'in',
+                        1: 'cm',
+                        2: 's',
+                        3: 't',
+                        4: 'p',
+                        5: 'x',
+                    }
 
 unit_choice_map =   {
-						0: 'Inches',
-						1: 'Centimeters',
-						2: 'Source Page Size',
-						3: 'Trimmed Source Region Size',
-						4: 'Pixels',
-						5: 'Relative to the OCR Text Layer',
-					}
+                        0: 'Inches',
+                        1: 'Centimeters',
+                        2: 'Source Page Size',
+                        3: 'Trimmed Source Region Size',
+                        4: 'Pixels',
+                        5: 'Relative to the OCR Text Layer',
+                    }
 
 
 def convert_pdf_file(output_arg):
-	check_k2pdfopt_path_exists()
+    check_k2pdfopt_path_exists()
 
-	async def async_run_cmd_and_log(exec_cmd):
+    async def async_run_cmd_and_log(exec_cmd):
 
-		executed = exec_cmd.strip()
+        executed = exec_cmd.strip()
 
-		def log_bytes(log_btyes):
-			log_string(log_btyes.decode('utf-8'))
+        def log_bytes(log_btyes):
+            log_string(log_btyes.decode('utf-8'))
 
-		log_string(executed)
+        log_string(executed)
 
-		p = await asyncio.create_subprocess_shell(
-			executed,
-			stdout=asyncio.subprocess.PIPE,
-			stderr=asyncio.subprocess.PIPE,
-		)
-		global_var.BACKGROUND_PROCESS = p
+        p = await asyncio.create_subprocess_shell(
+            executed,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        global_var.BACKGROUND_PROCESS = p
 
-		while True:
-			line = await p.stdout.readline()
-			log_bytes(line)
+        while True:
+            line = await p.stdout.readline()
+            log_bytes(line)
 
-			if not line:
-				break
-			if line == '' and p.returncode is not None:
-				break
+            if not line:
+                break
+            if line == '' and p.returncode is not None:
+                break
 
-	input_pdf_path = strvar_input_file_path.get().strip()
+    input_pdf_path = strvar_input_file_path.get().strip()
 
-	# in case the file name contains space
-	if ' ' in input_pdf_path:
-		input_pdf_path = '\"' + input_pdf_path + '\"'
+    # in case the file name contains space
+    if ' ' in input_pdf_path:
+        input_pdf_path = '\"' + input_pdf_path + '\"'
 
-	executed = ' '.join([k2pdfopt_path, input_pdf_path, output_arg, generate_command_argument_string()])
-	future = asyncio.run_coroutine_threadsafe(async_run_cmd_and_log(executed), thread_loop)
+    executed = ' '.join([k2pdfopt_path, input_pdf_path, output_arg, generate_command_argument_string()])
+    future = asyncio.run_coroutine_threadsafe(async_run_cmd_and_log(executed), thread_loop)
 
-	return future
+    return future
 
 
 def pdf_conversion_is_done():
-	if (global_var.BACKGROUND_FUTURE is None) or (global_var.BACKGROUND_FUTURE.done()):
-		if ((global_var.BACKGROUND_PROCESS is None) or (global_var.BACKGROUND_PROCESS.returncode is not None)):
-			return True
+    if (global_var.BACKGROUND_FUTURE is None) or (global_var.BACKGROUND_FUTURE.done()):
+        if ((global_var.BACKGROUND_PROCESS is None) or (global_var.BACKGROUND_PROCESS.returncode is not None)):
+            return True
 
-	tkinter.messagebox.showerror(message='Background Conversion Not Finished Yet! Please Wait...')
-	return False
+    messagebox.showerror(message='Background Conversion Not Finished Yet! Please Wait...')
+    return False
 
 
 # ############################################################################################### #
@@ -409,91 +398,91 @@ strvar_input_file_path = tk.StringVar()
 strvar_conversion_mode = tk.StringVar()
 
 def on_command_open_pdf_file_cb():
-	supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
+    supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
 
-	filename = tkinter.filedialog.askopenfilename(
-		parent=root,
-		filetypes=supported_formats,
-		title='Select your file',
-	)
+    filename = filedialog.askopenfilename(
+        parent=root,
+        filetypes=supported_formats,
+        title='Select your file',
+    )
 
-	if filename is not None and len(filename.strip()) > 0:
-		strvar_input_file_path.set(filename)
-		(base_path, file_ext) = os.path.splitext(filename)
-		STRVAR_OUTPUT_FILE_PATH.set(base_path + output_pdf_suffix)
+    if filename is not None and len(filename.strip()) > 0:
+        strvar_input_file_path.set(filename)
+        (base_path, file_ext) = os.path.splitext(filename)
+        STRVAR_OUTPUT_FILE_PATH.set(base_path + output_pdf_suffix)
 
 
 def update_device_unit_width_height():
-	if device_combobox.current() != 20:  # non-other type
-		device_type = device_argument_map[device_combobox.current()]
-		arg = device_arg_name + ' ' + device_type
-		add_or_update_command_argument(device_arg_name, arg)
-		remove_command_argument(width_arg_name)
-		remove_command_argument(height_arg_name)
-	else:
-		screen_unit = unit_argument_map[unit_combobox.current()]
+    if device_combobox.current() != 20:  # non-other type
+        device_type = device_argument_map[device_combobox.current()]
+        arg = device_arg_name + ' ' + device_type
+        add_or_update_command_argument(device_arg_name, arg)
+        remove_command_argument(width_arg_name)
+        remove_command_argument(height_arg_name)
+    else:
+        screen_unit = unit_argument_map[unit_combobox.current()]
 
-		width_arg = (width_arg_name + ' ' + strvar_screen_width.get().strip() + screen_unit)
-		add_or_update_command_argument(width_arg_name, width_arg)
+        width_arg = (width_arg_name + ' ' + strvar_screen_width.get().strip() + screen_unit)
+        add_or_update_command_argument(width_arg_name, width_arg)
 
-		height_arg = (height_arg_name + ' ' + strvar_screen_height.get().strip() + screen_unit)
-		add_or_update_command_argument(height_arg_name, height_arg)
+        height_arg = (height_arg_name + ' ' + strvar_screen_height.get().strip() + screen_unit)
+        add_or_update_command_argument(height_arg_name, height_arg)
 
-		remove_command_argument(device_arg_name)
+        remove_command_argument(device_arg_name)
 
 
 def on_bind_event_device_unit_cb(e=None):
-	update_device_unit_width_height()
+    update_device_unit_width_height()
 
 
 def on_command_width_height_cb():
-	update_device_unit_width_height()
+    update_device_unit_width_height()
 
 
 def on_bind_event_mode_cb(e=None):
-	conversion_mode = mode_argument_map[mode_combobox.current()]
-	arg = (conversion_mode_arg_name + ' ' + conversion_mode)
-	add_or_update_command_argument(conversion_mode_arg_name, arg)
+    conversion_mode = mode_argument_map[mode_combobox.current()]
+    arg = (conversion_mode_arg_name + ' ' + conversion_mode)
+    add_or_update_command_argument(conversion_mode_arg_name, arg)
 
 
 required_input_frame = ttk.Labelframe(conversion_tab, text='Required Inputs')
 required_input_frame.grid(
-	column=conversion_tab_left_part_column_num,
-	row=conversion_tab_left_part_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num = 0
 
 input_path_entry = ttk.Entry(required_input_frame, state='readonly', textvariable=strvar_input_file_path)
 input_path_entry.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 open_button = ttk.Button(required_input_frame, text='Choose a File', command=on_command_open_pdf_file_cb)
 open_button.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num += 1
 
 device_label = ttk.Label(required_input_frame, text='Device')
 device_label.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 device_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_device)
@@ -501,22 +490,22 @@ device_combobox['values'] = list(device_choice_map.values())
 device_combobox.current(0)
 device_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
 device_combobox.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num += 1
 
 unit_label = ttk.Label(required_input_frame, text='Unit')
 unit_label.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 unit_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_screen_unit)
@@ -524,77 +513,77 @@ unit_combobox['values'] = list(unit_choice_map.values())
 unit_combobox.current(0)
 unit_combobox.bind('<<ComboboxSelected>>', on_bind_event_device_unit_cb)
 unit_combobox.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num += 1
 
 width_label = ttk.Label(required_input_frame, text='Width')
 width_label.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 width_spinbox = ttk.Spinbox(
-	required_input_frame,
-	from_=0,
-	to=10000,
-	increment=0.1,
-	state='readonly',
-	textvariable=strvar_screen_width,
-	command=on_command_width_height_cb,
+    required_input_frame,
+    from_=0,
+    to=10000,
+    increment=0.1,
+    state='readonly',
+    textvariable=strvar_screen_width,
+    command=on_command_width_height_cb,
 )
 width_spinbox.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num += 1
 
 height_label = ttk.Label(required_input_frame, text='Height')
 height_label.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 height_spinbox = ttk.Spinbox(
-	required_input_frame,
-	from_=0,
-	to=10000,
-	increment=0.1,
-	state='readonly',
-	textvariable=strvar_screen_height,
-	command=on_command_width_height_cb,
+    required_input_frame,
+    from_=0,
+    to=10000,
+    increment=0.1,
+    state='readonly',
+    textvariable=strvar_screen_height,
+    command=on_command_width_height_cb,
 )
 height_spinbox.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 required_frame_row_num += 1
 
 conversion_mode_label = ttk.Label(required_input_frame, text='Conversion Mode')
 conversion_mode_label.grid(
-	column=0,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 mode_combobox = ttk.Combobox(required_input_frame, state='readonly', textvariable=strvar_conversion_mode)
@@ -602,11 +591,11 @@ mode_combobox['values'] = list(mode_choice_map.values())
 mode_combobox.current(0)
 mode_combobox.bind('<<ComboboxSelected>>', on_bind_event_mode_cb)
 mode_combobox.grid(
-	column=1,
-	row=required_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=required_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 
@@ -617,25 +606,25 @@ conversion_tab_left_part_row_num += 1
 
 
 def on_command_save_cb():
-	with open(custom_preset_file_path, 'w') as preset_file:
-		dict_to_save = {}
-		for k, v in arg_var_map.items():
-			dict_to_save[k] = [var.get() for var in v]
+    with open(custom_preset_file_path, 'w') as preset_file:
+        dict_to_save = {}
+        for k, v in arg_var_map.items():
+            dict_to_save[k] = [var.get() for var in v]
 
-		json.dump(dict_to_save, preset_file)
+        json.dump(dict_to_save, preset_file)
 
 
 def on_bind_event_cmd_args_cb(e=None):
-	update_cmd_arg_entry_strvar()
+    update_cmd_arg_entry_strvar()
 
 
 information_frame = ttk.Labelframe(conversion_tab, text='Related Informations')
 information_frame.grid(
-	column=conversion_tab_left_part_column_num,
-	row=conversion_tab_left_part_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 save_label = ttk.Label(information_frame, text='Save Current Setting as Preset')
@@ -699,554 +688,554 @@ strvar_linebreak_space = tk.StringVar()
 
 
 def on_command_column_num_cb():
-	if is_column_num_checked.get():
-		arg = (column_num_arg_name + ' ' + strvar_column_num.get().strip())
-		add_or_update_command_argument(column_num_arg_name, arg)
-	else:
-		remove_command_argument(column_num_arg_name)
+    if is_column_num_checked.get():
+        arg = (column_num_arg_name + ' ' + strvar_column_num.get().strip())
+        add_or_update_command_argument(column_num_arg_name, arg)
+    else:
+        remove_command_argument(column_num_arg_name)
 
 
 def on_command_resolution_multipler_cb():
-	if is_resolution_multipler_checked.get():
-		arg = (
-			resolution_multiplier_arg_name + ' ' +
-			strvar_resolution_multiplier.get().strip()
-		)
-		add_or_update_command_argument(resolution_multiplier_arg_name, arg)
-	else:
-		remove_command_argument(resolution_multiplier_arg_name)
+    if is_resolution_multipler_checked.get():
+        arg = (
+            resolution_multiplier_arg_name + ' ' +
+            strvar_resolution_multiplier.get().strip()
+        )
+        add_or_update_command_argument(resolution_multiplier_arg_name, arg)
+    else:
+        remove_command_argument(resolution_multiplier_arg_name)
 
 
 def on_command_and_validate_crop_margin_cb():
-	if (len(strvar_crop_page_range.get().strip()) > 0 and
-			not check_page_nums(strvar_crop_page_range.get().strip())):
-		remove_command_argument(crop_margin_arg_name)
-		strvar_crop_page_range.set('')
+    if (len(strvar_crop_page_range.get().strip()) > 0 and
+            not tools.check_page_nums(strvar_crop_page_range.get().strip())):
+        remove_command_argument(crop_margin_arg_name)
+        strvar_crop_page_range.set('')
 
-		tkinter.messagebox.showerror(
-			message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
-		)
+        messagebox.showerror(
+            message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
+        )
 
-		return False
+        return False
 
-	if is_crop_margin_checked.get():
-		page_range_arg = strvar_crop_page_range.get().strip()
-		margin_args = [
-			strvar_left_margin.get(),
-			strvar_top_margin.get(),
-			strvarRightMargin.get(),
-			strvarBottomMargin.get(),
-		]
-		arg = (
-			# no space between -cbox and page range
-			crop_margin_arg_name + page_range_arg + ' '
-			+ 'in,' . join(map(str.strip, margin_args)) + 'in'
-		)
-		add_or_update_command_argument(crop_margin_arg_name, arg)
-	else:
-		remove_command_argument(crop_margin_arg_name)
+    if is_crop_margin_checked.get():
+        page_range_arg = strvar_crop_page_range.get().strip()
+        margin_args = [
+            strvar_left_margin.get(),
+            strvar_top_margin.get(),
+            strvarRightMargin.get(),
+            strvarBottomMargin.get(),
+        ]
+        arg = (
+            # no space between -cbox and page range
+            crop_margin_arg_name + page_range_arg + ' '
+            + 'in,' . join(map(str.strip, margin_args)) + 'in'
+        )
+        add_or_update_command_argument(crop_margin_arg_name, arg)
+    else:
+        remove_command_argument(crop_margin_arg_name)
 
 
 def on_command_dpi_cb():
-	if is_dpi_checked.get():
-		arg = dpi_arg_name + ' ' + strvar_dpi.get().strip()
-		add_or_update_command_argument(dpi_arg_name, arg)
-	else:
-		remove_command_argument(dpi_arg_name)
+    if is_dpi_checked.get():
+        arg = dpi_arg_name + ' ' + strvar_dpi.get().strip()
+        add_or_update_command_argument(dpi_arg_name, arg)
+    else:
+        remove_command_argument(dpi_arg_name)
 
 
 def validate_and_update_page_nums():
-	if (len(strvar_page_numbers.get().strip()) > 0 and
-			not check_page_nums(strvar_page_numbers.get().strip())):
+    if (len(strvar_page_numbers.get().strip()) > 0 and
+            not tools.check_page_nums(strvar_page_numbers.get().strip())):
 
-		remove_command_argument(page_num_arg_name)
-		strvar_page_numbers.set('')
-		tkinter.messagebox.showerror(
-			message='Invalide Page Argument. It should be like: 2-5e,3-7o,9-'
-		)
-		return False
+        remove_command_argument(page_num_arg_name)
+        strvar_page_numbers.set('')
+        messagebox.showerror(
+            message='Invalide Page Argument. It should be like: 2-5e,3-7o,9-'
+        )
+        return False
 
-	if len(strvar_page_numbers.get().strip()) > 0:
-		arg = page_num_arg_name + ' ' + strvar_page_numbers.get().strip()
-		add_or_update_command_argument(page_num_arg_name, arg)
-	else:
-		remove_command_argument(page_num_arg_name)
+    if len(strvar_page_numbers.get().strip()) > 0:
+        arg = page_num_arg_name + ' ' + strvar_page_numbers.get().strip()
+        add_or_update_command_argument(page_num_arg_name, arg)
+    else:
+        remove_command_argument(page_num_arg_name)
 
-	return True
+    return True
 
 
 def on_validate_page_nums_cb():
-	validate_and_update_page_nums()
+    validate_and_update_page_nums()
 
 
 def on_command_fixed_font_size_cb():
-	if is_fixed_font_size_checked.get():
-		arg = (fixed_font_size_arg_name + ' ' + strvar_fixed_font_size.get().strip())
-		add_or_update_command_argument(fixed_font_size_arg_name, arg)
-	else:
-		remove_command_argument(fixed_font_size_arg_name)
+    if is_fixed_font_size_checked.get():
+        arg = (fixed_font_size_arg_name + ' ' + strvar_fixed_font_size.get().strip())
+        add_or_update_command_argument(fixed_font_size_arg_name, arg)
+    else:
+        remove_command_argument(fixed_font_size_arg_name)
 
 
 def on_command_ocr_and_cpu_cb():
-	if is_ocr_cpu_limitation_checked.get():
-		is_native_pdf_checked.set(False)  # ocr conflicts with native pdf
-		remove_command_argument(native_pdf_arg_name)
-		ocr_arg = ocr_arg_name
-		add_or_update_command_argument(ocr_arg_name, ocr_arg)
+    if is_ocr_cpu_limitation_checked.get():
+        is_native_pdf_checked.set(False)  # ocr conflicts with native pdf
+        remove_command_argument(native_pdf_arg_name)
+        ocr_arg = ocr_arg_name
+        add_or_update_command_argument(ocr_arg_name, ocr_arg)
 
-		# negtive integer means percentage
-		ocr_cpu_arg = (ocr_cpu_arg_name + '-' + strvar_ocr_cpu_percentage.get().strip())
-		add_or_update_command_argument(ocr_cpu_arg_name, ocr_cpu_arg)
-	else:
-		remove_command_argument(ocr_arg_name)
-		remove_command_argument(ocr_cpu_arg_name)
+        # negtive integer means percentage
+        ocr_cpu_arg = (ocr_cpu_arg_name + '-' + strvar_ocr_cpu_percentage.get().strip())
+        add_or_update_command_argument(ocr_cpu_arg_name, ocr_cpu_arg)
+    else:
+        remove_command_argument(ocr_arg_name)
+        remove_command_argument(ocr_cpu_arg_name)
 
 
 def on_command_and_validate_landscape_cb():
-	if (len(strvar_landscape_pages.get().strip()) > 0 and
-			not check_page_nums(strvar_landscape_pages.get().strip())):
+    if (len(strvar_landscape_pages.get().strip()) > 0 and
+        not tools.check_page_nums(strvar_landscape_pages.get().strip())):
 
-		remove_command_argument(landscape_arg_name)
-		strvar_landscape_pages.set('')
-		tkinter.messagebox.showerror(message='Invalide `Output in Landscape` Page Argument!')
+        remove_command_argument(landscape_arg_name)
+        strvar_landscape_pages.set('')
+        messagebox.showerror(message='Invalide `Output in Landscape` Page Argument!')
 
-		return False
+        return False
 
-	if is_landscape_checked.get():
-		arg = '-ls'
-		if len(strvar_landscape_pages.get().strip()) > 0:
-			# no space between -ls and page numbers
-			arg += strvar_landscape_pages.get()
+    if is_landscape_checked.get():
+        arg = '-ls'
+        if len(strvar_landscape_pages.get().strip()) > 0:
+            # no space between -ls and page numbers
+            arg += strvar_landscape_pages.get()
 
-		add_or_update_command_argument(landscape_arg_name, arg.strip())
-	else:
-		remove_command_argument(landscape_arg_name)
+        add_or_update_command_argument(landscape_arg_name, arg.strip())
+    else:
+        remove_command_argument(landscape_arg_name)
 
-	return True
+    return True
 
 
 def on_command_line_break_cb():
-	if is_smart_linebreak_checked.get():
-		arg = (linebreak_arg_name + ' ' + strvar_linebreak_space.get().strip())
-		add_or_update_command_argument(linebreak_arg_name, arg)
-	else:
-		remove_command_argument(linebreak_arg_name)
+    if is_smart_linebreak_checked.get():
+        arg = (linebreak_arg_name + ' ' + strvar_linebreak_space.get().strip())
+        add_or_update_command_argument(linebreak_arg_name, arg)
+    else:
+        remove_command_argument(linebreak_arg_name)
 
 
 parameters_frame = ttk.Labelframe(conversion_tab, text='Parameters')
 parameters_frame.grid(
-	column=conversion_tab_left_part_column_num,
-	row=conversion_tab_left_part_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=conversion_tab_left_part_column_num,
+    row=conversion_tab_left_part_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number = 0
 
 max_column_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Maximum Columns',
-	variable=is_column_num_checked,
-	command=on_command_column_num_cb,
+    parameters_frame,
+    text='Maximum Columns',
+    variable=is_column_num_checked,
+    command=on_command_column_num_cb,
 )
 max_column_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 max_column_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=1,
-	to=10,
-	increment=1,
-	state='readonly',
-	textvariable=strvar_column_num,
-	command=on_command_column_num_cb,
+    parameters_frame,
+    from_=1,
+    to=10,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_column_num,
+    command=on_command_column_num_cb,
 )
 max_column_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 resolution_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Document Resolution Factor',
-	variable=is_resolution_multipler_checked,
-	command=on_command_resolution_multipler_cb,
+    parameters_frame,
+    text='Document Resolution Factor',
+    variable=is_resolution_multipler_checked,
+    command=on_command_resolution_multipler_cb,
 )
 resolution_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 resolution_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0.1,
-	to=10.0,
-	increment=0.1,
-	state='readonly',
-	textvariable=strvar_resolution_multiplier,
-	command=on_command_resolution_multipler_cb,
+    parameters_frame,
+    from_=0.1,
+    to=10.0,
+    increment=0.1,
+    state='readonly',
+    textvariable=strvar_resolution_multiplier,
+    command=on_command_resolution_multipler_cb,
 )
 resolution_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 margin_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Crop Margins (in)',
-	variable=is_crop_margin_checked,
-	command=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    text='Crop Margins (in)',
+    variable=is_crop_margin_checked,
+    command=on_command_and_validate_crop_margin_cb,
 )
 margin_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 crop_page_range_label = ttk.Label(parameters_frame, text='      Page Range')
 crop_page_range_label.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 crop_page_range_entry = ttk.Entry(
-	parameters_frame,
-	textvariable=strvar_crop_page_range,
-	validate='focusout',
-	validatecommand=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    textvariable=strvar_crop_page_range,
+    validate='focusout',
+    validatecommand=on_command_and_validate_crop_margin_cb,
 )
 crop_page_range_entry.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 left_margin_label = ttk.Label(parameters_frame, text='      Left Margin')
 left_margin_label.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 left_margin_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=0.01,
-	state='readonly',
-	textvariable=strvar_left_margin,
-	command=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvar_left_margin,
+    command=on_command_and_validate_crop_margin_cb,
 )
 left_margin_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 top_margin_label = ttk.Label(parameters_frame, text='      Top Margin')
 top_margin_label.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 top_margin_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=0.01,
-	state='readonly',
-	textvariable=strvar_top_margin,
-	command=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvar_top_margin,
+    command=on_command_and_validate_crop_margin_cb,
 )
 top_margin_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 rightMarginTextLabel = ttk.Label(parameters_frame, text='      Width')
 rightMarginTextLabel.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 rightMarginSpinBox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=0.01,
-	state='readonly',
-	textvariable=strvarRightMargin,
-	command=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvarRightMargin,
+    command=on_command_and_validate_crop_margin_cb,
 )
 rightMarginSpinBox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 bottomMarginTextLabel = ttk.Label(parameters_frame, text='      Height')
 bottomMarginTextLabel.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 bottomMarginSpinBox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=0.01,
-	state='readonly',
-	textvariable=strvarBottomMargin,
-	command=on_command_and_validate_crop_margin_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvarBottomMargin,
+    command=on_command_and_validate_crop_margin_cb,
 )
 bottomMarginSpinBox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 dpi_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='DPI',
-	variable=is_dpi_checked,
-	command=on_command_dpi_cb,
+    parameters_frame,
+    text='DPI',
+    variable=is_dpi_checked,
+    command=on_command_dpi_cb,
 )
 dpi_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 dpi_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=1000,
-	increment=1,
-	state='readonly',
-	textvariable=strvar_dpi,
-	command=on_command_dpi_cb,
+    parameters_frame,
+    from_=0,
+    to=1000,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_dpi,
+    command=on_command_dpi_cb,
 )
 dpi_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 page_number_label = ttk.Label(  parameters_frame, text='Pages to Convert')
 page_number_label.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 page_number_entry = ttk.Entry(
-	parameters_frame,
-	textvariable=strvar_page_numbers,
-	validate='focusout',
-	validatecommand=on_validate_page_nums_cb,
+    parameters_frame,
+    textvariable=strvar_page_numbers,
+    validate='focusout',
+    validatecommand=on_validate_page_nums_cb,
 )
 page_number_entry.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 # checkbox with value options
 parameters_frame_row_number += 1
 
 fixed_font_size_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Fixed Output Font Size',
-	variable=is_fixed_font_size_checked,
-	command=on_command_fixed_font_size_cb,
+    parameters_frame,
+    text='Fixed Output Font Size',
+    variable=is_fixed_font_size_checked,
+    command=on_command_fixed_font_size_cb,
 )
 fixed_font_size_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 fixed_font_size_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=1,
-	state='readonly',
-	textvariable=strvar_fixed_font_size,
-	command=on_command_fixed_font_size_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_fixed_font_size,
+    command=on_command_fixed_font_size_cb,
 )
 fixed_font_size_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 ocr_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='OCR (Tesseract) and CPU %',
-	variable=is_ocr_cpu_limitation_checked,
-	command=on_command_ocr_and_cpu_cb,
+    parameters_frame,
+    text='OCR (Tesseract) and CPU %',
+    variable=is_ocr_cpu_limitation_checked,
+    command=on_command_ocr_and_cpu_cb,
 )
 ocr_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 ocr_cpu_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0,
-	to=100,
-	increment=1,
-	state='readonly',
-	textvariable=strvar_ocr_cpu_percentage,
-	command=on_command_ocr_and_cpu_cb,
+    parameters_frame,
+    from_=0,
+    to=100,
+    increment=1,
+    state='readonly',
+    textvariable=strvar_ocr_cpu_percentage,
+    command=on_command_ocr_and_cpu_cb,
 )
 ocr_cpu_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 landscape_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Output in Landscape',
-	variable=is_landscape_checked,
-	command=on_command_and_validate_landscape_cb,
+    parameters_frame,
+    text='Output in Landscape',
+    variable=is_landscape_checked,
+    command=on_command_and_validate_landscape_cb,
 )
 landscape_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 landscapepage_number_entry = ttk.Entry(
-	parameters_frame,
-	textvariable=strvar_landscape_pages,
-	validate='focusout',
-	validatecommand=on_command_and_validate_landscape_cb,
+    parameters_frame,
+    textvariable=strvar_landscape_pages,
+    validate='focusout',
+    validatecommand=on_command_and_validate_landscape_cb,
 )
 landscapepage_number_entry.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 parameters_frame_row_number += 1
 
 smart_line_break_check_button = ttk.Checkbutton(
-	parameters_frame,
-	text='Smart Line Breaks',
-	variable=is_smart_linebreak_checked,
-	command=on_command_line_break_cb,
+    parameters_frame,
+    text='Smart Line Breaks',
+    variable=is_smart_linebreak_checked,
+    command=on_command_line_break_cb,
 )
 smart_line_break_check_button.grid(
-	column=0,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 smart_line_break_spinbox = ttk.Spinbox(
-	parameters_frame,
-	from_=0.01,
-	to=2.00,
-	increment=0.01,
-	state='readonly',
-	textvariable=strvar_linebreak_space,
-	command=on_command_line_break_cb,
+    parameters_frame,
+    from_=0.01,
+    to=2.00,
+    increment=0.01,
+    state='readonly',
+    textvariable=strvar_linebreak_space,
+    command=on_command_line_break_cb,
 )
 smart_line_break_spinbox.grid(
-	column=1,
-	row=parameters_frame_row_number,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=parameters_frame_row_number,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 
@@ -1278,7 +1267,7 @@ auto_crop_arg_name = '-ac'                  # -ac-/-ac
 
 is_autostraighten_checked = tk.BooleanVar()
 isBreakPage = tk.BooleanVar()
-isColorOutput = tk.BooleanVar()
+is_coloroutput_checked = tk.BooleanVar()
 is_native_pdf_checked = tk.BooleanVar()
 is_right_to_left_checked = tk.BooleanVar()
 isPostGs = tk.BooleanVar()
@@ -1293,359 +1282,359 @@ is_autocrop_checked = tk.BooleanVar()
 
 
 def on_command_auto_straighten_cb():
-	if is_autostraighten_checked.get():
-		arg = auto_straignten_arg_name
-		add_or_update_command_argument(auto_straignten_arg_name, arg)
-	else:
-		remove_command_argument(auto_straignten_arg_name)
+    if is_autostraighten_checked.get():
+        arg = auto_straignten_arg_name
+        add_or_update_command_argument(auto_straignten_arg_name, arg)
+    else:
+        remove_command_argument(auto_straignten_arg_name)
 
 
 def on_command_break_page_cb():
-	if isBreakPage.get():
-		# break page conflicts with avoid overlap since they are both -bp flag
-		isAvoidOverlap.set(False)
-		remove_command_argument(break_page_avoid_overlap_arg_name)
+    if isBreakPage.get():
+        # break page conflicts with avoid overlap since they are both -bp flag
+        isAvoidOverlap.set(False)
+        remove_command_argument(break_page_avoid_overlap_arg_name)
 
-		arg = break_page_avoid_overlap_arg_name
-		add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
-	else:
-		remove_command_argument(break_page_avoid_overlap_arg_name)
+        arg = break_page_avoid_overlap_arg_name
+        add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
+    else:
+        remove_command_argument(break_page_avoid_overlap_arg_name)
 
 
 def on_command_color_output_cb():
-	if isColorOutput.get():
-		arg = color_output_arg_name
-		add_or_update_command_argument(color_output_arg_name, arg)
-	else:
-		remove_command_argument(color_output_arg_name)
+    if is_coloroutput_checked.get():
+        arg = color_output_arg_name
+        add_or_update_command_argument(color_output_arg_name, arg)
+    else:
+        remove_command_argument(color_output_arg_name)
 
 
 def on_command_native_pdf_cb():
-	if is_native_pdf_checked.get():
-		# native pdf conflicts with ocr and reflow text
-		is_ocr_cpu_limitation_checked.set(False)
-		remove_command_argument(ocr_arg_name)
-		remove_command_argument(ocr_cpu_arg_name)
+    if is_native_pdf_checked.get():
+        # native pdf conflicts with ocr and reflow text
+        is_ocr_cpu_limitation_checked.set(False)
+        remove_command_argument(ocr_arg_name)
+        remove_command_argument(ocr_cpu_arg_name)
 
-		is_reflow_text_checked.set(False)
-		remove_command_argument(reflow_text_arg_name)
+        is_reflow_text_checked.set(False)
+        remove_command_argument(reflow_text_arg_name)
 
-		arg = native_pdf_arg_name
-		add_or_update_command_argument(native_pdf_arg_name, arg)
-	else:
-		remove_command_argument(native_pdf_arg_name)
+        arg = native_pdf_arg_name
+        add_or_update_command_argument(native_pdf_arg_name, arg)
+    else:
+        remove_command_argument(native_pdf_arg_name)
 
 
 def on_command_right_to_left_cb():
-	if is_right_to_left_checked.get():
-		arg = right_to_left_arg_name
-		add_or_update_command_argument(right_to_left_arg_name, arg)
-	else:
-		remove_command_argument(right_to_left_arg_name)
+    if is_right_to_left_checked.get():
+        arg = right_to_left_arg_name
+        add_or_update_command_argument(right_to_left_arg_name, arg)
+    else:
+        remove_command_argument(right_to_left_arg_name)
 
 
 def on_command_post_gs_cb():
-	if isPostGs.get():
-		arg = post_gs_arg_name
-		add_or_update_command_argument(post_gs_arg_name, arg)
-	else:
-		remove_command_argument(post_gs_arg_name)
+    if isPostGs.get():
+        arg = post_gs_arg_name
+        add_or_update_command_argument(post_gs_arg_name, arg)
+    else:
+        remove_command_argument(post_gs_arg_name)
 
 
 def on_command_marked_src_cb():
-	if isMarkedSrc.get():
-		arg = marked_source_arg_name
-		add_or_update_command_argument(marked_source_arg_name, arg)
-	else:
-		remove_command_argument(marked_source_arg_name)
+    if isMarkedSrc.get():
+        arg = marked_source_arg_name
+        add_or_update_command_argument(marked_source_arg_name, arg)
+    else:
+        remove_command_argument(marked_source_arg_name)
 
 
 def on_command_reflow_text_cb():
-	if is_reflow_text_checked.get():
-		is_native_pdf_checked.set(False)  # reflow text conflicts with native pdf
-		remove_command_argument(native_pdf_arg_name)
-		arg = reflow_text_arg_name + '+'
-		add_or_update_command_argument(reflow_text_arg_name, arg)
-	else:
-		remove_command_argument(reflow_text_arg_name)
+    if is_reflow_text_checked.get():
+        is_native_pdf_checked.set(False)  # reflow text conflicts with native pdf
+        remove_command_argument(native_pdf_arg_name)
+        arg = reflow_text_arg_name + '+'
+        add_or_update_command_argument(reflow_text_arg_name, arg)
+    else:
+        remove_command_argument(reflow_text_arg_name)
 
 
 def on_command_erase_vertical_line_cb():
-	if is_erase_vertical_line_checked.get():
-		arg = erase_vertical_line_arg_name + ' 1'
-		add_or_update_command_argument(erase_vertical_line_arg_name, arg)
-	else:
-		remove_command_argument(erase_vertical_line_arg_name)
+    if is_erase_vertical_line_checked.get():
+        arg = erase_vertical_line_arg_name + ' 1'
+        add_or_update_command_argument(erase_vertical_line_arg_name, arg)
+    else:
+        remove_command_argument(erase_vertical_line_arg_name)
 
 
 def on_command_fast_preview_cb():
-	if is_fast_preview_checked.get():
-		arg = fast_preview_arg_name + ' 0'
-		add_or_update_command_argument(fast_preview_arg_name, arg)
-	else:
-		remove_command_argument(fast_preview_arg_name)
+    if is_fast_preview_checked.get():
+        arg = fast_preview_arg_name + ' 0'
+        add_or_update_command_argument(fast_preview_arg_name, arg)
+    else:
+        remove_command_argument(fast_preview_arg_name)
 
 
 def on_command_avoid_text_selection_overlap_cb():
-	if isAvoidOverlap.get():
-		# avoid overlap conflicts with break page since they are both -bp flag
-		isBreakPage.set(False)
-		remove_command_argument(break_page_avoid_overlap_arg_name)
+    if isAvoidOverlap.get():
+        # avoid overlap conflicts with break page since they are both -bp flag
+        isBreakPage.set(False)
+        remove_command_argument(break_page_avoid_overlap_arg_name)
 
-		arg = break_page_avoid_overlap_arg_name + ' m'
-		add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
-	else:
-		remove_command_argument(break_page_avoid_overlap_arg_name)
+        arg = break_page_avoid_overlap_arg_name + ' m'
+        add_or_update_command_argument(break_page_avoid_overlap_arg_name, arg)
+    else:
+        remove_command_argument(break_page_avoid_overlap_arg_name)
 
 
 def on_command_ign_small_defect_cb():
-	if isIgnSmallDefects.get():
-		arg = (ign_small_defects_arg_name + ' 1.5')
-		add_or_update_command_argument(ign_small_defects_arg_name, arg)
-	else:
-		remove_command_argument(ign_small_defects_arg_name)
+    if isIgnSmallDefects.get():
+        arg = (ign_small_defects_arg_name + ' 1.5')
+        add_or_update_command_argument(ign_small_defects_arg_name, arg)
+    else:
+        remove_command_argument(ign_small_defects_arg_name)
 
 
 def on_command_erase_horizontal_line_cb():
-	if is_erase_horizontal_line_checked.get():
-		arg = erase_horizontal_line_arg_name + ' 1'
-		add_or_update_command_argument(erase_horizontal_line_arg_name, arg)
-	else:
-		remove_command_argument(erase_horizontal_line_arg_name)
+    if is_erase_horizontal_line_checked.get():
+        arg = erase_horizontal_line_arg_name + ' 1'
+        add_or_update_command_argument(erase_horizontal_line_arg_name, arg)
+    else:
+        remove_command_argument(erase_horizontal_line_arg_name)
 
 
 def on_command_auto_crop_cb():
-	if is_autocrop_checked.get():
-		arg = auto_crop_arg_name
-		add_or_update_command_argument(auto_crop_arg_name, arg)
-	else:
-		remove_command_argument(auto_crop_arg_name)
+    if is_autocrop_checked.get():
+        arg = auto_crop_arg_name
+        add_or_update_command_argument(auto_crop_arg_name, arg)
+    else:
+        remove_command_argument(auto_crop_arg_name)
 
 
 optionFrame = ttk.Labelframe(
-	conversion_tab,
-	text='Options',
+    conversion_tab,
+    text='Options',
 )
 optionFrame.grid(
-	column=conversion_tab_right_part_column_num,
-	row=conversion_tab_right_part_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=conversion_tab_right_part_column_num,
+    row=conversion_tab_right_part_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 option_frame_left_part_col_num = 0
 option_frame_row_num = 0
 
 autostraighten_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Autostraighten',
-	variable=is_autostraighten_checked,
-	command=on_command_auto_straighten_cb,
+    optionFrame,
+    text='Autostraighten',
+    variable=is_autostraighten_checked,
+    command=on_command_auto_straighten_cb,
 )
 autostraighten_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 break_after_source_page_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Break After Each Source Page',
-	variable=isBreakPage,
-	command=on_command_break_page_cb,
+    optionFrame,
+    text='Break After Each Source Page',
+    variable=isBreakPage,
+    command=on_command_break_page_cb,
 )
 break_after_source_page_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 color_output_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Color Output',
-	variable=isColorOutput,
-	command=on_command_color_output_cb,
+    optionFrame,
+    text='Color Output',
+    variable=is_coloroutput_checked,
+    command=on_command_color_output_cb,
 )
 color_output_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 native_pdf_output_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Native PDF Output',
-	variable=is_native_pdf_checked,
-	command=on_command_native_pdf_cb,
+    optionFrame,
+    text='Native PDF Output',
+    variable=is_native_pdf_checked,
+    command=on_command_native_pdf_cb,
 )
 native_pdf_output_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 right_to_left_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Right-to-Left Text',
-	variable=is_right_to_left_checked,
-	command=on_command_right_to_left_cb,
+    optionFrame,
+    text='Right-to-Left Text',
+    variable=is_right_to_left_checked,
+    command=on_command_right_to_left_cb,
 )
 right_to_left_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 post_process_ghostscript_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Post Process w/GhostScript',
-	variable=isPostGs,
-	command=on_command_post_gs_cb,
+    optionFrame,
+    text='Post Process w/GhostScript',
+    variable=isPostGs,
+    command=on_command_post_gs_cb,
 )
 post_process_ghostscript_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 generate_markup_source_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Generate Marked-up Source',
-	variable=isMarkedSrc,
-	command=on_command_marked_src_cb,
+    optionFrame,
+    text='Generate Marked-up Source',
+    variable=isMarkedSrc,
+    command=on_command_marked_src_cb,
 )
 generate_markup_source_check_button.grid(
-	column=option_frame_left_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frame_left_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 option_frace_right_part_col_num = 1
 option_frame_row_num = 0
 
 reflow_text_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Re-flow Text',
-	variable=is_reflow_text_checked,
-	command=on_command_reflow_text_cb,
+    optionFrame,
+    text='Re-flow Text',
+    variable=is_reflow_text_checked,
+    command=on_command_reflow_text_cb,
 )
 reflow_text_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 erase_vline_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Erase Vertical Lines',
-	variable=is_erase_vertical_line_checked,
-	command=on_command_erase_vertical_line_cb,
+    optionFrame,
+    text='Erase Vertical Lines',
+    variable=is_erase_vertical_line_checked,
+    command=on_command_erase_vertical_line_cb,
 )
 erase_vline_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 erase_hline_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Erase Horizontal Lines',
-	variable=is_erase_horizontal_line_checked,
-	command=on_command_erase_horizontal_line_cb,
+    optionFrame,
+    text='Erase Horizontal Lines',
+    variable=is_erase_horizontal_line_checked,
+    command=on_command_erase_horizontal_line_cb,
 )
 erase_hline_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 fast_preview_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Fast Preview',
-	variable=is_fast_preview_checked,
-	command=on_command_fast_preview_cb,
+    optionFrame,
+    text='Fast Preview',
+    variable=is_fast_preview_checked,
+    command=on_command_fast_preview_cb,
 )
 fast_preview_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 avoid_text_overlap_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Avoid Text Selection Overlap',
-	variable=isAvoidOverlap,
-	command=on_command_avoid_text_selection_overlap_cb,
+    optionFrame,
+    text='Avoid Text Selection Overlap',
+    variable=isAvoidOverlap,
+    command=on_command_avoid_text_selection_overlap_cb,
 )
 avoid_text_overlap_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 ignore_defect_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Ignore Small Defects',
-	variable=isIgnSmallDefects,
-	command=on_command_ign_small_defect_cb,
+    optionFrame,
+    text='Ignore Small Defects',
+    variable=isIgnSmallDefects,
+    command=on_command_ign_small_defect_cb,
 )
 ignore_defect_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
 autocrop_check_button = ttk.Checkbutton(
-	optionFrame,
-	text='Auto-Crop',
-	variable=is_autocrop_checked,
-	command=on_command_auto_crop_cb,
+    optionFrame,
+    text='Auto-Crop',
+    variable=is_autocrop_checked,
+    command=on_command_auto_crop_cb,
 )
 autocrop_check_button.grid(
-	column=option_frace_right_part_col_num,
-	row=option_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=option_frace_right_part_col_num,
+    row=option_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 option_frame_row_num += 1
 
@@ -1659,179 +1648,179 @@ preview_output_arg_name = '-bmp'
 preview_image_path = './k2pdfopt_out.png'
 
 def remove_preview_image_and_clear_canvas():
-	global_var.CANVAS_IMAGE_TAG
-	# global STRVAR_CURRENT_PREVIEW_PAGE_NUM    # unused !
+    global_var.CANVAS_IMAGE_TAG
+    # global STRVAR_CURRENT_PREVIEW_PAGE_NUM    # unused !
 
-	if os.path.exists(preview_image_path):
-		os.remove(preview_image_path)
+    if os.path.exists(preview_image_path):
+        os.remove(preview_image_path)
 
-	global_var.PREVIEW_IMAGE_CANVAS.delete(tk.ALL)
-	global_var.CANVAS_IMAGE_TAG = None
+    global_var.PREVIEW_IMAGE_CANVAS.delete(tk.ALL)
+    global_var.CANVAS_IMAGE_TAG = None
 
 
 def load_preview_image(img_path, preview_page_index):
 
-	if os.path.exists(img_path):
-		global_var.PREVIEW_IMAGE = tk.PhotoImage(file=img_path)
+    if os.path.exists(img_path):
+        global_var.PREVIEW_IMAGE = tk.PhotoImage(file=img_path)
 
-		global_var.CANVAS_IMAGE_TAG = global_var.PREVIEW_IMAGE_CANVAS.create_image(
-			(0, 0),
-			anchor=tk.NW,
-			image=global_var.PREVIEW_IMAGE,
-			tags='preview',
-		)
+        global_var.CANVAS_IMAGE_TAG = global_var.PREVIEW_IMAGE_CANVAS.create_image(
+            (0, 0),
+            anchor=tk.NW,
+            image=global_var.PREVIEW_IMAGE,
+            tags='preview',
+        )
 
-		(left_pos, top_pos, right_pos, bottom_pos) = (
-			0,
-			0,
-			global_var.PREVIEW_IMAGE.width(),
-			global_var.PREVIEW_IMAGE.height(),
-		)
-		global_var.PREVIEW_IMAGE_CANVAS.config(
-			scrollregion=(left_pos, top_pos, right_pos, bottom_pos),
-		)
-		# canvas.scale('preview', 0, 0, 0.1, 0.1)
-		STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Page: ' + str(preview_page_index))
-	else:
-		STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('No Page: ' + str(preview_page_index))
+        (left_pos, top_pos, right_pos, bottom_pos) = (
+            0,
+            0,
+            global_var.PREVIEW_IMAGE.width(),
+            global_var.PREVIEW_IMAGE.height(),
+        )
+        global_var.PREVIEW_IMAGE_CANVAS.config(
+            scrollregion=(left_pos, top_pos, right_pos, bottom_pos),
+        )
+        # canvas.scale('preview', 0, 0, 0.1, 0.1)
+        STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Page: ' + str(preview_page_index))
+    else:
+        STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('No Page: ' + str(preview_page_index))
 
 
 def generate_one_preview_image(preview_page_index):
 
-	if not pdf_conversion_is_done():
-		return
+    if not pdf_conversion_is_done():
+        return
 
-	if not os.path.exists(strvar_input_file_path.get().strip()):
-		tkinter.messagebox.showerror(
-			message=(
-				"Failed to Find Input PDF File to convert for Preview: %s"
-				%
-				strvar_input_file_path.get().strip()
-			),
-		)
-		return
+    if not os.path.exists(strvar_input_file_path.get().strip()):
+        messagebox.showerror(
+            message=(
+                "Failed to Find Input PDF File to convert for Preview: %s"
+                %
+                strvar_input_file_path.get().strip()
+            ),
+        )
+        return
 
-	remove_preview_image_and_clear_canvas()
-	(base_path, file_ext) = os.path.splitext(strvar_input_file_path.get().strip())
-	output_arg = ' '.join([preview_output_arg_name, str(preview_page_index)])
-	global_var.BACKGROUND_FUTURE = convert_pdf_file(output_arg)
-	STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Preview Generating...')
+    remove_preview_image_and_clear_canvas()
+    (base_path, file_ext) = os.path.splitext(strvar_input_file_path.get().strip())
+    output_arg = ' '.join([preview_output_arg_name, str(preview_page_index)])
+    global_var.BACKGROUND_FUTURE = convert_pdf_file(output_arg)
+    STRVAR_CURRENT_PREVIEW_PAGE_NUM.set('Preview Generating...')
 
-	def preview_image_future_cb(bgf):
-		load_preview_image(preview_image_path, preview_page_index)
-		log_string(
-			"Preview generation for page %d finished" %
-			preview_page_index
-		)
+    def preview_image_future_cb(bgf):
+        load_preview_image(preview_image_path, preview_page_index)
+        log_string(
+            "Preview generation for page %d finished" %
+            preview_page_index
+        )
 
-	global_var.BACKGROUND_FUTURE.add_done_callback(preview_image_future_cb)
+    global_var.BACKGROUND_FUTURE.add_done_callback(preview_image_future_cb)
 
 
 def on_command_restore_default_cb():
-	restore_default_values()
+    restore_default_values()
 
 
 def on_command_abort_conversion_cb():
-	if global_var.BACKGROUND_FUTURE is not None:
-		global_var.BACKGROUND_FUTURE.cancel()
+    if global_var.BACKGROUND_FUTURE is not None:
+        global_var.BACKGROUND_FUTURE.cancel()
 
-	if (global_var.BACKGROUND_PROCESS is not None and global_var.BACKGROUND_PROCESS.returncode is None):
-		global_var.BACKGROUND_PROCESS.terminate()
+    if (global_var.BACKGROUND_PROCESS is not None and global_var.BACKGROUND_PROCESS.returncode is None):
+        global_var.BACKGROUND_PROCESS.terminate()
 
 
 def on_command_convert_pdf_cb():
-	if not pdf_conversion_is_done():
-		return
+    if not pdf_conversion_is_done():
+        return
 
-	pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
-	global_var.BACKGROUND_FUTURE = convert_pdf_file(pdf_output_arg)
+    pdf_output_arg = output_path_arg_name + ' %s' + output_pdf_suffix
+    global_var.BACKGROUND_FUTURE = convert_pdf_file(pdf_output_arg)
 
 
 def on_command_ten_page_up_cb():
-	global_var.CURRENT_PREVIEW_PAGE_INDEX -= 10
-	if global_var.CURRENT_PREVIEW_PAGE_INDEX < 1:
-		global_var.CURRENT_PREVIEW_PAGE_INDEX = 1
-	generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
+    global_var.CURRENT_PREVIEW_PAGE_INDEX -= 10
+    if global_var.CURRENT_PREVIEW_PAGE_INDEX < 1:
+        global_var.CURRENT_PREVIEW_PAGE_INDEX = 1
+    generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_page_up_cb():
-	if global_var.CURRENT_PREVIEW_PAGE_INDEX > 1:
-		global_var.CURRENT_PREVIEW_PAGE_INDEX -= 1
-	generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
+    if global_var.CURRENT_PREVIEW_PAGE_INDEX > 1:
+        global_var.CURRENT_PREVIEW_PAGE_INDEX -= 1
+    generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_page_down_cb():
-	global_var.CURRENT_PREVIEW_PAGE_INDEX += 1
-	generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
+    global_var.CURRENT_PREVIEW_PAGE_INDEX += 1
+    generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 def on_command_ten_page_down_cb():
-	global_var.CURRENT_PREVIEW_PAGE_INDEX += 10
-	generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
+    global_var.CURRENT_PREVIEW_PAGE_INDEX += 10
+    generate_one_preview_image(global_var.CURRENT_PREVIEW_PAGE_INDEX)
 
 
 preview_frame = ttk.Labelframe(conversion_tab, text='Preview & Convert')
 preview_frame.grid(
-	column=conversion_tab_right_part_column_num,
-	row=conversion_tab_right_part_row_num,
-	rowspan=3,
-	sticky=tk.N+tk.S+tk.E+tk.W,
-	pady=0,
-	padx=5,
+    column=conversion_tab_right_part_column_num,
+    row=conversion_tab_right_part_row_num,
+    rowspan=3,
+    sticky=tk.N+tk.S+tk.E+tk.W,
+    pady=0,
+    padx=5,
 )
 
 preview_frame_row_num = 0
 
 reset_button = ttk.Button(preview_frame, text='Reset Default', command=on_command_restore_default_cb)
 reset_button.grid(
-	column=0,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 cancel_button = ttk.Button(preview_frame, text='Abort', command=on_command_abort_conversion_cb)
 cancel_button.grid(
-	column=1,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=1,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 convert_button = ttk.Button(preview_frame, text='Convert', command=on_command_convert_pdf_cb)
 convert_button.grid(
-	column=2,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=2,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 preview_frame_row_num += 1
 
 current_preview_page_number_entry = ttk.Entry(
-	preview_frame,
-	state='readonly',
-	textvariable=STRVAR_CURRENT_PREVIEW_PAGE_NUM
+    preview_frame,
+    state='readonly',
+    textvariable=STRVAR_CURRENT_PREVIEW_PAGE_NUM
 )
 current_preview_page_number_entry.grid(
-	column=0,
-	row=preview_frame_row_num,
-	columnspan=2,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=preview_frame_row_num,
+    columnspan=2,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 preview_button = ttk.Button(preview_frame, text='Preview', command=on_command_ten_page_up_cb)
 preview_button.grid(
-	column=2,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=2,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 preview_frame_column_num = 0
@@ -1839,41 +1828,41 @@ preview_frame_row_num += 1
 
 first_button = ttk.Button(preview_frame, text='<<', command=on_command_ten_page_up_cb)
 first_button.grid(
-	column=preview_frame_column_num,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=preview_frame_column_num,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 preview_frame_column_num += 1
 
 previous_button = ttk.Button(preview_frame, text='<', command=on_command_page_up_cb)
 previous_button.grid(
-	column=preview_frame_column_num,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=preview_frame_column_num,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 preview_frame_column_num += 1
 
 next_button = ttk.Button(preview_frame, text='>', command=on_command_page_down_cb)
 next_button.grid(
-	column=preview_frame_column_num,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=preview_frame_column_num,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 preview_frame_column_num += 1
 
 last_button = ttk.Button(preview_frame, text='>>', command=on_command_ten_page_down_cb)
 last_button.grid(
-	column=preview_frame_column_num,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=preview_frame_column_num,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
 preview_frame_column_num += 1
@@ -1881,51 +1870,51 @@ preview_frame_row_num += 1
 
 xScrollBar = ttk.Scrollbar(preview_frame, orient=tk.HORIZONTAL)
 xScrollBar.grid(
-	column=0,
-	row=preview_frame_row_num+1,
-	columnspan=preview_frame_column_num,
-	sticky=tk.E+tk.W,
+    column=0,
+    row=preview_frame_row_num+1,
+    columnspan=preview_frame_column_num,
+    sticky=tk.E+tk.W,
 )
 
 yScrollBar = ttk.Scrollbar(preview_frame)
 yScrollBar.grid(
-	column=preview_frame_column_num,
-	row=preview_frame_row_num,
-	sticky=tk.N+tk.S,
+    column=preview_frame_column_num,
+    row=preview_frame_row_num,
+    sticky=tk.N+tk.S,
 )
 
 global_var.PREVIEW_IMAGE_CANVAS = tk.Canvas(
-	preview_frame,
-	bd=0,
-	xscrollcommand=xScrollBar.set,
-	yscrollcommand=yScrollBar.set,
+    preview_frame,
+    bd=0,
+    xscrollcommand=xScrollBar.set,
+    yscrollcommand=yScrollBar.set,
 )
 global_var.PREVIEW_IMAGE_CANVAS.grid(
-	column=0,
-	row=preview_frame_row_num,
-	columnspan=preview_frame_column_num,
-	sticky=tk.N+tk.S+tk.E+tk.W,
+    column=0,
+    row=preview_frame_row_num,
+    columnspan=preview_frame_column_num,
+    sticky=tk.N+tk.S+tk.E+tk.W,
 )
 
 xScrollBar.config(command=global_var.PREVIEW_IMAGE_CANVAS.xview)
 yScrollBar.config(command=global_var.PREVIEW_IMAGE_CANVAS.yview)
 
 conversion_tab.columnconfigure(
-	conversion_tab_right_part_column_num,
-	weight=1,
+    conversion_tab_right_part_column_num,
+    weight=1,
 )
 conversion_tab.rowconfigure(
-	conversion_tab_right_part_row_num,
-	weight=1,
+    conversion_tab_right_part_row_num,
+    weight=1,
 )
 preview_frame.columnconfigure(0, weight=1)
 preview_frame.rowconfigure(preview_frame_row_num, weight=1)
 
 def yscroll_canvas(event):
-	global_var.PREVIEW_IMAGE_CANVAS.yview_scroll(-1 * event.delta, 'units')
+    global_var.PREVIEW_IMAGE_CANVAS.yview_scroll(-1 * event.delta, 'units')
 
 def xscroll_canvas(event):
-	global_var.PREVIEW_IMAGE_CANVAS.xview_scroll(-1 * event.delta, 'units')
+    global_var.PREVIEW_IMAGE_CANVAS.xview_scroll(-1 * event.delta, 'units')
 
 global_var.PREVIEW_IMAGE_CANVAS.bind('<MouseWheel>', yscroll_canvas)
 global_var.PREVIEW_IMAGE_CANVAS.bind("<Shift-MouseWheel>", xscroll_canvas)
@@ -1934,220 +1923,220 @@ preview_frame_row_num += 1
 
 # collect all vars
 bool_var_list = [
-	is_column_num_checked,
-	is_resolution_multipler_checked,
-	is_crop_margin_checked,
-	is_dpi_checked,
-	is_fixed_font_size_checked,
-	is_ocr_cpu_limitation_checked,
-	is_landscape_checked,
-	is_smart_linebreak_checked,
+    is_column_num_checked,
+    is_resolution_multipler_checked,
+    is_crop_margin_checked,
+    is_dpi_checked,
+    is_fixed_font_size_checked,
+    is_ocr_cpu_limitation_checked,
+    is_landscape_checked,
+    is_smart_linebreak_checked,
 
-	is_autostraighten_checked,
-	isBreakPage,
-	isColorOutput,
-	is_native_pdf_checked,
-	is_right_to_left_checked,
-	isPostGs,
-	isMarkedSrc,
-	is_reflow_text_checked,
-	is_erase_vertical_line_checked,
-	is_erase_horizontal_line_checked,
-	is_fast_preview_checked,
-	isAvoidOverlap,
-	isIgnSmallDefects,
-	is_autocrop_checked,
+    is_autostraighten_checked,
+    isBreakPage,
+    is_coloroutput_checked,
+    is_native_pdf_checked,
+    is_right_to_left_checked,
+    isPostGs,
+    isMarkedSrc,
+    is_reflow_text_checked,
+    is_erase_vertical_line_checked,
+    is_erase_horizontal_line_checked,
+    is_fast_preview_checked,
+    isAvoidOverlap,
+    isIgnSmallDefects,
+    is_autocrop_checked,
 ]
 
 string_var_list = [
-	strvar_input_file_path,
-	strvar_device,
-	strvar_conversion_mode,
-	strvar_screen_unit,
-	strvar_screen_width,
-	strvar_screen_height,
-	strvar_column_num,
-	strvar_resolution_multiplier,
-	strvar_crop_page_range,
-	strvar_left_margin,
-	strvarRightMargin,
-	strvar_top_margin,
-	strvarBottomMargin,
-	strvar_dpi,
-	strvar_page_numbers,
+    strvar_input_file_path,
+    strvar_device,
+    strvar_conversion_mode,
+    strvar_screen_unit,
+    strvar_screen_width,
+    strvar_screen_height,
+    strvar_column_num,
+    strvar_resolution_multiplier,
+    strvar_crop_page_range,
+    strvar_left_margin,
+    strvarRightMargin,
+    strvar_top_margin,
+    strvarBottomMargin,
+    strvar_dpi,
+    strvar_page_numbers,
 
-	strvar_fixed_font_size,
-	strvar_ocr_cpu_percentage,
-	strvar_landscape_pages,
-	strvar_linebreak_space,
+    strvar_fixed_font_size,
+    strvar_ocr_cpu_percentage,
+    strvar_landscape_pages,
+    strvar_linebreak_space,
 
-	STRVAR_CURRENT_PREVIEW_PAGE_NUM,
-	STRVAR_OUTPUT_FILE_PATH,
-	STRVAR_COMMAND_ARGS,
+    STRVAR_CURRENT_PREVIEW_PAGE_NUM,
+    STRVAR_OUTPUT_FILE_PATH,
+    STRVAR_COMMAND_ARGS,
 ]
 
 combo_box_list = [
-	device_combobox,
-	mode_combobox,
-	unit_combobox,
+    device_combobox,
+    mode_combobox,
+    unit_combobox,
 ]
 
 entry_list = [
-	input_path_entry,
-	output_path_entry,
-	command_arguments_entry,
-	page_number_entry,
-	landscapepage_number_entry,
-	current_preview_page_number_entry,
+    input_path_entry,
+    output_path_entry,
+    command_arguments_entry,
+    page_number_entry,
+    landscapepage_number_entry,
+    current_preview_page_number_entry,
 ]
 
 default_var_map = {
-	device_arg_name:                    ['Kindle 1-5'],
-	screen_unit_prefix:                 ['Pixels'],
-	width_arg_name:                     ['560'],
-	height_arg_name:                    ['735'],
-	conversion_mode_arg_name:           ['Default'],
-	output_path_arg_name:               [''],
+    device_arg_name:                    ['Kindle 1-5'],
+    screen_unit_prefix:                 ['Pixels'],
+    width_arg_name:                     ['560'],
+    height_arg_name:                    ['735'],
+    conversion_mode_arg_name:           ['Default'],
+    output_path_arg_name:               [''],
 
-	column_num_arg_name:                [False, '2'],
-	resolution_multiplier_arg_name:     [False, '1.0'],
-	crop_margin_arg_name:               [
-											False,
-											'',
-											'0.00',
-											'0.00',
-											'0.00',
-											'0.00',
-										],
-	dpi_arg_name:                       [False, '167'],
-	page_num_arg_name:                  [''],
-	fixed_font_size_arg_name:           [False, '12'],
-	ocr_arg_name:                       [False, '50'],
-	ocr_cpu_arg_name:                   [False, '50'],
-	landscape_arg_name:                 [False, ''],
-	linebreak_arg_name:                 [True, '0.200'],
+    column_num_arg_name:                [False, '2'],
+    resolution_multiplier_arg_name:     [False, '1.0'],
+    crop_margin_arg_name:               [
+                                            False,
+                                            '',
+                                            '0.00',
+                                            '0.00',
+                                            '0.00',
+                                            '0.00',
+                                        ],
+    dpi_arg_name:                       [False, '167'],
+    page_num_arg_name:                  [''],
+    fixed_font_size_arg_name:           [False, '12'],
+    ocr_arg_name:                       [False, '50'],
+    ocr_cpu_arg_name:                   [False, '50'],
+    landscape_arg_name:                 [False, ''],
+    linebreak_arg_name:                 [True, '0.200'],
 
-	auto_straignten_arg_name:           [False],
-	break_page_avoid_overlap_arg_name:  [False, False],
-	color_output_arg_name:              [False],
-	native_pdf_arg_name:                [False],
-	right_to_left_arg_name:             [False],
-	post_gs_arg_name:                   [False],
-	marked_source_arg_name:             [False],
-	reflow_text_arg_name:               [True],
-	erase_vertical_line_arg_name:       [False],
-	erase_horizontal_line_arg_name:     [False],
-	fast_preview_arg_name:              [True],
-	ign_small_defects_arg_name:         [False],
-	auto_crop_arg_name:                 [False],
+    auto_straignten_arg_name:           [False],
+    break_page_avoid_overlap_arg_name:  [False, False],
+    color_output_arg_name:              [False],
+    native_pdf_arg_name:                [False],
+    right_to_left_arg_name:             [False],
+    post_gs_arg_name:                   [False],
+    marked_source_arg_name:             [False],
+    reflow_text_arg_name:               [True],
+    erase_vertical_line_arg_name:       [False],
+    erase_horizontal_line_arg_name:     [False],
+    fast_preview_arg_name:              [True],
+    ign_small_defects_arg_name:         [False],
+    auto_crop_arg_name:                 [False],
 
-	preview_output_arg_name:            []
+    preview_output_arg_name:            []
 }
 
 arg_var_map = {
-	device_arg_name:                    [strvar_device],
-	screen_unit_prefix:                 [strvar_screen_unit],
-	width_arg_name:                     [strvar_screen_width],
-	height_arg_name:                    [strvar_screen_height],
-	conversion_mode_arg_name:           [strvar_conversion_mode],
-	output_path_arg_name:               [STRVAR_OUTPUT_FILE_PATH],
+    device_arg_name:                    [strvar_device],
+    screen_unit_prefix:                 [strvar_screen_unit],
+    width_arg_name:                     [strvar_screen_width],
+    height_arg_name:                    [strvar_screen_height],
+    conversion_mode_arg_name:           [strvar_conversion_mode],
+    output_path_arg_name:               [STRVAR_OUTPUT_FILE_PATH],
 
-	column_num_arg_name:                [
-											is_column_num_checked,
-											strvar_column_num,
-										],
-	resolution_multiplier_arg_name:     [
-											is_resolution_multipler_checked,
-											strvar_resolution_multiplier,
-										],
-	crop_margin_arg_name:               [
-											is_crop_margin_checked,
-											strvar_crop_page_range,
-											strvar_left_margin,
-											strvar_top_margin,
-											strvarRightMargin,
-											strvarBottomMargin,
-										],
-	dpi_arg_name:                       [
-											is_dpi_checked,
-											strvar_dpi,
-										],
-	page_num_arg_name:                  [
-											strvar_page_numbers,
-										],
+    column_num_arg_name:                [
+                                            is_column_num_checked,
+                                            strvar_column_num,
+                                        ],
+    resolution_multiplier_arg_name:     [
+                                            is_resolution_multipler_checked,
+                                            strvar_resolution_multiplier,
+                                        ],
+    crop_margin_arg_name:               [
+                                            is_crop_margin_checked,
+                                            strvar_crop_page_range,
+                                            strvar_left_margin,
+                                            strvar_top_margin,
+                                            strvarRightMargin,
+                                            strvarBottomMargin,
+                                        ],
+    dpi_arg_name:                       [
+                                            is_dpi_checked,
+                                            strvar_dpi,
+                                        ],
+    page_num_arg_name:                  [
+                                            strvar_page_numbers,
+                                        ],
 
-	fixed_font_size_arg_name:           [
-											is_fixed_font_size_checked,
-											strvar_fixed_font_size,
-										],
-	ocr_arg_name:                       [
-											is_ocr_cpu_limitation_checked,
-											strvar_ocr_cpu_percentage,
-										],
-	ocr_cpu_arg_name:                   [
-											is_ocr_cpu_limitation_checked,
-											strvar_ocr_cpu_percentage,
-										],
-	landscape_arg_name:                 [
-											is_landscape_checked,
-											strvar_landscape_pages,
-										],
-	linebreak_arg_name:                 [
-											is_smart_linebreak_checked,
-											strvar_linebreak_space,
-										],
+    fixed_font_size_arg_name:           [
+                                            is_fixed_font_size_checked,
+                                            strvar_fixed_font_size,
+                                        ],
+    ocr_arg_name:                       [
+                                            is_ocr_cpu_limitation_checked,
+                                            strvar_ocr_cpu_percentage,
+                                        ],
+    ocr_cpu_arg_name:                   [
+                                            is_ocr_cpu_limitation_checked,
+                                            strvar_ocr_cpu_percentage,
+                                        ],
+    landscape_arg_name:                 [
+                                            is_landscape_checked,
+                                            strvar_landscape_pages,
+                                        ],
+    linebreak_arg_name:                 [
+                                            is_smart_linebreak_checked,
+                                            strvar_linebreak_space,
+                                        ],
 
-	auto_straignten_arg_name:           [is_autostraighten_checked],
-	break_page_avoid_overlap_arg_name:  [isBreakPage, isAvoidOverlap],
-	color_output_arg_name:              [isColorOutput],
-	native_pdf_arg_name:                [is_native_pdf_checked],
-	right_to_left_arg_name:             [is_right_to_left_checked],
-	post_gs_arg_name:                   [isPostGs],
-	marked_source_arg_name:             [isMarkedSrc],
-	reflow_text_arg_name:               [is_reflow_text_checked],
-	erase_vertical_line_arg_name:       [is_erase_vertical_line_checked],
-	erase_horizontal_line_arg_name:     [is_erase_horizontal_line_checked],
-	fast_preview_arg_name:              [is_fast_preview_checked],
-	# break_page_avoid_overlap_arg_name:  []
-	ign_small_defects_arg_name:         [isIgnSmallDefects],
-	auto_crop_arg_name:                 [is_autocrop_checked],
-	preview_output_arg_name:            []
+    auto_straignten_arg_name:           [is_autostraighten_checked],
+    break_page_avoid_overlap_arg_name:  [isBreakPage, isAvoidOverlap],
+    color_output_arg_name:              [is_coloroutput_checked],
+    native_pdf_arg_name:                [is_native_pdf_checked],
+    right_to_left_arg_name:             [is_right_to_left_checked],
+    post_gs_arg_name:                   [isPostGs],
+    marked_source_arg_name:             [isMarkedSrc],
+    reflow_text_arg_name:               [is_reflow_text_checked],
+    erase_vertical_line_arg_name:       [is_erase_vertical_line_checked],
+    erase_horizontal_line_arg_name:     [is_erase_horizontal_line_checked],
+    fast_preview_arg_name:              [is_fast_preview_checked],
+    # break_page_avoid_overlap_arg_name:  []
+    ign_small_defects_arg_name:         [isIgnSmallDefects],
+    auto_crop_arg_name:                 [is_autocrop_checked],
+    preview_output_arg_name:            []
 }
 
 arg_cb_map = {
-	device_arg_name:                   on_bind_event_device_unit_cb,
-	width_arg_name:                    on_command_width_height_cb,
-	height_arg_name:                   on_command_width_height_cb,
-	conversion_mode_arg_name:          on_bind_event_mode_cb,
-	output_path_arg_name:              None,
+    device_arg_name:                   on_bind_event_device_unit_cb,
+    width_arg_name:                    on_command_width_height_cb,
+    height_arg_name:                   on_command_width_height_cb,
+    conversion_mode_arg_name:          on_bind_event_mode_cb,
+    output_path_arg_name:              None,
 
-	column_num_arg_name:               on_command_column_num_cb,
-	resolution_multiplier_arg_name:    on_command_resolution_multipler_cb,
-	crop_margin_arg_name:              on_command_and_validate_crop_margin_cb,
-	dpi_arg_name:                      on_command_dpi_cb,
-	page_num_arg_name:                 on_validate_page_nums_cb,
+    column_num_arg_name:               on_command_column_num_cb,
+    resolution_multiplier_arg_name:    on_command_resolution_multipler_cb,
+    crop_margin_arg_name:              on_command_and_validate_crop_margin_cb,
+    dpi_arg_name:                      on_command_dpi_cb,
+    page_num_arg_name:                 on_validate_page_nums_cb,
 
-	fixed_font_size_arg_name:          on_command_fixed_font_size_cb,
-	ocr_arg_name:                      on_command_ocr_and_cpu_cb,
-	ocr_cpu_arg_name:                  on_command_ocr_and_cpu_cb,
-	landscape_arg_name:                on_command_and_validate_landscape_cb,
-	linebreak_arg_name:                on_command_line_break_cb,
+    fixed_font_size_arg_name:          on_command_fixed_font_size_cb,
+    ocr_arg_name:                      on_command_ocr_and_cpu_cb,
+    ocr_cpu_arg_name:                  on_command_ocr_and_cpu_cb,
+    landscape_arg_name:                on_command_and_validate_landscape_cb,
+    linebreak_arg_name:                on_command_line_break_cb,
 
-	auto_straignten_arg_name:          on_command_auto_straighten_cb,
-	break_page_avoid_overlap_arg_name: on_command_break_page_cb,
-	color_output_arg_name:             on_command_color_output_cb,
-	native_pdf_arg_name:               on_command_native_pdf_cb,
-	right_to_left_arg_name:            on_command_right_to_left_cb,
-	post_gs_arg_name:                  on_command_post_gs_cb,
-	marked_source_arg_name:            on_command_marked_src_cb,
-	reflow_text_arg_name:              on_command_reflow_text_cb,
-	erase_vertical_line_arg_name:      on_command_erase_vertical_line_cb,
-	erase_horizontal_line_arg_name:    on_command_erase_horizontal_line_cb,
-	fast_preview_arg_name:             on_command_fast_preview_cb,
-	ign_small_defects_arg_name:        on_command_ign_small_defect_cb,
-	auto_crop_arg_name:                on_command_auto_crop_cb,
+    auto_straignten_arg_name:          on_command_auto_straighten_cb,
+    break_page_avoid_overlap_arg_name: on_command_break_page_cb,
+    color_output_arg_name:             on_command_color_output_cb,
+    native_pdf_arg_name:               on_command_native_pdf_cb,
+    right_to_left_arg_name:            on_command_right_to_left_cb,
+    post_gs_arg_name:                  on_command_post_gs_cb,
+    marked_source_arg_name:            on_command_marked_src_cb,
+    reflow_text_arg_name:              on_command_reflow_text_cb,
+    erase_vertical_line_arg_name:      on_command_erase_vertical_line_cb,
+    erase_horizontal_line_arg_name:    on_command_erase_horizontal_line_cb,
+    fast_preview_arg_name:             on_command_fast_preview_cb,
+    ign_small_defects_arg_name:        on_command_ign_small_defect_cb,
+    auto_crop_arg_name:                on_command_auto_crop_cb,
 
-	preview_output_arg_name:           None
+    preview_output_arg_name:           None
 }
 
 # ############################################################################################### #
@@ -2158,29 +2147,29 @@ stdout_frame.pack(expand=1, fill='both')
 
 
 def on_command_clear_log_cb():
-	clear_logs()
+    clear_logs()
 
 
 def initialize():
-	check_k2pdfopt_path_exists()
+    check_k2pdfopt_path_exists()
 
-	if not load_custom_preset():
-		restore_default_values()
+    if not load_custom_preset():
+        restore_default_values()
 
-	pwd = os.getcwd()
-	log_string('Current directory: ' + pwd)
+    pwd = os.getcwd()
+    log_string('Current directory: ' + pwd)
 
 
 clear_button = ttk.Button(stdout_frame, text='Clear', command=on_command_clear_log_cb)
 clear_button.grid(
-	column=0,
-	row=0,
-	sticky=tk.N+tk.W,
-	pady=0,
-	padx=5,
+    column=0,
+    row=0,
+    sticky=tk.N+tk.W,
+    pady=0,
+    padx=5,
 )
 
-STDOUT_TEXT = scrltxt.ScrolledText(stdout_frame, state=tk.DISABLED, wrap='word')
+STDOUT_TEXT = scrolledtext.ScrolledText(stdout_frame, state=tk.DISABLED, wrap='word')
 STDOUT_TEXT.grid(column=0, row=1, sticky=tk.N+tk.S+tk.E+tk.W)
 stdout_frame.columnconfigure(0, weight=1)
 stdout_frame.rowconfigure(1, weight=1)
