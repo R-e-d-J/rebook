@@ -342,7 +342,6 @@ class MainFrame(ttk.Frame):
 
         self.stdout_text = None
         self.strvar_command_args = tk.StringVar()
-        self.strvar_output_file_path = tk.StringVar()
         self.strvar_current_preview_page_num = tk.StringVar()
         
         self.device_arg_name = '-dev'            # -dev <name>
@@ -609,21 +608,21 @@ class MainFrame(ttk.Frame):
         save_label = ttk.Label(information_frame, text='Save Current Setting as Preset')
         save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        save_button = ttk.Button(information_frame, text='Save', command=self.on_command_save_cb)
-        save_button.grid(column=1, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
+        self.save_button = ttk.Button(information_frame, text='Save', command=self.on_command_save_cb)
+        self.save_button.grid(column=1, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
         output_label = ttk.Label(information_frame, text='Output Pdf File Path')
         output_label.grid(column=0, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        output_path_entry = ttk.Entry(information_frame, state='readonly', textvariable=self.strvar_output_file_path)
-        output_path_entry.grid(column=1, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
+        self.output_path_entry = ttk.Entry(information_frame, state='readonly', textvariable=self.strvar_output_file_path)
+        self.output_path_entry.grid(column=1, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
 
         command_arguments_label = ttk.Label(information_frame, text='Command-line Options')
         command_arguments_label.grid(column=0, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        command_arguments_entry = ttk.Entry(information_frame, state='readonly', textvariable=self.strvar_command_args)
-        command_arguments_entry.bind('<Button-1>', self.on_bind_event_cmd_args_cb)
-        command_arguments_entry.grid(column=1, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
+        self.command_arguments_entry = ttk.Entry(information_frame, state='readonly', textvariable=self.strvar_command_args)
+        self.command_arguments_entry.bind('<Button-1>', self.on_bind_event_cmd_args_cb)
+        self.command_arguments_entry.grid(column=1, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
         # ############################################################################################### #
         # PARAMETERS FRAME
@@ -1494,12 +1493,9 @@ class MainFrame(ttk.Frame):
         )
 
         if filename is not None and len(filename.strip()) > 0:
-
             self.strvar_input_file_path.set(filename)
-            # self.input_path_entry.delete(0, tk.END)     # deletes the current value
-            self.input_path_entry.insert(0, filename)   # inserts new value assigned by 2nd parameter
             (base_path, file_ext) = os.path.splitext(filename)
-            self.strvar_output_file_path = base_path + '-output.pdf'
+            self.strvar_output_file_path.set(base_path + '-output.pdf')
 
     def on_bind_event_device_unit_cb(self, e=None):
         self.update_device_unit_width_height()
