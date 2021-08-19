@@ -16,25 +16,6 @@ import tools
 
 # https://willus.com/k2pdfopt/help/
 
-class ReBook(tk.Frame):
-    k2pdfopt_path
-    custom_preset_file_path
-
-    def __init__(self, master):
-        self.master = master
-        tk.Frame.__init__(self, self.master)
-        self.configure_gui()
-        self.create_widgets()
-   
-    def congigure_gui(self):
-        self.master.title('rebook')
-
-        k2pdfopt_path = './k2pdfopt'
-        custom_preset_file_path = 'rebook_preset.json'
-
-    def create_widgets(self):
-       pass
-
 # ############################################################################################### #
 # Generating k2pdfopt command line
 # ############################################################################################### #
@@ -109,7 +90,8 @@ def generate_command_argument_string():
 # ############################################################################################### #
 # GUI construction
 # ############################################################################################### #
-
+root = tk.Tk()
+root.title('rebook')
 # screen_width = root.winfo_screenwidth()
 # screen_height = root.winfo_screenheight()
 # root.resizable(False, False)
@@ -118,6 +100,9 @@ STDOUT_TEXT = None
 STRVAR_COMMAND_ARGS = tk.StringVar()
 STRVAR_OUTPUT_FILE_PATH = tk.StringVar()
 STRVAR_CURRENT_PREVIEW_PAGE_NUM = tk.StringVar()
+
+k2pdfopt_path = './k2pdfopt'
+custom_preset_file_path = 'rebook_preset.json'
 
 
 # ############################################################################################### #
@@ -160,7 +145,7 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 
 
 def check_k2pdfopt_path_exists():
-    if not os.path.exists(self.k2pdfopt_path):
+    if not os.path.exists(k2pdfopt_path):
         messagebox.showerror(
             message='Failed to find k2pdfopt, ' +
             'please put it under the same directory ' +
@@ -170,8 +155,8 @@ def check_k2pdfopt_path_exists():
 
 
 def load_custom_preset():
-    if os.path.exists(self.custom_preset_file_path):
-        with open(self.custom_preset_file_path) as preset_file:
+    if os.path.exists(custom_preset_file_path):
+        with open(custom_preset_file_path) as preset_file:
             dict_to_load = json.load(preset_file)
 
             if dict_to_load:
@@ -2197,8 +2182,3 @@ initialize()
 
 # start TclTk loop
 root.mainloop()
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    main_app = ReBook(root)
-    root.mainloop()
