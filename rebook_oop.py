@@ -10,7 +10,12 @@ import os
 
 
 class MainFrame(ttk.Frame):
-    root = None
+    root = None             # root of tkinter
+
+    log_tab = None
+    base_tab = None
+    conversion_tab = None
+
     k2pdfopt_cmd_args = None
     strvar_device = None    # tk.StringVar()
     strvar_screen_unit = None   # tk.StringVar()
@@ -111,29 +116,35 @@ class MainFrame(ttk.Frame):
 
     def __init__(self, container):
         super().__init__(container)
-        root = container
-        base_tab = ttk.Notebook(container)
+        self.root = container
+        self.create_tab()
+        self.create_menu()
+        self.create_widget()
 
-        conversion_tab = ttk.Frame(base_tab)
-        base_tab.add(conversion_tab, text='Conversion')
+    def create_tab(self):
+        self.base_tab = ttk.Notebook(self.root)
 
-        log_tab = ttk.Frame(base_tab)
-        base_tab.add(log_tab, text='Logs')
+        self.conversion_tab = ttk.Frame(self.base_tab)
+        self.base_tab.add(self.conversion_tab, text='Conversion')
 
-        base_tab.pack(expand=1, fill='both')
+        self.log_tab = ttk.Frame(self.base_tab)
+        self.base_tab.add(self.log_tab, text='Logs')
 
-        menu_bar = tk.Menu(container)
-        container['menu'] = menu_bar
+        self.base_tab.pack(expand=1, fill='both')
 
+    def create_menu(self):
+        menu_bar = tk.Menu(self.root)
+        self.root['menu'] = menu_bar
         menu_file = tk.Menu(menu_bar)
+        
         menu_bar.add_cascade(menu=menu_file, label='File')
         menu_file.add_command(label='About', command=self.on_command_about_box_cb)
 
-
+    def create_widget(self):
         conversion_tab_left_part_column_num = 0
         conversion_tab_left_part_row_num = 0
 
-        required_input_frame = ttk.Labelframe(conversion_tab, text='Required Inputs')
+        required_input_frame = ttk.Labelframe(self.conversion_tab, text='Required Inputs')
         required_input_frame.grid(
             column=conversion_tab_left_part_column_num,
             row=conversion_tab_left_part_row_num,
@@ -353,9 +364,12 @@ class MainFrame(ttk.Frame):
 class ReBook(tk.Tk):
     def __init__(self):
         super().__init__()
-        # configure the root window
+        self.configure_gui()
+
+    def configure_gui(self):
         self.title('Rebook')
-        # self.geometry('300x100')
+        # self.geometry("500x500")
+        # self.resizable(False, False)
 
 
 if __name__ == "__main__":
