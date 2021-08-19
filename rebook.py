@@ -160,7 +160,7 @@ menu_file.add_command(label='About', command=on_command_about_box_cb)
 
 
 def check_k2pdfopt_path_exists():
-    if not os.path.exists(k2pdfopt_path):
+    if not os.path.exists(self.k2pdfopt_path):
         messagebox.showerror(
             message='Failed to find k2pdfopt, ' +
             'please put it under the same directory ' +
@@ -170,8 +170,8 @@ def check_k2pdfopt_path_exists():
 
 
 def load_custom_preset():
-    if os.path.exists(custom_preset_file_path):
-        with open(custom_preset_file_path) as preset_file:
+    if os.path.exists(self.custom_preset_file_path):
+        with open(self.custom_preset_file_path) as preset_file:
             dict_to_load = json.load(preset_file)
 
             if dict_to_load:
