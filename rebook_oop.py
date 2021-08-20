@@ -168,155 +168,6 @@ class MainFrame(ttk.Frame):
     #     current_preview_page_number_entry,
     # ]
 
-    # default_var_map = {
-    #     device_arg_name:                    ['Kindle 1-5'],
-    #     screen_unit_prefix:                 ['Pixels'],
-    #     width_arg_name:                     ['560'],
-    #     height_arg_name:                    ['735'],
-    #     conversion_mode_arg_name:           ['Default'],
-    #     output_path_arg_name:               [''],
-
-    #     column_num_arg_name:                [False, '2'],
-    #     resolution_multiplier_arg_name:     [False, '1.0'],
-    #     crop_margin_arg_name:               [
-    #                                             False,
-    #                                             '',
-    #                                             '0.00',
-    #                                             '0.00',
-    #                                             '0.00',
-    #                                             '0.00',
-    #                                         ],
-    #     dpi_arg_name:                       [False, '167'],
-    #     page_num_arg_name:                  [''],
-    #     fixed_font_size_arg_name:           [False, '12'],
-    #     ocr_arg_name:                       [False, '50'],
-    #     ocr_cpu_arg_name:                   [False, '50'],
-    #     landscape_arg_name:                 [False, ''],
-    #     linebreak_arg_name:                 [True, '0.200'],
-
-    #     auto_straignten_arg_name:           [False],
-    #     break_page_avoid_overlap_arg_name:  [False, False],
-    #     color_output_arg_name:              [False],
-    #     native_pdf_arg_name:                [False],
-    #     right_to_left_arg_name:             [False],
-    #     post_gs_arg_name:                   [False],
-    #     marked_source_arg_name:             [False],
-    #     reflow_text_arg_name:               [True],
-    #     erase_vertical_line_arg_name:       [False],
-    #     erase_horizontal_line_arg_name:     [False],
-    #     fast_preview_arg_name:              [True],
-    #     ign_small_defects_arg_name:         [False],
-    #     auto_crop_arg_name:                 [False],
-
-    #     preview_output_arg_name:            []
-    # }
-
-    # arg_var_map = {
-    #     device_arg_name:                    [strvar_device],
-    #     screen_unit_prefix:                 [strvar_screen_unit],
-    #     width_arg_name:                     [strvar_screen_width],
-    #     height_arg_name:                    [strvar_screen_height],
-    #     conversion_mode_arg_name:           [strvar_conversion_mode],
-    #     output_path_arg_name:               [STRVAR_OUTPUT_FILE_PATH],
-
-    #     column_num_arg_name:                [
-    #                                             is_column_num_checked,
-    #                                             strvar_column_num,
-    #                                         ],
-    #     resolution_multiplier_arg_name:     [
-    #                                             is_resolution_multipler_checked,
-    #                                             strvar_resolution_multiplier,
-    #                                         ],
-    #     crop_margin_arg_name:               [
-    #                                             is_crop_margin_checked,
-    #                                             strvar_crop_page_range,
-    #                                             strvar_left_margin,
-    #                                             strvar_top_margin,
-    #                                             strvarRightMargin,
-    #                                             strvarBottomMargin,
-    #                                         ],
-    #     dpi_arg_name:                       [
-    #                                             is_dpi_checked,
-    #                                             strvar_dpi,
-    #                                         ],
-    #     page_num_arg_name:                  [
-    #                                             strvar_page_numbers,
-    #                                         ],
-
-    #     fixed_font_size_arg_name:           [
-    #                                             is_fixed_font_size_checked,
-    #                                             strvar_fixed_font_size,
-    #                                         ],
-    #     ocr_arg_name:                       [
-    #                                             is_ocr_cpu_limitation_checked,
-    #                                             strvar_ocr_cpu_percentage,
-    #                                         ],
-    #     ocr_cpu_arg_name:                   [
-    #                                             is_ocr_cpu_limitation_checked,
-    #                                             strvar_ocr_cpu_percentage,
-    #                                         ],
-    #     landscape_arg_name:                 [
-    #                                             is_landscape_checked,
-    #                                             strvar_landscape_pages,
-    #                                         ],
-    #     linebreak_arg_name:                 [
-    #                                             is_smart_linebreak_checked,
-    #                                             strvar_linebreak_space,
-    #                                         ],
-
-    #     auto_straignten_arg_name:           [is_autostraighten_checked],
-    #     break_page_avoid_overlap_arg_name:  [isBreakPage, isAvoidOverlap],
-    #     color_output_arg_name:              [is_coloroutput_checked],
-    #     native_pdf_arg_name:                [is_native_pdf_checked],
-    #     right_to_left_arg_name:             [is_right_to_left_checked],
-    #     post_gs_arg_name:                   [isPostGs],
-    #     marked_source_arg_name:             [isMarkedSrc],
-    #     reflow_text_arg_name:               [is_reflow_text_checked],
-    #     erase_vertical_line_arg_name:       [is_erase_vertical_line_checked],
-    #     erase_horizontal_line_arg_name:     [is_erase_horizontal_line_checked],
-    #     fast_preview_arg_name:              [is_fast_preview_checked],
-    #     # break_page_avoid_overlap_arg_name:  []
-    #     ign_small_defects_arg_name:         [isIgnSmallDefects],
-    #     auto_crop_arg_name:                 [is_autocrop_checked],
-    #     preview_output_arg_name:            []
-    # }
-
-    # arg_cb_map = {
-    #     device_arg_name:                   on_bind_event_device_unit_cb,
-    #     width_arg_name:                    on_command_width_height_cb,
-    #     height_arg_name:                   on_command_width_height_cb,
-    #     conversion_mode_arg_name:          on_bind_event_mode_cb,
-    #     output_path_arg_name:              None,
-
-    #     column_num_arg_name:               on_command_column_num_cb,
-    #     resolution_multiplier_arg_name:    on_command_resolution_multipler_cb,
-    #     crop_margin_arg_name:              on_command_and_validate_crop_margin_cb,
-    #     dpi_arg_name:                      on_command_dpi_cb,
-    #     page_num_arg_name:                 on_validate_page_nums_cb,
-
-    #     fixed_font_size_arg_name:          on_command_fixed_font_size_cb,
-    #     ocr_arg_name:                      on_command_ocr_and_cpu_cb,
-    #     ocr_cpu_arg_name:                  on_command_ocr_and_cpu_cb,
-    #     landscape_arg_name:                on_command_and_validate_landscape_cb,
-    #     linebreak_arg_name:                on_command_line_break_cb,
-
-    #     auto_straignten_arg_name:          on_command_auto_straighten_cb,
-    #     break_page_avoid_overlap_arg_name: on_command_break_page_cb,
-    #     color_output_arg_name:             on_command_color_output_cb,
-    #     native_pdf_arg_name:               on_command_native_pdf_cb,
-    #     right_to_left_arg_name:            on_command_right_to_left_cb,
-    #     post_gs_arg_name:                  on_command_post_gs_cb,
-    #     marked_source_arg_name:            on_command_marked_src_cb,
-    #     reflow_text_arg_name:              on_command_reflow_text_cb,
-    #     erase_vertical_line_arg_name:      on_command_erase_vertical_line_cb,
-    #     erase_horizontal_line_arg_name:    on_command_erase_horizontal_line_cb,
-    #     fast_preview_arg_name:             on_command_fast_preview_cb,
-    #     ign_small_defects_arg_name:        on_command_ign_small_defect_cb,
-    #     auto_crop_arg_name:                on_command_auto_crop_cb,
-
-    #     preview_output_arg_name:           None
-    # }
-
     def __init__(self, container):
         super().__init__(container)
         self.root = container           # root of tkinter
@@ -378,8 +229,8 @@ class MainFrame(ttk.Frame):
         self.strvar_crop_page_range = tk.StringVar()
         self.strvar_left_margin = tk.StringVar()
         self.strvar_top_margin = tk.StringVar()
-        self.strvarRightMargin = tk.StringVar()         # Must it be "width" ?
-        self.strvarBottomMargin = tk.StringVar()        # Must if be "height" ?
+        self.strvar_width_margin = tk.StringVar()         # Must it be "width" ?
+        self.strvar_height_margin = tk.StringVar()        # Must if be "height" ?
         self.strvar_dpi = tk.StringVar()
         self.strvar_page_numbers = tk.StringVar()
         self.strvar_fixed_font_size = tk.StringVar()
@@ -417,17 +268,167 @@ class MainFrame(ttk.Frame):
         self.isIgnSmallDefects = tk.BooleanVar()
         self.is_autocrop_checked = tk.BooleanVar()
 
-        # ############################################################################################### #
-        # PREVIEW FRAME
-        # ############################################################################################### #
         self.preview_output_arg_name = '-bmp'
         self.preview_image_path = './k2pdfopt_out.png'
 
+        self.arg_cb_map = {
+            self.device_arg_name:                   self.on_bind_event_device_unit_cb,
+            self.width_arg_name:                    self.on_command_width_height_cb,
+            self.height_arg_name:                   self.on_command_width_height_cb,
+            self.conversion_mode_arg_name:          self.on_bind_event_mode_cb,
+            self.output_path_arg_name:              None,
+
+            self.column_num_arg_name:               self.on_command_column_num_cb,
+            self.resolution_multiplier_arg_name:    self.on_command_resolution_multipler_cb,
+            self.crop_margin_arg_name:              self.on_command_and_validate_crop_margin_cb,
+            self.dpi_arg_name:                      self.on_command_dpi_cb,
+            self.page_num_arg_name:                 self.on_validate_page_nums_cb,
+
+            self.fixed_font_size_arg_name:          self.on_command_fixed_font_size_cb,
+            self.ocr_arg_name:                      self.on_command_ocr_and_cpu_cb,
+            self.ocr_cpu_arg_name:                  self.on_command_ocr_and_cpu_cb,
+            self.landscape_arg_name:                self.on_command_and_validate_landscape_cb,
+            self.linebreak_arg_name:                self.on_command_line_break_cb,
+
+            self.auto_straignten_arg_name:          self.on_command_auto_straighten_cb,
+            self.break_page_avoid_overlap_arg_name: self.on_command_break_page_cb,
+            self.color_output_arg_name:             self.on_command_color_output_cb,
+            self.native_pdf_arg_name:               self.on_command_native_pdf_cb,
+            self.right_to_left_arg_name:            self.on_command_right_to_left_cb,
+            self.post_gs_arg_name:                  self.on_command_post_gs_cb,
+            self.marked_source_arg_name:            self.on_command_marked_src_cb,
+            self.reflow_text_arg_name:              self.on_command_reflow_text_cb,
+            self.erase_vertical_line_arg_name:      self.on_command_erase_vertical_line_cb,
+            self.erase_horizontal_line_arg_name:    self.on_command_erase_horizontal_line_cb,
+            self.fast_preview_arg_name:             self.on_command_fast_preview_cb,
+            self.ign_small_defects_arg_name:        self.on_command_ign_small_defect_cb,
+            self.auto_crop_arg_name:                self.on_command_auto_crop_cb,
+
+            self.preview_output_arg_name:            []
+        }
+
+        self.default_var_map = {
+            self.device_arg_name:                    ['Kindle 1-5'],
+            self.screen_unit_prefix:                 ['Pixels'],
+            self.width_arg_name:                     ['560'],
+            self.height_arg_name:                    ['735'],
+            self.conversion_mode_arg_name:           ['Default'],
+            self.output_path_arg_name:               [''],
+
+            self.column_num_arg_name:                [False, '2'],
+            self.resolution_multiplier_arg_name:     [False, '1.0'],
+            self.crop_margin_arg_name:               [
+                                                    False,
+                                                    '',
+                                                    '0.00',
+                                                    '0.00',
+                                                    '0.00',
+                                                    '0.00',
+                                                ],
+            self.dpi_arg_name:                       [False, '167'],
+            self.page_num_arg_name:                  [''],
+            self.fixed_font_size_arg_name:           [False, '12'],
+            self.ocr_arg_name:                       [False, '50'],
+            self.ocr_cpu_arg_name:                   [False, '50'],
+            self.landscape_arg_name:                 [False, ''],
+            self.linebreak_arg_name:                 [True, '0.200'],
+
+            self.auto_straignten_arg_name:           [False],
+            self.break_page_avoid_overlap_arg_name:  [False, False],
+            self.color_output_arg_name:              [False],
+            self.native_pdf_arg_name:                [False],
+            self.right_to_left_arg_name:             [False],
+            self.post_gs_arg_name:                   [False],
+            self.marked_source_arg_name:             [False],
+            self.reflow_text_arg_name:               [True],
+            self.erase_vertical_line_arg_name:       [False],
+            self.erase_horizontal_line_arg_name:     [False],
+            self.fast_preview_arg_name:              [True],
+            self.ign_small_defects_arg_name:         [False],
+            self.auto_crop_arg_name:                 [False],
+
+            self.preview_output_arg_name:            []
+        }
+
+        self.arg_var_map = {
+            self.device_arg_name:                    [self.strvar_device],
+            self.screen_unit_prefix:                 [self.strvar_screen_unit],
+            self.width_arg_name:                     [self.strvar_screen_width],
+            self.height_arg_name:                    [self.strvar_screen_height],
+            self.conversion_mode_arg_name:           [self.strvar_conversion_mode],
+            self.output_path_arg_name:               [self.strvar_output_file_path],
+
+            self.column_num_arg_name:                [
+                                                    self.is_column_num_checked,
+                                                    self.strvar_column_num,
+                                                ],
+            self.resolution_multiplier_arg_name:     [
+                                                    self.is_resolution_multipler_checked,
+                                                    self.strvar_resolution_multiplier,
+                                                ],
+            self.crop_margin_arg_name:               [
+                                                    self.is_crop_margin_checked,
+                                                    self.strvar_crop_page_range,
+                                                    self.strvar_left_margin,
+                                                    self.strvar_top_margin,
+                                                    self.strvar_width_margin,
+                                                    self.strvar_height_margin,
+                                                ],
+            self.dpi_arg_name:                       [
+                                                    self.is_dpi_checked,
+                                                    self.strvar_dpi,
+                                                ],
+            self.page_num_arg_name:                  [
+                                                    self.strvar_page_numbers,
+                                                ],
+
+            self.fixed_font_size_arg_name:           [
+                                                    self.is_fixed_font_size_checked,
+                                                    self.strvar_fixed_font_size,
+                                                ],
+            self.ocr_arg_name:                       [
+                                                    self.is_ocr_cpu_limitation_checked,
+                                                    self.strvar_ocr_cpu_percentage,
+                                                ],
+            self.ocr_cpu_arg_name:                   [
+                                                    self.is_ocr_cpu_limitation_checked,
+                                                    self.strvar_ocr_cpu_percentage,
+                                                ],
+            self.landscape_arg_name:                 [
+                                                    self.is_landscape_checked,
+                                                    self.strvar_landscape_pages,
+                                                ],
+            self.linebreak_arg_name:            [
+                                                    self.is_smart_linebreak_checked,
+                                                    self.strvar_linebreak_space,
+                                                ],
+
+            self.auto_straignten_arg_name:           [self.is_autostraighten_checked],
+            self.break_page_avoid_overlap_arg_name:  [self.isBreakPage, self.isAvoidOverlap],
+            self.color_output_arg_name:              [self.is_coloroutput_checked],
+            self.native_pdf_arg_name:                [self.is_native_pdf_checked],
+            self.right_to_left_arg_name:             [self.is_right_to_left_checked],
+            self.post_gs_arg_name:                   [self.isPostGs],
+            self.marked_source_arg_name:             [self.isMarkedSrc],
+            self.reflow_text_arg_name:               [self.is_reflow_text_checked],
+            self.erase_vertical_line_arg_name:       [self.is_erase_vertical_line_checked],
+            self.erase_horizontal_line_arg_name:     [self.is_erase_horizontal_line_checked],
+            self.fast_preview_arg_name:              [self.is_fast_preview_checked],
+            # break_page_avoid_overlap_arg_name:  []
+            self.ign_small_defects_arg_name:         [self.isIgnSmallDefects],
+            self.auto_crop_arg_name:                 [self.is_autocrop_checked],
+            self.preview_output_arg_name:            []
+        }
+
+        # ############################################################################################### #
+        # PREVIEW FRAME
+        # ############################################################################################### #
+
         self.strvar_current_preview_page_num = None
-        self.canvas_image_tag = None
         self.current_preview_page_index = 0
-        self.background_future = None
         self.background_process = None
+        self.background_future = None
+        self.canvas_image_tag = None
 
         self.create_tabs()
         self.create_menu()
@@ -579,11 +580,11 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-        mode_combobox = ttk.Combobox(self.required_input_frame, state='readonly', textvariable=self.strvar_conversion_mode)
-        mode_combobox['values'] = list(self.mode_choice_map.values())
-        mode_combobox.current(0)
-        mode_combobox.bind('<<ComboboxSelected>>', self.on_bind_event_mode_cb)
-        mode_combobox.grid(
+        self.mode_combobox = ttk.Combobox(self.required_input_frame, state='readonly', textvariable=self.strvar_conversion_mode)
+        self.mode_combobox['values'] = list(self.mode_choice_map.values())
+        self.mode_combobox.current(0)
+        self.mode_combobox.bind('<<ComboboxSelected>>', self.on_bind_event_mode_cb)
+        self.mode_combobox.grid(
             column=1,
             row=required_frame_row_num,
             sticky=tk.N+tk.W,
@@ -818,7 +819,7 @@ class MainFrame(ttk.Frame):
             to=100,
             increment=0.01,
             state='readonly',
-            textvariable=self.strvarRightMargin,
+            textvariable=self.strvar_width_margin,
             command=self.on_command_and_validate_crop_margin_cb,
         )
         rightMarginSpinBox.grid(
@@ -846,7 +847,7 @@ class MainFrame(ttk.Frame):
             to=100,
             increment=0.01,
             state='readonly',
-            textvariable=self.strvarBottomMargin,
+            textvariable=self.strvar_height_margin,
             command=self.on_command_and_validate_crop_margin_cb,
         )
         bottomMarginSpinBox.grid(
@@ -1447,6 +1448,8 @@ class MainFrame(ttk.Frame):
         stdout_frame = ttk.Labelframe(self.log_tab, text='k2pdfopt STDOUT:')
         stdout_frame.pack(expand=1, fill='both')
 
+        self.initialize_vars(self.default_var_map)
+
     def create_tabs(self):
         self.base_tab = ttk.Notebook(self.root)
 
@@ -1465,6 +1468,18 @@ class MainFrame(ttk.Frame):
         
         menu_bar.add_cascade(menu=menu_file, label='File')
         menu_file.add_command(label='About', command=self.on_command_about_box_cb)
+
+    def initialize_vars(self, dict_vars):
+        for k, v in dict_vars.items():
+            for i in range(len(v)):
+                self.arg_var_map[k][i].set(v[i])
+
+        # What's that ?
+        # for cb_func in self.arg_cb_map.values():
+        #     if cb_func is not None:
+        #         cb_func()
+
+        self.update_cmd_arg_entry_strvar()	# must be after loading preset values
 
     def create_widgets(self):
         pass
@@ -1557,7 +1572,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.column_num_arg_name)
 
-
     def on_command_resolution_multipler_cb(self):
         if self.is_resolution_multipler_checked.get():
             arg = (
@@ -1567,7 +1581,6 @@ class MainFrame(ttk.Frame):
             self.add_or_update_command_argument(self.resolution_multiplier_arg_name, arg)
         else:
             self.remove_command_argument(self.resolution_multiplier_arg_name)
-
 
     def on_command_and_validate_crop_margin_cb(self):
         if (len(self.strvar_crop_page_range.get().strip()) > 0 and
@@ -1586,8 +1599,8 @@ class MainFrame(ttk.Frame):
             margin_args = [
                 self.strvar_left_margin.get(),
                 self.strvar_top_margin.get(),
-                self.strvarRightMargin.get(),
-                self.strvarBottomMargin.get(),
+                self.strvar_width_margin.get(),
+                self.strvar_height_margin.get(),
             ]
             arg = (
                 # no space between -cbox and page range
@@ -1598,14 +1611,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.crop_margin_arg_name)
 
-
     def on_command_dpi_cb(self):
         if self.is_dpi_checked.get():
             arg = self.dpi_arg_name + ' ' + self.strvar_dpi.get().strip()
             self.add_or_update_command_argument(self.dpi_arg_name, arg)
         else:
             self.remove_command_argument(self.dpi_arg_name)
-
 
     def validate_and_update_page_nums(self):
         if (len(self.strvar_page_numbers.get().strip()) > 0 and
@@ -1626,10 +1637,8 @@ class MainFrame(ttk.Frame):
 
         return True
 
-
     def on_validate_page_nums_cb(self):
         self.validate_and_update_page_nums()
-
 
     def on_command_fixed_font_size_cb(self):
         if self.is_fixed_font_size_checked.get():
@@ -1652,7 +1661,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.ocr_arg_name)
             self.remove_command_argument(self.ocr_cpu_arg_name)
-
 
     def on_command_and_validate_landscape_cb(self):
         if (len(self.strvar_landscape_pages.get().strip()) > 0 and
@@ -1690,7 +1698,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.auto_straignten_arg_name)
 
-
     def on_command_break_page_cb(self):
         if self.isBreakPage.get():
             # break page conflicts with avoid overlap since they are both -bp flag
@@ -1702,14 +1709,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
-
     def on_command_color_output_cb(self):
         if self.is_coloroutput_checked.get():
             arg = self.color_output_arg_name
             self.add_or_update_command_argument(self.color_output_arg_name, arg)
         else:
             self.remove_command_argument(self.color_output_arg_name)
-
 
     def on_command_native_pdf_cb(self):
         if self.is_native_pdf_checked.get():
@@ -1726,14 +1731,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.native_pdf_arg_name)
 
-
     def on_command_right_to_left_cb(self):
         if self.is_right_to_left_checked.get():
             arg = self.right_to_left_arg_name
             self.add_or_update_command_argument(self.right_to_left_arg_name, arg)
         else:
             self.remove_command_argument(self.right_to_left_arg_name)
-
 
     def on_command_post_gs_cb(self):
         if self.isPostGs.get():
@@ -1742,14 +1745,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.post_gs_arg_name)
 
-
     def on_command_marked_src_cb(self):
         if self.isMarkedSrc.get():
             arg = self.marked_source_arg_name
             self.add_or_update_command_argument(self.marked_source_arg_name, arg)
         else:
             self.remove_command_argument(self.marked_source_arg_name)
-
 
     def on_command_reflow_text_cb(self):
         if self.is_reflow_text_checked.get():
@@ -1776,7 +1777,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.fast_preview_arg_name)
 
-
     def on_command_avoid_text_selection_overlap_cb(self):
         if self.isAvoidOverlap.get():
             # avoid overlap conflicts with break page since they are both -bp flag
@@ -1788,7 +1788,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
-
     def on_command_ign_small_defect_cb(self):
         if self.isIgnSmallDefects.get():
             arg = (self.ign_small_defects_arg_name + ' 1.5')
@@ -1796,14 +1795,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.ign_small_defects_arg_name)
 
-
     def on_command_erase_horizontal_line_cb(self):
         if self.is_erase_horizontal_line_checked.get():
             arg = self.erase_horizontal_line_arg_name + ' 1'
             self.add_or_update_command_argument(self.erase_horizontal_line_arg_name, arg)
         else:
             self.remove_command_argument(self.erase_horizontal_line_arg_name)
-
 
     def on_command_auto_crop_cb(self):
         if self.is_autocrop_checked.get():
@@ -1815,22 +1812,18 @@ class MainFrame(ttk.Frame):
     def remove_preview_image_and_clear_canvas(self):
         if os.path.exists(self.preview_image_path):
             os.remove(self.preview_image_path)
-
         self.preview_image_canvas.delete(tk.ALL)
         self.canvas_image_tag = None
 
     def load_preview_image(self, img_path, preview_page_index):
-
         if os.path.exists(img_path):
             self.preview_image = tk.PhotoImage(file=img_path)
-
             self.canvas_image_tag = self.preview_image_canvas.create_image(
                 (0, 0),
                 anchor=tk.NW,
                 image=self.preview_image,
                 tags='preview',
             )
-
             (left_pos, top_pos, right_pos, bottom_pos) = (
                 0,
                 0,
@@ -2011,6 +2004,9 @@ class MainFrame(ttk.Frame):
         future = asyncio.run_coroutine_threadsafe(async_run_cmd_and_log(executed), self.thread_loop)
 
         return future
+
+    def update_cmd_arg_entry_strvar(self):
+        self.strvar_command_args.set(self.generate_command_argument_string())
 
 
 class ReBook(tk.Tk):
