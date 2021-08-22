@@ -188,6 +188,7 @@ def clear_logs():
 def initialize_vars(dict_vars):
 
     for k, v in dict_vars.items():
+        print(dict_vars[k])
         for i in range(len(v)):
             arg_var_map[k][i].set(v[i])
 
@@ -414,6 +415,7 @@ def on_command_open_pdf_file_cb():
 
 def update_device_unit_width_height():
     if device_combobox.current() != 20:  # non-other type
+        print(device_combobox.current())
         device_type = device_argument_map[device_combobox.current()]
         arg = device_arg_name + ' ' + device_type
         add_or_update_command_argument(device_arg_name, arg)

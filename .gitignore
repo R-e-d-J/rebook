@@ -1,3 +1,4 @@
-__pycache__/
-k2pdfopt_out.png
-rebook_preset.json
+__pycache__/*
+.vscode/*
+*.png
+*.json
