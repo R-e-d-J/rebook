@@ -115,6 +115,7 @@ class MainFrame(ttk.Frame):
     def __init__(self, container, k2pdfopt_path):
         super().__init__(container)
         self.root = container           # root of tkinter
+        self.root['bg'] = 'white'
 
         self.log_tab = None
         self.base_tab = None
@@ -393,18 +394,18 @@ class MainFrame(ttk.Frame):
             self.current_preview_page_number_entry,
         ]
 
-        # ############################################################################################### #
+        # ####################################################################################### #
         # PREVIEW FRAME
-        # ############################################################################################### #
+        # ####################################################################################### #
 
-        self.strvar_current_preview_page_num = None
+        # self.strvar_current_preview_page_num = None
         self.current_preview_page_index = 0
         self.background_process = None
         self.background_future = None
         self.canvas_image_tag = None
 
         self.create_tabs()
-        self.create_menu()
+        self.create_file_menu()
         # self.create_widgets()
         conversion_tab_left_part_column_num = 0
         conversion_tab_left_part_line_num = 0
@@ -595,9 +596,9 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-        # ############################################################################################### #
+        # ####################################################################################### #
         # INFORMATIONS FRAME
-        # ############################################################################################### #
+        # ####################################################################################### #
         conversion_tab_left_part_line_num += 1
 
         information_frame = ttk.Labelframe(self.conversion_tab, text='Related Informations')
@@ -612,7 +613,11 @@ class MainFrame(ttk.Frame):
         save_label = ttk.Label(information_frame, text='Save setting as preset')
         save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        self.save_button = ttk.Button(information_frame, text='Save', command=self.on_command_save_cb)
+        self.save_button = ttk.Button(
+            information_frame,
+            text='Save',
+            command=self.on_click_save_preset
+        )
         self.save_button.grid(column=1, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
         output_label = ttk.Label(information_frame, text='Output Pdf File Path')
@@ -639,9 +644,9 @@ class MainFrame(ttk.Frame):
         self.command_arguments_entry.bind('<Button-1>', self.on_bind_event_cmd_args_cb)
         self.command_arguments_entry.grid(column=1, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        # ############################################################################################### #
+        # ####################################################################################### #
         # PARAMETERS FRAME
-        # ############################################################################################### #
+        # ####################################################################################### #
         conversion_tab_left_part_line_num += 1
 
         self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters')
@@ -1073,15 +1078,15 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-        # ############################################################################################### #
+        # ####################################################################################### #
         # RIGHT SIDE OF CONVERSION TAB
-        # ############################################################################################### #
+        # ####################################################################################### #
         conversion_tab_right_part_column_num = 1
         conversion_tab_right_part_row_num = -1
 
-        # ############################################################################################### #
+        # ####################################################################################### #
         # OPTIONS FRAME
-        # ############################################################################################### #
+        # ####################################################################################### #
         conversion_tab_right_part_row_num += 1
 
         self.option_frame = ttk.Labelframe(
@@ -1285,7 +1290,7 @@ class MainFrame(ttk.Frame):
             self.option_frame,
             text='Ignore Small Defects',
             variable=self.isIgnSmallDefects,
-            command=self.on_command_ign_small_defect_cb,
+            command=self.on_command_ignore_small_defect_cb,
         )
         self.ignore_defect_check_button.grid(
             column=option_frace_right_part_col_num,
@@ -1506,20 +1511,28 @@ class MainFrame(ttk.Frame):
         # ####################################################################################### #
         self.stdout_frame = ttk.Labelframe(self.log_tab, text='k2pdfopt STDOUT:')
         self.stdout_frame.pack(expand=1, fill='both')
+        self.stdout_frame.columnconfigure(0, weight=1)
+        self.stdout_frame.rowconfigure(1, weight=1)
 
-        self.clear_button = ttk.Button(self.stdout_frame, text='Clear', command=self.on_command_clear_log_cb)
+        self.stdout_text = scrolledtext.ScrolledText(
+            self.stdout_frame,
+            state=tk.DISABLED,
+            wrap='word'
+        )
+        self.stdout_text.grid(column=0, row=0, sticky=tk.N+tk.S+tk.E+tk.W)
+
+        self.clear_button = ttk.Button(
+            self.stdout_frame,
+            text='Clear',
+            command=self.on_command_clear_log_cb
+        )
         self.clear_button.grid(
             column=0,
-            row=0,
-            sticky=tk.N+tk.W,
+            row=1,
+            sticky=tk.N+tk.E,
             pady=0,
             padx=5,
         )
-
-        self.stdout_text = scrolledtext.ScrolledText(self.stdout_frame, state=tk.DISABLED, wrap='word')
-        self.stdout_text.grid(column=0, row=1, sticky=tk.N+tk.S+tk.E+tk.W)
-        self.stdout_frame.columnconfigure(0, weight=1)
-        self.stdout_frame.rowconfigure(1, weight=1)
 
         # Prepare to run
         self.thread_loop = asyncio.get_event_loop()
@@ -1533,25 +1546,26 @@ class MainFrame(ttk.Frame):
         self.log_string('Current directory : ' + pwd)
 
     def create_tabs(self):
+        """ Create 'Conversion' and 'Logs' ReBook's tabs """
         self.base_tab = ttk.Notebook(self.root)
-
         self.conversion_tab = ttk.Frame(self.base_tab)
         self.base_tab.add(self.conversion_tab, text='Conversion')
-
         self.log_tab = ttk.Frame(self.base_tab)
         self.base_tab.add(self.log_tab, text='Logs')
-
         self.base_tab.pack(expand=1, fill='both')
 
-    def create_menu(self):
+    def create_file_menu(self):
+        """ Create the menu 'File' for ReBook. """
         menu_bar = tk.Menu(self.root)
         self.root['menu'] = menu_bar
         menu_file = tk.Menu(menu_bar)
-        
         menu_bar.add_cascade(menu=menu_file, label='File')
+        menu_file.add_command(label="Open file…", command=self.on_command_open_pdf_file_cb)
         menu_file.add_command(label='About', command=self.on_command_about_box_cb)
+        menu_file.add_command(label="Quit", command=self.root.quit)
 
     def initialize(self):
+        """ Simulate a click on every field : execute all the binded method. """
         self.on_bind_event_device_unit_cb()
         self.on_command_width_height_cb()
         self.on_command_width_height_cb()
@@ -1577,22 +1591,62 @@ class MainFrame(ttk.Frame):
         self.on_command_erase_vertical_line_cb()
         self.on_command_erase_horizontal_line_cb()
         self.on_command_fast_preview_cb()
-        self.on_command_ign_small_defect_cb()
+        self.on_command_ignore_small_defect_cb()
         self.on_command_auto_crop_cb()
 
     def initialize_vars(self, dict_vars):
+        """ Initialize variables from a dictionnary and build the associated command line. """
         for key, value in dict_vars.items():
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
-
         self.initialize()
-        self.update_cmd_arg_entry_strvar()
+        self.update_commdan_argument_entry_strvar()
 
     def create_widgets(self):
         pass
 
+    # Command management methods
     def remove_command_argument(self, arg_key):
+        """ Removing argument from k2pdfopt command line. """
         self.k2pdfopt_cmd_args.pop(arg_key, None)
+
+    def add_or_update_command_argument(self, arg_key, arg_value):
+        """ Add or update argument to k2pdfopt command line. """
+        self.k2pdfopt_cmd_args[arg_key] = arg_value
+        print(self.k2pdfopt_cmd_args)   # Display command line in entry
+        # self.update_commdan_argument_entry_strvar()
+
+    def update_commdan_argument_entry_strvar(self):
+        self.strvar_command_args.set(self.generate_command_argument_string())
+
+    def generate_command_argument_string(self):
+        """ Transforms the dictionary `k2pdfopt_cmd_args` into a command line arguments list.
+
+            Remarks: at the end, the chosen argument are completed by `mandatory` arguments
+                    ('-a- -ui- -x').
+        """
+        device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
+        if device_arg is None:
+            width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name)
+            height_arg = self.k2pdfopt_cmd_args.pop(self.height_arg_name)
+
+        mode_arg = self.k2pdfopt_cmd_args.pop(self.conversion_mode_arg_name)
+        arg_list = [mode_arg] + list(self.k2pdfopt_cmd_args.values())
+        self.k2pdfopt_cmd_args[self.conversion_mode_arg_name] = mode_arg
+
+        if device_arg is not None:
+            arg_list.append(device_arg)
+            self.k2pdfopt_cmd_args[self.device_arg_name] = device_arg
+        else:
+            arg_list.append(width_arg)
+            arg_list.append(height_arg)
+            self.k2pdfopt_cmd_args[self.width_arg_name] = width_arg
+            self.k2pdfopt_cmd_args[self.height_arg_name] = height_arg
+
+        arg_list.append('-a- -ui- -x')
+        self.log_string('Generate Argument List: ' + str(arg_list))
+        cmd_arg_str = ' '.join(arg_list)
+        return cmd_arg_str
 
     def on_command_about_box_cb(self):
         about_message = \
@@ -1609,51 +1663,39 @@ class MainFrame(ttk.Frame):
         supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
 
         filename = filedialog.askopenfilename(
-            parent=self.root,
             filetypes=supported_formats,
             title='Select your file',
         )
-
         if filename is not None and len(filename.strip()) > 0:
             self.strvar_input_file_path.set(filename)
             (base_path, file_ext) = os.path.splitext(filename)
             self.strvar_output_file_path.set(base_path + '-output.pdf')
 
     def on_bind_event_device_unit_cb(self, e=None):
-        print(self.device_combobox.current())
         self.update_device_unit_width_height()
 
     def on_command_width_height_cb(self):
-        print(self.device_combobox.current())
         self.update_device_unit_width_height()
 
     def update_device_unit_width_height(self):
-        print(self.device_combobox.current())
         if self.device_combobox.current() != 20:  # non-other type
             self.unit_combobox.configure(state='disabled')
             self.width_spinbox.configure(state='disabled')
             self.height_spinbox.configure(state='disabled')
-
-            print(self.device_combobox.current())
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + ' ' + device_type
             self.add_or_update_command_argument(self.device_arg_name, arg)
             self.remove_command_argument(self.width_arg_name)
             self.remove_command_argument(self.height_arg_name)
-
         else:   # "Other type" chosen
             self.unit_combobox.configure(state='normal')
             self.width_spinbox.configure(state='normal')
             self.height_spinbox.configure(state='normal')
-            
             screen_unit = self.unit_argument_map[self.unit_combobox.current()]
-
             width_arg = (self.width_arg_name + ' ' + self.strvar_screen_width.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.width_arg_name, width_arg)
-
             height_arg = (self.height_arg_name + ' ' + self.strvar_screen_height.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.height_arg_name, height_arg)
-
             self.remove_command_argument(self.device_arg_name)
 
     def on_bind_event_mode_cb(self, e=None):
@@ -1661,22 +1703,16 @@ class MainFrame(ttk.Frame):
         arg = (self.conversion_mode_arg_name + ' ' + conversion_mode)
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
 
-    def add_or_update_command_argument(self, arg_key, arg_value):
-        self.k2pdfopt_cmd_args[arg_key] = arg_value
-        # Display command line in entry
-        print(self.k2pdfopt_cmd_args)
-        # self.update_cmd_arg_entry_strvar()
-
-    def on_command_save_cb(self):
+    def on_click_save_preset(self):
+        """ Save the current present into a json file for next use. """
         with open(self.custom_preset_file_path, 'w') as preset_file:
             dict_to_save = {}
             for key, value in self.arg_var_map.items():
                 dict_to_save[key] = [var.get() for var in value]
-
             json.dump(dict_to_save, preset_file)
 
     def on_bind_event_cmd_args_cb(self, e=None):
-        self.update_cmd_arg_entry_strvar()
+        self.update_commdan_argument_entry_strvar()
 
     def on_command_column_num_cb(self):
         if self.is_column_num_checked.get():
@@ -1790,7 +1826,6 @@ class MainFrame(ttk.Frame):
             if len(self.strvar_landscape_pages.get().strip()) > 0:
                 # no space between -ls and page numbers
                 arg += self.strvar_landscape_pages.get()
-
             self.add_or_update_command_argument(self.landscape_arg_name, arg.strip())
         else:
             self.remove_command_argument(self.landscape_arg_name)
@@ -1806,62 +1841,58 @@ class MainFrame(ttk.Frame):
 
     def on_command_auto_straighten_cb(self):
         if self.is_autostraighten_checked.get():
-            arg = self.auto_straignten_arg_name
-            self.add_or_update_command_argument(self.auto_straignten_arg_name, arg)
+            self.add_or_update_command_argument(self.auto_straignten_arg_name, self.auto_straignten_arg_name)
         else:
             self.remove_command_argument(self.auto_straignten_arg_name)
 
     def on_command_break_page_cb(self):
+        """ Native PDF management
+        
+            Remarks : break page conflicts with avoid overlap since they are both -bp flag
+        """
         if self.isBreakPage.get():
-            # break page conflicts with avoid overlap since they are both -bp flag
             self.isAvoidOverlap.set(False)
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
-
-            arg = self.break_page_avoid_overlap_arg_name
-            self.add_or_update_command_argument(self.break_page_avoid_overlap_arg_name, arg)
+            self.add_or_update_command_argument(self.break_page_avoid_overlap_arg_name, self.break_page_avoid_overlap_arg_name)
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def on_command_color_output_cb(self):
         if self.is_coloroutput_checked.get():
-            arg = self.color_output_arg_name
-            self.add_or_update_command_argument(self.color_output_arg_name, arg)
+            self.add_or_update_command_argument(self.color_output_arg_name, self.color_output_arg_name)
         else:
             self.remove_command_argument(self.color_output_arg_name)
 
     def on_command_native_pdf_cb(self):
+        """ Native PDF management
+        
+            Remarks : native pdf conflicts with 'ocr' and 'reflow text'
+        """
         if self.is_native_pdf_checked.get():
-            # native pdf conflicts with ocr and reflow text
+            self.is_reflow_text_checked.set(False)
             self.is_ocr_cpu_limitation_checked.set(False)
             self.remove_command_argument(self.ocr_arg_name)
             self.remove_command_argument(self.ocr_cpu_arg_name)
-
-            self.is_reflow_text_checked.set(False)
             self.remove_command_argument(self.reflow_text_arg_name)
-
-            arg = self.native_pdf_arg_name
-            self.add_or_update_command_argument(self.native_pdf_arg_name, arg)
+            self.add_or_update_command_argument(self.native_pdf_arg_name, self.native_pdf_arg_name)
         else:
             self.remove_command_argument(self.native_pdf_arg_name)
 
     def on_command_right_to_left_cb(self):
         if self.is_right_to_left_checked.get():
-            arg = self.right_to_left_arg_name
-            self.add_or_update_command_argument(self.right_to_left_arg_name, arg)
+            self.add_or_update_command_argument(self.right_to_left_arg_name, self.right_to_left_arg_name)
         else:
             self.remove_command_argument(self.right_to_left_arg_name)
 
     def on_command_post_gs_cb(self):
         if self.isPostGs.get():
-            arg = self.post_gs_arg_name
-            self.add_or_update_command_argument(self.post_gs_arg_name, arg)
+            self.add_or_update_command_argument(self.post_gs_arg_name, self.post_gs_arg_name)
         else:
             self.remove_command_argument(self.post_gs_arg_name)
 
     def on_command_marked_src_cb(self):
         if self.isMarkedSrc.get():
-            arg = self.marked_source_arg_name
-            self.add_or_update_command_argument(self.marked_source_arg_name, arg)
+            self.add_or_update_command_argument(self.marked_source_arg_name, self.marked_source_arg_name)
         else:
             self.remove_command_argument(self.marked_source_arg_name)
 
@@ -1874,14 +1905,12 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.reflow_text_arg_name)
 
-
     def on_command_erase_vertical_line_cb(self):
         if self.is_erase_vertical_line_checked.get():
             arg = self.erase_vertical_line_arg_name + ' 1'
             self.add_or_update_command_argument(self.erase_vertical_line_arg_name, arg)
         else:
             self.remove_command_argument(self.erase_vertical_line_arg_name)
-
 
     def on_command_fast_preview_cb(self):
         if self.is_fast_preview_checked.get():
@@ -1901,7 +1930,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
-    def on_command_ign_small_defect_cb(self):
+    def on_command_ignore_small_defect_cb(self):
         if self.isIgnSmallDefects.get():
             arg = (self.ign_small_defects_arg_name + ' 1.5')
             self.add_or_update_command_argument(self.ign_small_defects_arg_name, arg)
@@ -1951,9 +1980,8 @@ class MainFrame(ttk.Frame):
         else:
             self.strvar_current_preview_page_num.set('No Page: ' + str(preview_page_index))
 
-
     def generate_one_preview_image(self, preview_page_index):
-
+        """ Generate the images previews. """
         if not self.pdf_conversion_is_done():
             return
 
@@ -1973,7 +2001,7 @@ class MainFrame(ttk.Frame):
         self.background_future = self.convert_pdf_file(output_arg)
         self.strvar_current_preview_page_num.set('Preview Generating...')
 
-        def preview_image_future_cb(self, bgf):
+        def preview_image_future_cb(bgf):
             self.load_preview_image(self.preview_image_path, preview_page_index)
             self.log_string(
                 "Preview generation for page %d finished" %
@@ -1983,19 +2011,19 @@ class MainFrame(ttk.Frame):
         self.background_future.add_done_callback(preview_image_future_cb)
 
     def on_command_restore_default_cb(self):
+        """ Restore all the default value (even if preset was defined). """
         self.restore_default_values()
 
     def on_command_abort_conversion_cb(self):
+        """ Abord the process of the preview/conversion. """
         if self.background_future is not None:
             self.background_future.cancel()
-
         if (self.background_process is not None and self.background_process.returncode is None):
             self.background_process.terminate()
 
     def on_command_convert_pdf_cb(self):
         if not self.pdf_conversion_is_done():
             return
-
         pdf_output_arg = self.output_path_arg_name + ' %s' + self.output_pdf_suffix
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
@@ -2028,6 +2056,7 @@ class MainFrame(ttk.Frame):
         self.clear_logs()
 
     def pdf_conversion_is_done(self):
+        """ Check if the PDF conversion is already done or not. """
         if (self.background_future is None) or (self.background_future.done()):
             if ((self.background_process is None) or (self.background_process.returncode is not None)):
                 return True
@@ -2039,37 +2068,8 @@ class MainFrame(ttk.Frame):
         asyncio.set_event_loop(loop)
         loop.run_forever()
 
-    def generate_command_argument_string(self):
-        """ Transforms the global dictionary `K2PDFOPT_CMD_ARGS` into a command line arguments list.
-
-            Remarks: at the end, the chosen argument are completed by `mandatory` arguments
-                    ('-a- -ui- -x').
-        """
-
-        device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
-        if device_arg is None:
-            width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name)
-            height_arg = self.k2pdfopt_cmd_args.pop(self.height_arg_name)
-
-        mode_arg = self.k2pdfopt_cmd_args.pop(self.conversion_mode_arg_name)
-        arg_list = [mode_arg] + list(self.k2pdfopt_cmd_args.values())
-        self.k2pdfopt_cmd_args[self.conversion_mode_arg_name] = mode_arg
-
-        if device_arg is not None:
-            arg_list.append(device_arg)
-            self.k2pdfopt_cmd_args[self.device_arg_name] = device_arg
-        else:
-            arg_list.append(width_arg)
-            arg_list.append(height_arg)
-            self.k2pdfopt_cmd_args[self.width_arg_name] = width_arg
-            self.k2pdfopt_cmd_args[self.height_arg_name] = height_arg
-
-        arg_list.append('-a- -ui- -x')
-        self.log_string('Generate Argument List: ' + str(arg_list))
-        cmd_arg_str = ' '.join(arg_list)
-        return cmd_arg_str
-
     def convert_pdf_file(self, output_arg):
+        """ Convertion of the selected PDF file with chosen options. """
         async def async_run_cmd_and_log(exec_cmd):
             executed = exec_cmd.strip()
 
@@ -2105,9 +2105,6 @@ class MainFrame(ttk.Frame):
         future = asyncio.run_coroutine_threadsafe(async_run_cmd_and_log(executed), self.thread_loop)
 
         return future
-
-    def update_cmd_arg_entry_strvar(self):
-        self.strvar_command_args.set(self.generate_command_argument_string())
 
     def log_string(self, str_line):
         log_content = str_line.strip()
@@ -2146,9 +2143,6 @@ class MainFrame(ttk.Frame):
             3. Why not restore with the custom preset ?
                 or have another button to reload custom preset ?
         """
-        self.clear_logs()
-        self.remove_preview_image_and_clear_canvas()
-
         for sv in self.string_var_list:
             sv.set('')
 
@@ -2158,6 +2152,8 @@ class MainFrame(ttk.Frame):
         for b in self.combo_box_list:
             b.current(0)
 
+        self.clear_logs()
+        self.remove_preview_image_and_clear_canvas()
         self.initialize_vars(self.default_var_map)
     
 
@@ -2171,6 +2167,7 @@ class ReBook(tk.Tk):
         # self.geometry("500x500")
         # self.resizable(False, False)
 
+
 def check_k2pdfopt_path_exists(k2pdfopt_path):
     if not os.path.exists(k2pdfopt_path):
         messagebox.showerror(
@@ -2179,6 +2176,7 @@ def check_k2pdfopt_path_exists(k2pdfopt_path):
             'as rebook and then restart.'
         )
         quit()
+
 
 if __name__ == "__main__":
     k2pdfopt_path = './k2pdfopt'
