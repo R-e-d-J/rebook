@@ -2162,7 +2162,6 @@ class MainFrame(ttk.Frame):
                 dict_to_load = json.load(preset_file)
 
                 if dict_to_load:
-                    # self.log_string('Load Preset: ' + str(dict_to_load))
                     self.initialize_vars(dict_to_load)
                     return True
 
