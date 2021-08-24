@@ -7,6 +7,8 @@ import tkinter.scrolledtext as scrolledtext
 import asyncio
 import json
 import os
+import webbrowser
+from PIL import Image, ImageTk
 
 import tools
 
@@ -334,7 +336,7 @@ class MainFrame(ttk.Frame):
         s = ttk.Style()
         s.configure('TLabelframe.Label', font=('arial', 14, 'bold'))
         
-        self.required_input_frame = ttk.Labelframe(self.conversion_tab, text='Required Inputs')
+        self.required_input_frame = ttk.Labelframe(self.conversion_tab, text='Files')
         self.required_input_frame.grid(
             column=conversion_tab_left_part_column_num,
             row=conversion_tab_left_part_line_num,
@@ -370,6 +372,26 @@ class MainFrame(ttk.Frame):
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
+        )
+
+        required_frame_row_num += 1
+
+        output_label = ttk.Label(self.required_input_frame, text='Output file path')
+        output_label.grid(column=0, row=required_frame_row_num, sticky=tk.N+tk.W, pady=0, padx=5)
+
+        self.output_path_entry = ttk.Entry(
+            self.required_input_frame, 
+            state='readonly', 
+            textvariable=self.strvar_output_file_path,
+            width=40
+        )
+
+        self.output_path_entry.grid(
+            column=1,
+            row=required_frame_row_num,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5
         )
 
         # ####################################################################################### #
@@ -1192,7 +1214,7 @@ class MainFrame(ttk.Frame):
         # ####################################################################################### #
         conversion_tab_right_part_row_num += 1
 
-        self.information_frame = ttk.Labelframe(self.conversion_tab, text='Related Informations')
+        self.information_frame = ttk.Labelframe(self.conversion_tab, text='Command-line Options')
         self.information_frame.grid(
             column=conversion_tab_right_part_column_num,
             row=conversion_tab_right_part_row_num,
@@ -1201,39 +1223,16 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-        output_label = ttk.Label(self.information_frame, text='Output Pdf File Path')
-        output_label.grid(column=0, row=1, sticky=tk.N+tk.W, pady=0, padx=5)
-
-        self.output_path_entry = ttk.Entry(
-            self.information_frame, 
-            state='readonly', 
-            textvariable=self.strvar_output_file_path,
-            width=40
-        )
-
-        self.output_path_entry.grid(
-            column=1,
-            columnspan=2,
-            row=1,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5
-        )
-
-        command_arguments_label = ttk.Label(self.information_frame, text='Command-line Options')
-        command_arguments_label.grid(column=0, row=2, sticky=tk.N+tk.W, pady=0, padx=5)
-
         self.command_arguments_entry = ttk.Entry(
             self.information_frame, 
             state='readonly', 
             textvariable=self.strvar_command_args,
-            width=80
+            width=100
         )
         self.command_arguments_entry.bind('<Button-1>', self.on_bind_event_cmd_args_cb)
         self.command_arguments_entry.grid(
-            column=1,
-            columnspan=2,
-            row=2,
+            column=0,
+            row=0,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5
@@ -1405,6 +1404,9 @@ class MainFrame(ttk.Frame):
         self.preview_image_canvas.bind('<MouseWheel>', self.yscroll_canvas)
         self.preview_image_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
 
+
+
+        # Conversion tab
         self.conversion_tab.columnconfigure(
             conversion_tab_right_part_column_num,
             weight=1,
@@ -1444,7 +1446,7 @@ class MainFrame(ttk.Frame):
         load_settings_button = ttk.Button(
             self.preset_frame,
             text='Load settings', 
-            command=self.on_command_restore_default_cb
+            command=self.on_command_open_preset_file_cb
         )
         load_settings_button.grid(
             column=1,
@@ -1589,8 +1591,15 @@ class MainFrame(ttk.Frame):
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label='File')
         menu_file.add_command(label="Open file…", command=self.on_command_open_pdf_file_cb)
+        menu_file.add_command(label="Load preset file…", command=self.on_command_open_preset_file_cb)
         menu_file.add_command(label='About', command=self.on_command_about_box_cb)
         menu_file.add_command(label="Quit", command=self.root.quit)
+        menu_help = tk.Menu(menu_bar)
+        menu_bar.add_cascade(menu=menu_help, label='Help')
+        menu_help.add_command(label="K2pdfopt help", command=self.on_command_open_webpage)
+
+    def on_command_open_webpage(self):
+        webbrowser.open('https://willus.com/k2pdfopt/help/')
 
     def initialize(self):
         """ Simulate a click on every field : execute all the binded method. """
@@ -1678,7 +1687,8 @@ class MainFrame(ttk.Frame):
             '''ReBook 2 ßeta
 
                 TclTk GUI for k2pdfopt
-                Largely based on Pu Wang's reebok.
+                Largely based on
+                Pu Wang's rebook.
 
                 The source code can be found at:
                 rebook: http://github.com/pwang7/rebook/rebook.py'''
@@ -1695,6 +1705,15 @@ class MainFrame(ttk.Frame):
             self.strvar_input_file_path.set(filename)
             (base_path, file_ext) = os.path.splitext(filename)
             self.strvar_output_file_path.set(base_path + '-output.pdf')
+
+    def on_command_open_preset_file_cb(self):
+        supported_formats = [('JSON files', '*.json'),]
+        filename = filedialog.askopenfilename(
+            filetypes=supported_formats,
+            title='Select your preset file',
+        )
+        if filename is not None and len(filename.strip()) > 0:
+            self.load_custom_preset(filename)
 
     def on_bind_event_device_unit_cbox(self, e=None):
         self.update_device_unit_width_height()
@@ -1996,7 +2015,10 @@ class MainFrame(ttk.Frame):
 
     def load_preview_image(self, img_path, preview_page_index):
         if os.path.exists(img_path):
-            self.preview_image = tk.PhotoImage(file=img_path)
+            image = Image.open(img_path)
+            image = image.resize((750, 1061), Image.ANTIALIAS)
+            self.preview_image = ImageTk.PhotoImage(image)
+            # self.preview_image = tk.PhotoImage(file=img_path)
             self.canvas_image_tag = self.preview_image_canvas.create_image(
                 (0, 0),
                 anchor=tk.NW,
@@ -2011,7 +2033,6 @@ class MainFrame(ttk.Frame):
                     self.preview_image.height(),
                 ),
             )
-            # self.preview_image_canvas.scale('preview', 0, 0, 0.5, 0.5)    # not working… yet.
             self.strvar_current_preview_page_num.set('Page: ' + str(preview_page_index))
         else:
             self.strvar_current_preview_page_num.set('No Page: ' + str(preview_page_index))
@@ -2156,9 +2177,11 @@ class MainFrame(ttk.Frame):
         self.stdout_text.delete(1.0, tk.END)
         self.stdout_text.config(state=tk.DISABLED)
 
-    def load_custom_preset(self):
-        if os.path.exists(self.custom_preset_file_path):
-            with open(self.custom_preset_file_path) as preset_file:
+    def load_custom_preset(self, json_path_file=None):
+        if json_path_file is None:
+            json_path_file = self.custom_preset_file_path
+        if os.path.exists(json_path_file):
+            with open(json_path_file) as preset_file:
                 dict_to_load = json.load(preset_file)
 
                 if dict_to_load:
