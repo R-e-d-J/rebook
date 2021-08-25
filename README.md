@@ -1,4 +1,4 @@
-# rebook
+# Rebook 2
 
 rebook is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
 

@@ -170,7 +170,6 @@ class MainFrame(ttk.Frame):
         self.strvar_landscape_pages = tk.StringVar()      # 1,3,5-10
         self.strvar_linebreak_space = tk.StringVar()
 
-        # Rigth par of GUI
         self.auto_straignten_arg_name = '-as'            # -as-/-as
         self.break_page_avoid_overlap_arg_name = '-bp'   # -bp-/-bp
         self.color_output_arg_name = '-c'                # -c-/-c
@@ -1421,53 +1420,53 @@ class MainFrame(ttk.Frame):
         # ####################################################################################### #
         # Preset frame
         # ####################################################################################### #
-        conversion_tab_left_part_line_num += 1
+        # conversion_tab_left_part_line_num += 1
 
-        self.preset_frame = ttk.Labelframe(self.conversion_tab) #   , text='Preset'
-        self.preset_frame.grid(
-            column=conversion_tab_left_part_column_num,
-            # columnspan=4,
-            row=conversion_tab_left_part_line_num,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
+        # self.preset_frame = ttk.Labelframe(self.conversion_tab) #   , text='Preset'
+        # self.preset_frame.grid(
+        #     column=conversion_tab_left_part_column_num,
+        #     # columnspan=4,
+        #     row=conversion_tab_left_part_line_num,
+        #     sticky=tk.N+tk.W,
+        #     pady=0,
+        #     padx=5,
+        # )
 
-        # save_label = ttk.Label(self.information_frame, text='Save setting as preset')
-        # save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
+        # # save_label = ttk.Label(self.information_frame, text='Save setting as preset')
+        # # save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        self.save_button = ttk.Button(
-            self.preset_frame,
-            text='Save current settings',
-            command=self.on_click_save_preset
-        )
-        self.save_button.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
+        # self.save_button = ttk.Button(
+        #     self.preset_frame,
+        #     text='Save current settings',
+        #     command=self.on_click_save_preset
+        # )
+        # self.save_button.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
 
-        load_settings_button = ttk.Button(
-            self.preset_frame,
-            text='Load settings', 
-            command=self.on_command_open_preset_file_cb
-        )
-        load_settings_button.grid(
-            column=1,
-            row=0,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
+        # load_settings_button = ttk.Button(
+        #     self.preset_frame,
+        #     text='Load settings', 
+        #     command=self.on_command_open_preset_file_cb
+        # )
+        # load_settings_button.grid(
+        #     column=1,
+        #     row=0,
+        #     sticky=tk.N+tk.W,
+        #     pady=0,
+        #     padx=5,
+        # )
 
-        reset_button = ttk.Button(
-            self.preset_frame,
-            text='Load default settings', 
-            command=self.on_command_restore_default_cb
-        )
-        reset_button.grid(
-            column=2,
-            row=0,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
+        # reset_button = ttk.Button(
+        #     self.preset_frame,
+        #     text='Load default settings', 
+        #     command=self.on_command_restore_default_cb
+        # )
+        # reset_button.grid(
+        #     column=2,
+        #     row=0,
+        #     sticky=tk.N+tk.W,
+        #     pady=0,
+        #     padx=5,
+        # )
 
         # ####################################################################################### #
         # K2PDFOPT STDOUT TAB
@@ -1585,15 +1584,25 @@ class MainFrame(ttk.Frame):
         self.notebook.pack(expand=1, fill='both')
 
     def create_file_menu(self):
-        """ Create the menu 'File' for ReBook. """
+        """ Create the menus for ReBook. """
         menu_bar = tk.Menu(self.root)
         self.root['menu'] = menu_bar
+
+        # File menu
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label='File')
         menu_file.add_command(label="Open file…", command=self.on_command_open_pdf_file_cb)
-        menu_file.add_command(label="Load preset file…", command=self.on_command_open_preset_file_cb)
         menu_file.add_command(label='About', command=self.on_command_about_box_cb)
         menu_file.add_command(label="Quit", command=self.root.quit)
+
+        # Settings menu
+        menu_settings = tk.Menu(menu_bar)
+        menu_bar.add_cascade(menu=menu_settings, label='Settings')
+        menu_settings.add_command(label='Save current settings', command=self.on_click_save_preset)
+        menu_settings.add_command(label='Load settings', command=self.on_command_open_preset_file_cb)
+        menu_settings.add_command(label='Reset settings to default', command=self.restore_default_values)
+
+        # Help menu
         menu_help = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_help, label='Help')
         menu_help.add_command(label="K2pdfopt help", command=self.on_command_open_webpage)
@@ -1706,6 +1715,18 @@ class MainFrame(ttk.Frame):
             (base_path, file_ext) = os.path.splitext(filename)
             self.strvar_output_file_path.set(base_path + '-output.pdf')
 
+    def on_click_save_preset(self):
+        """ Save the current present into a json file for next use. """
+        filename = filedialog.asksaveasfilename()
+        if filename is not None and len(filename.strip()) > 0:
+            filename += '.json'
+            with open(filename, 'w') as preset_file:
+                dict_to_save = {}
+                for key, value in self.arg_var_map.items():
+                    if(key != self.output_path_arg_name):
+                        dict_to_save[key] = [var.get() for var in value]
+                json.dump(dict_to_save, preset_file)
+
     def on_command_open_preset_file_cb(self):
         supported_formats = [('JSON files', '*.json'),]
         filename = filedialog.askopenfilename(
@@ -1755,14 +1776,6 @@ class MainFrame(ttk.Frame):
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = (self.conversion_mode_arg_name + ' ' + conversion_mode)
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
-
-    def on_click_save_preset(self):
-        """ Save the current present into a json file for next use. """
-        with open(self.custom_preset_file_path, 'w') as preset_file:
-            dict_to_save = {}
-            for key, value in self.arg_var_map.items():
-                dict_to_save[key] = [var.get() for var in value]
-            json.dump(dict_to_save, preset_file)
 
     def on_bind_event_cmd_args_cb(self, e=None):
         self.update_command_argument_entry_strvar()
@@ -2170,7 +2183,6 @@ class MainFrame(ttk.Frame):
             self.stdout_text.config(state=tk.NORMAL)
             self.stdout_text.insert(tk.END, log_content + '\n')
             self.stdout_text.config(state=tk.DISABLED)
-
 
     def clear_logs(self):
         self.stdout_text.config(state=tk.NORMAL)
