@@ -219,10 +219,10 @@ class MainFrame(ttk.Frame):
             self.crop_margin_arg_name:               [
                                                         False,
                                                         '',
-                                                        '0.00',
-                                                        '0.00',
-                                                        '0.00',
-                                                        '0.00',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
                                                     ],
             self.dpi_arg_name:                       [False, '167'],
             self.page_num_arg_name:                  [''],
@@ -409,7 +409,7 @@ class MainFrame(ttk.Frame):
         self.log_string('Current directory : ' + os.getcwd())
 
     def create_tabs(self):
-        """ Create 'Conversion' and 'Logs' ReBook's tabs """
+        ''' Create 'Conversion' and 'Logs' ReBook's tabs '''
         self.notebook = ttk.Notebook(self.root)
         self.conversion_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.conversion_tab, text='Conversion')
@@ -421,7 +421,7 @@ class MainFrame(ttk.Frame):
         self.fill_logs_tab()
 
     def create_menus(self):
-        """ Create the menus for ReBook. """
+        ''' Create the menus for ReBook. '''
         menu_bar = tk.Menu(self.root)
         self.root['menu'] = menu_bar
 
@@ -923,8 +923,8 @@ class MainFrame(ttk.Frame):
         self.left_margin_spinbox = ttk.Spinbox(
             self.parameters_frame,
             from_=0,
-            to=100,
-            increment=0.01,
+            to=10,
+            increment=0.1,
             state='readonly',
             textvariable=self.strvar_left_margin,
             command=self.on_command_and_validate_crop_margin_cb,
@@ -952,8 +952,8 @@ class MainFrame(ttk.Frame):
         self.top_margin_spinbox = ttk.Spinbox(
             self.parameters_frame,
             from_=0,
-            to=100,
-            increment=0.01,
+            to=10,
+            increment=0.1,
             state='readonly',
             textvariable=self.strvar_top_margin,
             command=self.on_command_and_validate_crop_margin_cb,
@@ -981,8 +981,8 @@ class MainFrame(ttk.Frame):
         self.width_margin_spinbox = ttk.Spinbox(
             self.parameters_frame,
             from_=0,
-            to=100,
-            increment=0.01,
+            to=10,
+            increment=0.1,
             state='readonly',
             textvariable=self.strvar_width_margin,
             command=self.on_command_and_validate_crop_margin_cb,
@@ -1010,8 +1010,8 @@ class MainFrame(ttk.Frame):
         self.height_margin_spinbox = ttk.Spinbox(
             self.parameters_frame,
             from_=0,
-            to=100,
-            increment=0.01,
+            to=10,
+            increment=0.1,
             state='readonly',
             textvariable=self.strvar_height_margin,
             command=self.on_command_and_validate_crop_margin_cb,
@@ -1553,7 +1553,7 @@ class MainFrame(ttk.Frame):
         self.preview_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
 
     def initialize(self):
-        """ Simulate a click on every field : execute all the binded method. """
+        ''' Simulate a click on every field : execute all the binded method. '''
         self.on_bind_event_device_unit_cbox()
         self.on_command_width_height_cb()
         self.on_bind_event_mode_cbox()
@@ -1581,7 +1581,7 @@ class MainFrame(ttk.Frame):
         self.on_command_auto_crop_cb()
 
     def initialize_vars(self, dict_vars):
-        """ Initialize variables from a dictionnary and build the associated command line. """
+        ''' Initialize variables from a dictionnary and build the associated command line. '''
         for key, value in dict_vars.items():
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
@@ -1593,25 +1593,23 @@ class MainFrame(ttk.Frame):
 
     # Command management methods
     def remove_command_argument(self, arg_key):
-        """ Removing argument from k2pdfopt command line. """
+        ''' Removing argument from k2pdfopt command line. '''
         self.k2pdfopt_cmd_args.pop(arg_key, None)
 
     def add_or_update_command_argument(self, arg_key, arg_value):
-        """ Add or update argument to k2pdfopt command line. """
-        print(arg_key + ' : ' + arg_value)
+        ''' Add or update argument to k2pdfopt command line. '''
         self.k2pdfopt_cmd_args[arg_key] = arg_value
-        # print(self.k2pdfopt_cmd_args[arg_key] + ': ' + arg_value)
         # self.update_command_argument_entry_strvar()
 
     def update_command_argument_entry_strvar(self):
         self.strvar_command_args.set(self.generate_command_argument_string())
 
     def generate_command_argument_string(self):
-        """ Transforms the dictionary `k2pdfopt_cmd_args` into a command line arguments list.
+        ''' Transforms the dictionary `k2pdfopt_cmd_args` into a command line arguments list.
 
             Remarks: at the end, the chosen argument are completed by `mandatory` arguments
                     ('-a- -ui- -x').
-        """
+        '''
         device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
         if device_arg is None:
             width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name)
@@ -1649,6 +1647,7 @@ class MainFrame(ttk.Frame):
         messagebox.showinfo(message=about_message)
 
     def on_command_open_pdf_file_cb(self):
+        ''' Select a PDF/DJVU file and generate output path '''
         supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
         filename = filedialog.askopenfilename(
             filetypes=supported_formats,
@@ -1660,7 +1659,7 @@ class MainFrame(ttk.Frame):
             self.strvar_output_file_path.set(base_path + '-output.pdf')
 
     def on_click_save_preset(self):
-        """ Save the current present into a json file for next use. """
+        ''' Save the current present into a json file for next use. '''
         filename = filedialog.asksaveasfilename()
         if filename is not None and len(filename.strip()) > 0:
             filename += '.json'
@@ -1739,6 +1738,11 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.resolution_multiplier_arg_name)
 
     def on_command_and_validate_crop_margin_cb(self):
+        '''
+        
+            Remarks:
+                - conflict with Auto-Crop option
+        '''
         if (len(self.strvar_crop_page_range.get().strip()) > 0 and
                 not tools.check_page_nums(self.strvar_crop_page_range.get().strip())):
             self.remove_command_argument(self.crop_margin_arg_name)
@@ -1755,6 +1759,8 @@ class MainFrame(ttk.Frame):
             return False
 
         if self.is_crop_margin_checked.get():
+            self.is_autocrop_checked.set(False)
+            self.remove_command_argument(self.auto_crop_arg_name)
             page_range_arg = self.strvar_crop_page_range.get().strip()
 
             if len(self.strvar_left_margin.get().strip()) > 0:
@@ -1772,19 +1778,6 @@ class MainFrame(ttk.Frame):
             if len(self.strvar_height_margin.get().strip()) > 0:
                 arg = self.crop_margin_bottom_arg_name + ' ' + self.strvar_height_margin.get().strip()
                 self.add_or_update_command_argument(self.crop_margin_bottom_arg_name, arg)
-
-            # margin_args = [
-            #     self.strvar_left_margin.get(),
-            #     self.strvar_top_margin.get(),
-            #     self.strvar_width_margin.get(),
-            #     self.strvar_height_margin.get(),
-            # ]
-            # arg = (
-            #     # no space between -cbox and page range
-            #     self.crop_margin_arg_name + page_range_arg + ' '
-            #     + 'in,' . join(map(str.strip, margin_args)) + 'in'
-            # )
-            # self.add_or_update_command_argument(self.crop_margin_arg_name, arg)
         else:
             self.remove_command_argument(self.crop_margin_arg_name)
             self.remove_command_argument(self.crop_margin_left_arg_name)
@@ -1859,12 +1852,12 @@ class MainFrame(ttk.Frame):
 
 
     def on_command_ocr_and_cpu_cb(self):
-        """ OCR CPU pourcentage management
+        ''' OCR CPU pourcentage management
 
             Remarks: 
-                -  ocr conflicts with native pdf
+                - ocr conflicts with native pdf
                 - negtive integer means percentage
-        """
+        '''
         if self.is_ocr_cpu_limitation_checked.get():
             self.is_native_pdf_checked.set(False) 
             self.remove_command_argument(self.native_pdf_arg_name)
@@ -1910,10 +1903,10 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.auto_straignten_arg_name)
 
     def on_command_break_page_cb(self):
-        """ Native PDF management
+        ''' Native PDF management
         
             Remarks : break page conflicts with avoid overlap since they are both -bp flag
-        """
+        '''
         if self.isBreakPage.get():
             self.isAvoidOverlap.set(False)
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
@@ -1928,10 +1921,10 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.color_output_arg_name)
 
     def on_command_native_pdf_cb(self):
-        """ Native PDF management
+        ''' Manage `Native PDF`option.
         
             Remarks : native pdf conflicts with 'ocr' and 'reflow text'
-        """
+        '''
         if self.is_native_pdf_checked.get():
             self.is_reflow_text_checked.set(False)
             self.is_ocr_cpu_limitation_checked.set(False)
@@ -1977,6 +1970,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.erase_vertical_line_arg_name)
 
     def on_command_fast_preview_cb(self):
+        ''' Manage fast preview option.'''
         if self.is_fast_preview_checked.get():
             arg = self.fast_preview_arg_name + ' 0'
             self.add_or_update_command_argument(self.fast_preview_arg_name, arg)
@@ -1984,6 +1978,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.fast_preview_arg_name)
 
     def on_command_avoid_text_selection_overlap_cb(self):
+        ''' Manage avoid text selection overlap. '''
         if self.isAvoidOverlap.get():
             # avoid overlap conflicts with break page since they are both -bp flag
             self.isBreakPage.set(False)
@@ -1995,6 +1990,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def on_command_ignore_small_defect_cb(self):
+        ''' Manage `ignore small defect` option. '''
         if self.is_ignore_small_defects_checked.get():
             arg = (self.ign_small_defects_arg_name + ' 1.5')
             self.add_or_update_command_argument(self.ign_small_defects_arg_name, arg)
@@ -2002,6 +1998,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ign_small_defects_arg_name)
 
     def on_command_erase_horizontal_line_cb(self):
+        '''
         if self.is_erase_horizontal_line_checked.get():
             arg = self.erase_horizontal_line_arg_name + ' 1'
             self.add_or_update_command_argument(self.erase_horizontal_line_arg_name, arg)
@@ -2009,7 +2006,18 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.erase_horizontal_line_arg_name)
 
     def on_command_auto_crop_cb(self):
+        ''' Manage autocrop option.
+        
+            Remarks:
+                - conflict with crop margin
+        '''
         if self.is_autocrop_checked.get():
+            self.is_crop_margin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_arg_name)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
             arg = self.auto_crop_arg_name
             self.add_or_update_command_argument(self.auto_crop_arg_name, arg)
         else:
@@ -2046,7 +2054,7 @@ class MainFrame(ttk.Frame):
             self.strvar_current_preview_page_num.set('No Page: ' + str(preview_page_index))
 
     def generate_one_preview_image(self, preview_page_index):
-        """ Generate the images previews. """
+        ''' Generate the images previews. '''
         if not self.pdf_conversion_is_done():
             return
 
@@ -2076,11 +2084,11 @@ class MainFrame(ttk.Frame):
         self.background_future.add_done_callback(preview_image_future_cb)
 
     def on_command_restore_default_cb(self):
-        """ Restore all the default value (even if preset was defined). """
+        ''' Restore all the default value (even if preset was defined). '''
         self.restore_default_values()
 
     def on_command_abort_conversion_cb(self):
-        """ Abord the process of the preview/conversion. """
+        ''' Abord the process of the preview/conversion. '''
         if self.background_future is not None:
             self.background_future.cancel()
         if (self.background_process is not None and self.background_process.returncode is None):
@@ -2121,7 +2129,7 @@ class MainFrame(ttk.Frame):
         self.clear_logs()
 
     def pdf_conversion_is_done(self):
-        """ Check if the PDF conversion is already done or not. """
+        ''' Check if the PDF conversion is already done or not. '''
         if (self.background_future is None) or (self.background_future.done()):
             if ((self.background_process is None) or (self.background_process.returncode is not None)):
                 return True
@@ -2134,7 +2142,7 @@ class MainFrame(ttk.Frame):
         loop.run_forever()
 
     def convert_pdf_file(self, output_arg):
-        """ Convertion of the selected PDF file with chosen options. """
+        ''' Convertion of the selected PDF file with chosen options. '''
         async def async_run_cmd_and_log(exec_cmd):
             executed = exec_cmd.strip()
 
@@ -2198,7 +2206,7 @@ class MainFrame(ttk.Frame):
         return False
 
     def restore_default_values(self):
-        """
+        '''
             Clear logs, preview and reset all the default values
 
             THINKING :
@@ -2206,7 +2214,7 @@ class MainFrame(ttk.Frame):
             2. Why erase input and output file path ?
             3. Why not restore with the custom preset ?
                 or have another button to reload custom preset ?
-        """
+        '''
         # for attribute, value in self.__dict__.items():
         #     print(attribute, "=", type(attribute))
 
