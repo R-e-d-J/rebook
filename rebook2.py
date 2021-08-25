@@ -1418,57 +1418,6 @@ class MainFrame(ttk.Frame):
         self.preview_frame.rowconfigure(self.preview_frame_row_num, weight=1)
 
         # ####################################################################################### #
-        # Preset frame
-        # ####################################################################################### #
-        # conversion_tab_left_part_line_num += 1
-
-        # self.preset_frame = ttk.Labelframe(self.conversion_tab) #   , text='Preset'
-        # self.preset_frame.grid(
-        #     column=conversion_tab_left_part_column_num,
-        #     # columnspan=4,
-        #     row=conversion_tab_left_part_line_num,
-        #     sticky=tk.N+tk.W,
-        #     pady=0,
-        #     padx=5,
-        # )
-
-        # # save_label = ttk.Label(self.information_frame, text='Save setting as preset')
-        # # save_label.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
-
-        # self.save_button = ttk.Button(
-        #     self.preset_frame,
-        #     text='Save current settings',
-        #     command=self.on_click_save_preset
-        # )
-        # self.save_button.grid(column=0, row=0, sticky=tk.N+tk.W, pady=0, padx=5)
-
-        # load_settings_button = ttk.Button(
-        #     self.preset_frame,
-        #     text='Load settings', 
-        #     command=self.on_command_open_preset_file_cb
-        # )
-        # load_settings_button.grid(
-        #     column=1,
-        #     row=0,
-        #     sticky=tk.N+tk.W,
-        #     pady=0,
-        #     padx=5,
-        # )
-
-        # reset_button = ttk.Button(
-        #     self.preset_frame,
-        #     text='Load default settings', 
-        #     command=self.on_command_restore_default_cb
-        # )
-        # reset_button.grid(
-        #     column=2,
-        #     row=0,
-        #     sticky=tk.N+tk.W,
-        #     pady=0,
-        #     padx=5,
-        # )
-
-        # ####################################################################################### #
         # K2PDFOPT STDOUT TAB
         # ####################################################################################### #
         self.stdout_frame = ttk.Labelframe(self.log_tab, text='k2pdfopt STDOUT:')
