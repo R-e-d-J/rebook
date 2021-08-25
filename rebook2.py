@@ -1370,40 +1370,33 @@ class MainFrame(ttk.Frame):
         self.preview_frame_column_num += 1
         self.preview_frame_row_num += 1
 
-        xScrollBar = ttk.Scrollbar(self.preview_frame, orient=tk.HORIZONTAL)
-        xScrollBar.grid(
-            column=0,
-            row=self.preview_frame_row_num+1,
-            columnspan=self.preview_frame_column_num,
-            sticky=tk.E+tk.W,
-        )
-
-        yScrollBar = ttk.Scrollbar(self.preview_frame)
-        yScrollBar.grid(
-            column=self.preview_frame_column_num,
-            row=self.preview_frame_row_num,
-            sticky=tk.N+tk.S,
-        )
-
-        self.preview_image_canvas = tk.Canvas(
-            self.preview_frame,
-            bd=0,
-            xscrollcommand=xScrollBar.set,
-            yscrollcommand=yScrollBar.set,
-        )
-        self.preview_image_canvas.grid(
+        self.preview_canvas = tk.Canvas(self.preview_frame, bd=0)
+        self.preview_canvas.grid(
             column=0,
             row=self.preview_frame_row_num,
             columnspan=self.preview_frame_column_num,
             sticky=tk.N+tk.S+tk.E+tk.W,
         )
 
-        xScrollBar.config(command=self.preview_image_canvas.xview)
-        yScrollBar.config(command=self.preview_image_canvas.yview)
-        self.preview_image_canvas.bind('<MouseWheel>', self.yscroll_canvas)
-        self.preview_image_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
+        x_scrollbar = ttk.Scrollbar(self.preview_frame, orient=tk.HORIZONTAL, command=self.preview_canvas.xview)
+        x_scrollbar.grid(
+            column=0,
+            row=self.preview_frame_row_num+1,
+            columnspan=self.preview_frame_column_num,
+            sticky=tk.E+tk.W,
+        )
 
+        y_scrollbar = ttk.Scrollbar(self.preview_frame, command=self.preview_canvas.yview)
+        y_scrollbar.grid(
+            column=self.preview_frame_column_num,
+            row=self.preview_frame_row_num,
+            sticky=tk.N+tk.S,
+        )
 
+        self.preview_canvas.configure(xscrollcommand=x_scrollbar.set)
+        self.preview_canvas.configure(yscrollcommand=y_scrollbar.set)
+        self.preview_canvas.bind('<MouseWheel>', self.yscroll_canvas)
+        self.preview_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
 
         # Conversion tab
         self.conversion_tab.columnconfigure(
@@ -1972,7 +1965,7 @@ class MainFrame(ttk.Frame):
     def remove_preview_image_and_clear_canvas(self):
         if os.path.exists(self.preview_image_path):
             os.remove(self.preview_image_path)
-        self.preview_image_canvas.delete(tk.ALL)
+        self.preview_canvas.delete(tk.ALL)
         self.canvas_image_tag = None
 
     def load_preview_image(self, img_path, preview_page_index):
@@ -1981,13 +1974,13 @@ class MainFrame(ttk.Frame):
             image = image.resize((750, 1061), Image.ANTIALIAS)
             self.preview_image = ImageTk.PhotoImage(image)
             # self.preview_image = tk.PhotoImage(file=img_path)
-            self.canvas_image_tag = self.preview_image_canvas.create_image(
+            self.canvas_image_tag = self.preview_canvas.create_image(
                 (0, 0),
                 anchor=tk.NW,
                 image=self.preview_image,
                 tags='preview',
             )
-            self.preview_image_canvas.config(
+            self.preview_canvas.config(
                 scrollregion=(
                     0,
                     0,
@@ -2066,10 +2059,10 @@ class MainFrame(ttk.Frame):
         self.generate_one_preview_image(self.current_preview_page_index)
 
     def yscroll_canvas(self, event):
-        self.preview_image_canvas.yview_scroll(-1 * event.delta, 'units')
+        self.preview_canvas.yview_scroll(-1 * event.delta, 'units')
 
     def xscroll_canvas(self, event):
-        self.preview_image_canvas.xview_scroll(-1 * event.delta, 'units')
+        self.preview_canvas.xview_scroll(-1 * event.delta, 'units')
 
     def on_command_clear_log_cb(self):
         self.clear_logs()
