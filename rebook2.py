@@ -669,8 +669,8 @@ class MainFrame(ttk.Frame):
         self.width_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
-            to=10000,
-            increment=0.1,
+            to=2000,
+            increment=1,
             state='readonly',
             textvariable=self.strvar_screen_width,
             command=self.gui_width_height,
@@ -697,8 +697,8 @@ class MainFrame(ttk.Frame):
         self.height_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
-            to=10000,
-            increment=0.1,
+            to=2000,
+            increment=1,
             state='readonly',
             textvariable=self.strvar_screen_height,
             command=self.gui_width_height,
@@ -728,7 +728,7 @@ class MainFrame(ttk.Frame):
         self.dpi_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
-            to=1000,
+            to=500,
             increment=1,
             state='readonly',
             textvariable=self.strvar_dpi,
@@ -811,7 +811,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        parameters_frame_line_number += 1
+        parameters_frame_line_number += 1   
 
         self.landscape_check_button = ttk.Checkbutton(
             self.parameters_frame,
