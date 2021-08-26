@@ -106,6 +106,8 @@ class MainFrame(ttk.Frame):
         super().__init__(app)
         self.root = app           # root of tkinter
 
+        self.default_padx = 5
+        self.default_pady = 0
         self.k2pdfopt_path = k2pdfopt_path
         self.k2pdfopt_cmd_args = {}
         self.custom_preset_file_path = 'rebook_preset.json'
@@ -494,8 +496,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=1,
             sticky=tk.N+tk.E,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
     def setup_information_frame(self):
@@ -504,8 +506,8 @@ class MainFrame(ttk.Frame):
             column=self.conversion_tab_right_part_column_num,
             row=self.conversion_tab_right_part_line_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.command_arguments_entry = ttk.Entry(
@@ -519,8 +521,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=0,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5
+            pady=self.default_pady,
+            padx=self.default_padx
         )
 
     def setup_file_frame(self):
@@ -532,8 +534,8 @@ class MainFrame(ttk.Frame):
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.file_frame.grid_propagate(False)
 
@@ -548,8 +550,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=file_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.input_path_entry = ttk.Entry(
             self.file_frame, 
@@ -561,14 +563,14 @@ class MainFrame(ttk.Frame):
             column=1,
             row=file_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         file_frame_line_number += 1
 
         output_label = ttk.Label(self.file_frame, text='Output file path')
-        output_label.grid(column=0, row=file_frame_line_number, sticky=tk.N+tk.W, pady=0, padx=5)
+        output_label.grid(column=0, row=file_frame_line_number, sticky=tk.N+tk.W, pady=self.default_pady, padx=self.default_padx)
         self.output_path_entry = ttk.Entry(
             self.file_frame, 
             state='readonly', 
@@ -579,8 +581,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=file_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5
+            pady=self.default_pady,
+            padx=self.default_padx
         )
 
     def setup_device_frame(self):
@@ -592,8 +594,8 @@ class MainFrame(ttk.Frame):
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.device_frame.grid_propagate(False)
 
@@ -604,8 +606,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.device_combobox = ttk.Combobox(
             self.device_frame,
@@ -620,8 +622,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         device_frame_line_number += 1
@@ -631,8 +633,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.unit_combobox = ttk.Combobox(
             self.device_frame, 
@@ -647,8 +649,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         device_frame_line_number += 1
@@ -658,8 +660,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.width_spinbox = ttk.Spinbox(
@@ -676,8 +678,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         device_frame_line_number += 1
@@ -687,8 +689,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.height_spinbox = ttk.Spinbox(
             self.device_frame,
@@ -704,8 +706,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
     def setup_parameters_frame(self):
@@ -717,8 +719,8 @@ class MainFrame(ttk.Frame):
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.parameters_frame.grid_propagate(False)
 
@@ -729,8 +731,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.mode_combobox = ttk.Combobox(
@@ -746,8 +748,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -757,8 +759,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.page_number_entry = ttk.Entry(
@@ -772,8 +774,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -788,8 +790,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.landscapepage_number_entry = ttk.Entry(
@@ -803,8 +805,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -819,8 +821,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.max_column_spinbox = ttk.Spinbox(
@@ -837,8 +839,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -853,8 +855,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.resolution_spinbox = ttk.Spinbox(
@@ -871,8 +873,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -887,8 +889,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         # parameters_frame_line_number += 1
@@ -898,8 +900,8 @@ class MainFrame(ttk.Frame):
         #     column=0,
         #     row=parameters_frame_line_number,
         #     sticky=tk.N+tk.W,
-        #     pady=0,
-        #     padx=5,
+        #     pady=self.default_pady,
+        #     padx=self.default_padx,
         # )
 
         # self.crop_page_range_entry = ttk.Entry(
@@ -913,8 +915,8 @@ class MainFrame(ttk.Frame):
         #     column=1,
         #     row=parameters_frame_line_number,
         #     sticky=tk.N+tk.W,
-        #     pady=0,
-        #     padx=5,
+        #     pady=self.default_pady,
+        #     padx=self.default_padx,
         # )
 
         parameters_frame_line_number += 1
@@ -924,8 +926,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.left_margin_spinbox = ttk.Spinbox(
@@ -942,8 +944,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -953,8 +955,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.top_margin_spinbox = ttk.Spinbox(
@@ -971,8 +973,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -982,8 +984,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.width_margin_spinbox = ttk.Spinbox(
@@ -1000,8 +1002,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1011,8 +1013,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.height_margin_spinbox = ttk.Spinbox(
@@ -1029,8 +1031,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1045,8 +1047,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.dpi_spinbox = ttk.Spinbox(
@@ -1063,8 +1065,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         # checkbox with value options
@@ -1080,8 +1082,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.fixed_font_size_spinbox = ttk.Spinbox(
@@ -1098,8 +1100,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1114,8 +1116,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.ocr_cpu_spinbox = ttk.Spinbox(
@@ -1132,8 +1134,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1148,8 +1150,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.smart_line_break_spinbox = ttk.Spinbox(
@@ -1166,8 +1168,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         option_frame_left_part_col_num = 0
@@ -1184,8 +1186,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1199,8 +1201,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1214,8 +1216,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1229,8 +1231,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1244,8 +1246,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1260,8 +1262,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         parameters_frame_line_number += 1
@@ -1276,8 +1278,8 @@ class MainFrame(ttk.Frame):
             column=option_frame_left_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         option_frace_right_part_col_num = 1
@@ -1293,8 +1295,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1308,8 +1310,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1323,8 +1325,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1338,8 +1340,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1353,8 +1355,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1368,8 +1370,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         parameters_frame_line_number += 1
 
@@ -1383,8 +1385,8 @@ class MainFrame(ttk.Frame):
             column=option_frace_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
     def setup_action_frame(self):
@@ -1397,8 +1399,8 @@ class MainFrame(ttk.Frame):
             row=self.conversion_tab_right_part_line_num,
             rowspan=3,
             sticky=tk.N+tk.S+tk.E+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.action_frame_row_num = 0
@@ -1412,8 +1414,8 @@ class MainFrame(ttk.Frame):
             column=0,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.convert_button = ttk.Button(
@@ -1425,8 +1427,8 @@ class MainFrame(ttk.Frame):
             column=1,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.cancel_button = ttk.Button(
@@ -1438,8 +1440,8 @@ class MainFrame(ttk.Frame):
             column=2,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.action_frame_row_num += 1
@@ -1454,8 +1456,8 @@ class MainFrame(ttk.Frame):
             row=self.action_frame_row_num,
             columnspan=2,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.action_frame_column_num = 0
@@ -1470,8 +1472,8 @@ class MainFrame(ttk.Frame):
             column=self.action_frame_column_num,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.action_frame_column_num += 1
 
@@ -1484,8 +1486,8 @@ class MainFrame(ttk.Frame):
             column=self.action_frame_column_num,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.action_frame_column_num += 1
 
@@ -1498,8 +1500,8 @@ class MainFrame(ttk.Frame):
             column=self.action_frame_column_num,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
         self.action_frame_column_num += 1
 
@@ -1512,8 +1514,8 @@ class MainFrame(ttk.Frame):
             column=self.action_frame_column_num,
             row=self.action_frame_row_num,
             sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
+            pady=self.default_pady,
+            padx=self.default_padx,
         )
 
         self.action_frame_column_num += 1
