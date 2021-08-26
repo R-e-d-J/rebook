@@ -1542,9 +1542,8 @@ class MainFrame(ttk.Frame):
 
     def initialize(self):
         ''' Simulate a click on every field : execute all the binded method. '''
-        self.on_bind_event_device_unit_cbox()
         self.on_bind_event_mode_cbox()
-        # self.on_bind_event_device_unit_cbox()
+        self.on_bind_event_device_unit_cbox()
         self.on_command_width_height_cb()
         self.on_command_column_num_cb()
         self.on_command_resolution_multipler_cb()
