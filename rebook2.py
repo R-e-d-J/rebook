@@ -102,13 +102,9 @@ class MainFrame(ttk.Frame):
                             5: 'Relative to the OCR Text Layer',
                         }
 
-    def __init__(self, window, k2pdfopt_path):
-        super().__init__(window)
-        self.root = window           # root of tkinter
-
-        self.logs_tab = None
-        self.base_tab = None
-        self.conversion_tab = None
+    def __init__(self, app, k2pdfopt_path):
+        super().__init__(app)
+        self.root = app           # root of tkinter
 
         self.k2pdfopt_path = k2pdfopt_path
         self.k2pdfopt_cmd_args = {}
@@ -121,8 +117,7 @@ class MainFrame(ttk.Frame):
         self.strvar_input_file_path = tk.StringVar()
         self.strvar_output_file_path = tk.StringVar()
         self.strvar_conversion_mode = tk.StringVar()
-
-        self.stdout_text = None
+        
         self.strvar_command_args = tk.StringVar()
         self.strvar_current_preview_page_num = tk.StringVar()
         
@@ -321,7 +316,6 @@ class MainFrame(ttk.Frame):
         self.current_preview_page_index = 0
         self.background_process = None
         self.background_future = None
-        self.canvas_image_tag = None
 
         s = ttk.Style()
         s.configure('TLabelframe.Label', font=('arial', 14, 'bold'))
@@ -427,38 +421,39 @@ class MainFrame(ttk.Frame):
         # File menu
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label='File')
-        menu_file.add_command(label="Open file…", command=self.on_command_open_pdf_file_cb)
-        menu_file.add_command(label='About', command=self.on_command_about_box_cb)
+        menu_file.add_command(label="Open file…", command=self.gui_open_pdf_file)
+        menu_file.add_command(label='About', command=self.gui_about_box)
         menu_file.add_command(label="Quit", command=self.root.quit)
 
         # Settings menu
         menu_settings = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_settings, label='Settings')
         menu_settings.add_command(label='Save current settings', command=self.on_click_save_preset)
-        menu_settings.add_command(label='Load settings', command=self.on_command_open_preset_file_cb)
+        menu_settings.add_command(label='Load settings', command=self.gui_open_preset_file)
         menu_settings.add_command(label='Reset settings to default', command=self.restore_default_values)
 
         # Help menu
         menu_help = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_help, label='Help')
-        menu_help.add_command(label="K2pdfopt website helppage", command=self.on_command_open_helpwebpage)
-        menu_help.add_command(label="K2pdfopt command line manual", command=self.on_command_open_cli_manual)
+        menu_help.add_command(label="K2pdfopt website helppage", command=self.gui_open_helpwebpage)
+        menu_help.add_command(label="K2pdfopt command line manual", command=self.gui_open_cli_manual)
 
-    def on_command_open_helpwebpage(self):
+    def gui_open_helpwebpage(self):
         webbrowser.open('https://willus.com/k2pdfopt/help/')
 
-    def on_command_open_cli_manual(self):
+    def gui_open_cli_manual(self):
         webbrowser.open('https://www.willus.com/k2pdfopt/help/options.shtml')
 
     def fill_left_side_of_conversion_tab(self):
         self.conversion_tab_left_part_column_num = 0
-        self.conversion_tab_left_part_line_num = 0
+        self.conversion_tab_left_part_line_num = -1
         self.setup_file_frame()
+        self.setup_device_frame()
         self.setup_parameters_frame()
 
     def fill_right_side_of_conversion_tab(self):
         self.conversion_tab_right_part_column_num = 1
-        self.conversion_tab_right_part_row_num = 0
+        self.conversion_tab_right_part_line_num = 0
         self.setup_information_frame()
         self.setup_action_frame()
 
@@ -471,7 +466,7 @@ class MainFrame(ttk.Frame):
             weight=1,
         )
         self.conversion_tab.rowconfigure(
-            self.conversion_tab_right_part_row_num,
+            self.conversion_tab_right_part_line_num,
             weight=1,
         )
         self.action_frame.columnconfigure(0, weight=1)
@@ -493,7 +488,7 @@ class MainFrame(ttk.Frame):
         self.clear_button = ttk.Button(
             self.stdout_frame,
             text='Clear',
-            command=self.on_command_clear_log_cb
+            command=self.gui_clear_log
         )
         self.clear_button.grid(
             column=0,
@@ -507,7 +502,7 @@ class MainFrame(ttk.Frame):
         self.information_frame = ttk.Labelframe(self.conversion_tab, text='Command-line Options')
         self.information_frame.grid(
             column=self.conversion_tab_right_part_column_num,
-            row=self.conversion_tab_right_part_row_num,
+            row=self.conversion_tab_right_part_line_num,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -519,7 +514,7 @@ class MainFrame(ttk.Frame):
             textvariable=self.strvar_command_args,
             width=100
         )
-        self.command_arguments_entry.bind('<Button-1>', self.on_bind_event_cmd_args_cb)
+        self.command_arguments_entry.bind('<Button-1>', self.gui_cmd_args)
         self.command_arguments_entry.grid(
             column=0,
             row=0,
@@ -530,69 +525,194 @@ class MainFrame(ttk.Frame):
 
     def setup_file_frame(self):
         ''' Set up the file frame. '''
-        self.required_input_frame = ttk.Labelframe(self.conversion_tab, text='Files')
-        self.required_input_frame.grid(
+        self.conversion_tab_left_part_line_num += 1
+        self.half_screen = int(self.root.width / 2) - 55
+        self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_screen, height=78)
+        self.file_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
+        self.file_frame.grid_propagate(False)
 
-        required_frame_row_num = 0
+        file_frame_line_number = 0
 
         open_button = ttk.Button(
-            self.required_input_frame, 
+            self.file_frame, 
             text='Choose a File', 
-            command=self.on_command_open_pdf_file_cb
+            command=self.gui_open_pdf_file
         )
         open_button.grid(
             column=0,
-            row=required_frame_row_num,
+            row=file_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-
         self.input_path_entry = ttk.Entry(
-            self.required_input_frame, 
+            self.file_frame, 
             state='readonly', 
             textvariable=self.strvar_input_file_path,
             width=35
         )
         self.input_path_entry.grid(
             column=1,
-            row=required_frame_row_num,
+            row=file_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        required_frame_row_num += 1
+        file_frame_line_number += 1
 
-        output_label = ttk.Label(self.required_input_frame, text='Output file path')
-        output_label.grid(column=0, row=required_frame_row_num, sticky=tk.N+tk.W, pady=0, padx=5)
-
+        output_label = ttk.Label(self.file_frame, text='Output file path')
+        output_label.grid(column=0, row=file_frame_line_number, sticky=tk.N+tk.W, pady=0, padx=5)
         self.output_path_entry = ttk.Entry(
-            self.required_input_frame, 
+            self.file_frame, 
             state='readonly', 
             textvariable=self.strvar_output_file_path,
             width=40
         )
-
         self.output_path_entry.grid(
             column=1,
-            row=required_frame_row_num,
+            row=file_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5
+        )
+
+    def setup_device_frame(self):
+        ''' Set up the device frame. '''
+        self.conversion_tab_left_part_line_num += 1
+
+        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=132)
+        self.device_frame.grid(
+            column=self.conversion_tab_left_part_column_num,
+            row=self.conversion_tab_left_part_line_num,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+        self.device_frame.grid_propagate(False)
+
+        device_frame_line_number = 0
+
+        device_label = ttk.Label(self.device_frame, text='Device')
+        device_label.grid(
+            column=0,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+        self.device_combobox = ttk.Combobox(
+            self.device_frame,
+            state='readonly',
+            textvariable=self.strvar_device,
+            width=25
+        )
+        self.device_combobox['values'] = list(self.device_choice_map.values())
+        self.device_combobox.current(0)
+        self.device_combobox.bind('<<ComboboxSelected>>', self.gui_device_unit_cbox)
+        self.device_combobox.grid(
+            column=1,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+
+        device_frame_line_number += 1
+
+        self.unit_label = ttk.Label(self.device_frame, text='Unit')
+        self.unit_label.grid(
+            column=0,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+        self.unit_combobox = ttk.Combobox(
+            self.device_frame, 
+            state='readonly', 
+            textvariable=self.strvar_screen_unit,
+            width=20
+        )
+        self.unit_combobox['values'] = list(self.unit_choice_map.values())
+        self.unit_combobox.current(0)
+        self.unit_combobox.bind('<<ComboboxSelected>>', self.gui_device_unit_cbox)
+        self.unit_combobox.grid(
+            column=1,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+
+        device_frame_line_number += 1
+
+        self.width_label = ttk.Label(self.device_frame, text='Width')
+        self.width_label.grid(
+            column=0,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+
+        self.width_spinbox = ttk.Spinbox(
+            self.device_frame,
+            from_=0,
+            to=10000,
+            increment=0.1,
+            state='readonly',
+            textvariable=self.strvar_screen_width,
+            command=self.gui_width_height,
+            width=6
+        )
+        self.width_spinbox.grid(
+            column=1,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+
+        device_frame_line_number += 1
+
+        self.height_label = ttk.Label(self.device_frame, text='Height')
+        self.height_label.grid(
+            column=0,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
+        )
+        self.height_spinbox = ttk.Spinbox(
+            self.device_frame,
+            from_=0,
+            to=10000,
+            increment=0.1,
+            state='readonly',
+            textvariable=self.strvar_screen_height,
+            command=self.gui_width_height,
+            width=6
+        )
+        self.height_spinbox.grid(
+            column=1,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=0,
+            padx=5,
         )
 
     def setup_parameters_frame(self):
         ''' Set up the parameters frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & Options')
+        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=574)
         self.parameters_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -600,127 +720,14 @@ class MainFrame(ttk.Frame):
             pady=0,
             padx=5,
         )
+        self.parameters_frame.grid_propagate(False)
 
-        parameters_frame_row_number = 0
-
-        device_label = ttk.Label(self.parameters_frame, text='Device')
-        device_label.grid(
-            column=0,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        self.device_combobox = ttk.Combobox(
-            self.parameters_frame,
-            state='readonly',
-            textvariable=self.strvar_device,
-            width=25
-        )
-
-        self.device_combobox['values'] = list(self.device_choice_map.values())
-        self.device_combobox.current(0)
-        self.device_combobox.bind('<<ComboboxSelected>>', self.on_bind_event_device_unit_cbox)
-        self.device_combobox.grid(
-            column=1,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        parameters_frame_row_number += 1
-
-        self.unit_label = ttk.Label(self.parameters_frame, text='Unit')
-        self.unit_label.grid(
-            column=0,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        self.unit_combobox = ttk.Combobox(
-            self.parameters_frame, 
-            state='readonly', 
-            textvariable=self.strvar_screen_unit,
-            width=20
-        )
-        self.unit_combobox['values'] = list(self.unit_choice_map.values())
-        self.unit_combobox.current(0)
-        self.unit_combobox.bind('<<ComboboxSelected>>', self.on_bind_event_device_unit_cbox)
-        self.unit_combobox.grid(
-            column=1,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        parameters_frame_row_number += 1
-
-        self.width_label = ttk.Label(self.parameters_frame, text='Width')
-        self.width_label.grid(
-            column=0,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        self.width_spinbox = ttk.Spinbox(
-            self.parameters_frame,
-            from_=0,
-            to=10000,
-            increment=0.1,
-            state='readonly',
-            textvariable=self.strvar_screen_width,
-            command=self.on_command_width_height_cb,
-            width=6
-        )
-        self.width_spinbox.grid(
-            column=1,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        parameters_frame_row_number += 1
-
-        self.height_label = ttk.Label(self.parameters_frame, text='Height')
-        self.height_label.grid(
-            column=0,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-        self.height_spinbox = ttk.Spinbox(
-            self.parameters_frame,
-            from_=0,
-            to=10000,
-            increment=0.1,
-            state='readonly',
-            textvariable=self.strvar_screen_height,
-            command=self.on_command_width_height_cb,
-            width=6
-        )
-        self.height_spinbox.grid(
-            column=1,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
-        parameters_frame_row_number += 1
+        parameters_frame_line_number = 0
 
         conversion_mode_label = ttk.Label(self.parameters_frame, text='Conversion Mode')
         conversion_mode_label.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -730,25 +737,25 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             state='readonly', 
             textvariable=self.strvar_conversion_mode,
-            width=15
+            width=10
         )
         self.mode_combobox['values'] = list(self.mode_choice_map.values())
         self.mode_combobox.current(0)
-        self.mode_combobox.bind('<<ComboboxSelected>>', self.on_bind_event_mode_cbox)
+        self.mode_combobox.bind('<<ComboboxSelected>>', self.gui_mode_cbox)
         self.mode_combobox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         page_number_label = ttk.Label(self.parameters_frame, text='Pages to Convert')
         page_number_label.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -758,28 +765,28 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             textvariable=self.strvar_page_numbers,
             validate='focusout',
-            validatecommand=self.on_validate_page_nums_cb,
+            validatecommand=self.validate_and_update_page_nums,
             width=13
         )
         self.page_number_entry.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.landscape_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Output in Landscape',
             variable=self.is_landscape_checked,
-            command=self.on_command_and_validate_landscape_cb,
+            command=self.gui_and_validate_landscape,
         )
         self.landscape_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -789,28 +796,28 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             textvariable=self.strvar_landscape_pages,
             validate='focusout',
-            validatecommand=self.on_command_and_validate_landscape_cb,
+            validatecommand=self.gui_and_validate_landscape,
             width=13
         )
         self.landscapepage_number_entry.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.max_column_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Maximum Columns',
             variable=self.is_column_num_checked,
-            command=self.on_command_column_num_cb,
+            command=self.gui_column_num,
         )
         self.max_column_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -823,28 +830,28 @@ class MainFrame(ttk.Frame):
             increment=1,
             state='readonly',
             textvariable=self.strvar_column_num,
-            command=self.on_command_column_num_cb,
+            command=self.gui_column_num,
             width=6
         )
         self.max_column_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.resolution_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Document Resolution Factor',
             variable=self.is_resolution_multipler_checked,
-            command=self.on_command_resolution_multipler_cb,
+            command=self.gui_resolution_multipler,
         )
         self.resolution_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -857,39 +864,39 @@ class MainFrame(ttk.Frame):
             increment=0.1,
             state='readonly',
             textvariable=self.strvar_resolution_multiplier,
-            command=self.on_command_resolution_multipler_cb,
+            command=self.gui_resolution_multipler,
             width=6
         )
         self.resolution_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.margin_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Crop Margins (in)',
             variable=self.is_crop_margin_checked,
-            command=self.on_command_and_validate_crop_margin_cb,
+            command=self.gui_crop_margin,
         )
         self.margin_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        # parameters_frame_row_number += 1
+        # parameters_frame_line_number += 1
 
         # crop_page_range_label = ttk.Label(self.parameters_frame, text='      Page Range')
         # crop_page_range_label.grid(
         #     column=0,
-        #     row=parameters_frame_row_number,
+        #     row=parameters_frame_line_number,
         #     sticky=tk.N+tk.W,
         #     pady=0,
         #     padx=5,
@@ -899,23 +906,23 @@ class MainFrame(ttk.Frame):
         #     self.parameters_frame,
         #     textvariable=self.strvar_crop_page_range,
         #     validate='focusout',
-        #     validatecommand=self.on_command_and_validate_crop_margin_cb,
+        #     validatecommand=self.gui_crop_margin,
         #     width=13
         # )
         # self.crop_page_range_entry.grid(
         #     column=1,
-        #     row=parameters_frame_row_number,
+        #     row=parameters_frame_line_number,
         #     sticky=tk.N+tk.W,
         #     pady=0,
         #     padx=5,
         # )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         left_margin_label = ttk.Label(self.parameters_frame, text='      Left')
         left_margin_label.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -928,23 +935,23 @@ class MainFrame(ttk.Frame):
             increment=0.1,
             state='readonly',
             textvariable=self.strvar_left_margin,
-            command=self.on_command_and_validate_crop_margin_cb,
+            command=self.gui_crop_margin,
             width=6
         )
         self.left_margin_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         top_margin_label = ttk.Label(self.parameters_frame, text='      Top')
         top_margin_label.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -957,23 +964,23 @@ class MainFrame(ttk.Frame):
             increment=0.1,
             state='readonly',
             textvariable=self.strvar_top_margin,
-            command=self.on_command_and_validate_crop_margin_cb,
+            command=self.gui_crop_margin,
             width=6
         )
         self.top_margin_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         width_margin_textlabel = ttk.Label(self.parameters_frame, text='      Right')
         width_margin_textlabel.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -986,23 +993,23 @@ class MainFrame(ttk.Frame):
             increment=0.1,
             state='readonly',
             textvariable=self.strvar_width_margin,
-            command=self.on_command_and_validate_crop_margin_cb,
+            command=self.gui_crop_margin,
             width=6
         )
         self.width_margin_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         height_margin_textlabel = ttk.Label(self.parameters_frame, text='      Bottom')
         height_margin_textlabel.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -1015,28 +1022,28 @@ class MainFrame(ttk.Frame):
             increment=0.1,
             state='readonly',
             textvariable=self.strvar_height_margin,
-            command=self.on_command_and_validate_crop_margin_cb,
+            command=self.gui_crop_margin,
             width=6
         )
         self.height_margin_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.dpi_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='DPI',
             variable=self.is_dpi_checked,
-            command=self.on_command_dpi_cb,
+            command=self.gui_dpi,
         )
         self.dpi_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -1049,29 +1056,29 @@ class MainFrame(ttk.Frame):
             increment=1,
             state='readonly',
             textvariable=self.strvar_dpi,
-            command=self.on_command_dpi_cb,
+            command=self.gui_dpi,
             width=6
         )
         self.dpi_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
         # checkbox with value options
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.fixed_font_size_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Fixed Output Font Size',
             variable=self.is_fixed_font_size_checked,
-            command=self.on_command_fixed_font_size_cb,
+            command=self.gui_fixed_font_size,
         )
         self.fixed_font_size_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -1084,28 +1091,28 @@ class MainFrame(ttk.Frame):
             increment=1,
             state='readonly',
             textvariable=self.strvar_fixed_font_size,
-            command=self.on_command_fixed_font_size_cb,
+            command=self.gui_fixed_font_size,
             width=6
         )
         self.fixed_font_size_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.ocr_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='OCR (Tesseract) CPU %',
             variable=self.is_ocr_cpu_limitation_checked,
-            command=self.on_command_ocr_and_cpu_cb,
+            command=self.gui_ocr_and_cpu,
         )
         self.ocr_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -1118,28 +1125,28 @@ class MainFrame(ttk.Frame):
             increment=1,
             state='readonly',
             textvariable=self.strvar_ocr_cpu_percentage,
-            command=self.on_command_ocr_and_cpu_cb,
+            command=self.gui_ocr_and_cpu,
             width=6
         )
         self.ocr_cpu_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.smart_line_break_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Smart Line Breaks',
             variable=self.is_smart_linebreak_checked,
-            command=self.on_command_line_break_cb,
+            command=self.gui_line_break,
         )
         self.smart_line_break_check_button.grid(
             column=0,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
@@ -1152,242 +1159,242 @@ class MainFrame(ttk.Frame):
             increment=0.01,
             state='readonly',
             textvariable=self.strvar_linebreak_space,
-            command=self.on_command_line_break_cb,
+            command=self.gui_line_break,
             width=6
         )
         self.smart_line_break_spinbox.grid(
             column=1,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
         option_frame_left_part_col_num = 0
-        parameters_frame_row_number += 1
-        save_parameters_frame_row_number = parameters_frame_row_number
+        parameters_frame_line_number += 1
+        save_parameters_frame_line_number = parameters_frame_line_number
 
         self.autostraighten_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Autostraighten',
             variable=self.is_autostraighten_checked,
-            command=self.on_command_auto_straighten_cb,
+            command=self.gui_auto_straighten,
         )
         self.autostraighten_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.break_after_source_page_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Break After Each Source Page',
             variable=self.isBreakPage,
-            command=self.on_command_break_page_cb,
+            command=self.gui_break_page,
         )
         self.break_after_source_page_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.color_output_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Color Output',
             variable=self.is_coloroutput_checked,
-            command=self.on_command_color_output_cb,
+            command=self.gui_color_output,
         )
         self.color_output_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.native_pdf_output_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Native PDF Output',
             variable=self.is_native_pdf_checked,
-            command=self.on_command_native_pdf_cb,
+            command=self.gui_native_pdf,
         )
         self.native_pdf_output_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.right_to_left_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Right-to-Left Text',
             variable=self.is_right_to_left_checked,
-            command=self.on_command_right_to_left_cb,
+            command=self.gui_right_to_left,
         )
         self.right_to_left_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.post_process_ghostscript_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Post Process w/GhostScript',
             variable=self.is_ghostscript_postprocessing_checked,
-            command=self.on_command_post_gs_cb,
+            command=self.gui_post_gs,
         )
         self.post_process_ghostscript_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.generate_markup_source_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Generate Marked-up Source',
             variable=self.isMarkedSrc,
-            command=self.on_command_marked_src_cb,
+            command=self.gui_marked_src,
         )
         self.generate_markup_source_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
         option_frace_right_part_col_num = 1
-        parameters_frame_row_number = save_parameters_frame_row_number
+        parameters_frame_line_number = save_parameters_frame_line_number
 
         self.reflow_text_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Re-flow Text',
             variable=self.is_reflow_text_checked,
-            command=self.on_command_reflow_text_cb,
+            command=self.gui_reflow_text,
         )
         self.reflow_text_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.erase_vline_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Erase Vertical Lines',
             variable=self.is_erase_vertical_line_checked,
-            command=self.on_command_erase_vertical_line_cb,
+            command=self.gui_erase_vertical_line,
         )
         self.erase_vline_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.erase_hline_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Erase Horizontal Lines',
             variable=self.is_erase_horizontal_line_checked,
-            command=self.on_command_erase_horizontal_line_cb,
+            command=self.gui_erase_horizontal_line,
         )
         self.erase_hline_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.fast_preview_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Fast Preview',
             variable=self.is_fast_preview_checked,
-            command=self.on_command_fast_preview_cb,
+            command=self.gui_fast_preview,
         )
         self.fast_preview_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.avoid_text_overlap_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Avoid Text Selection Overlap',
             variable=self.isAvoidOverlap,
-            command=self.on_command_avoid_text_selection_overlap_cb,
+            command=self.gui_avoid_text_selection_overlap,
         )
         self.avoid_text_overlap_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.ignore_defect_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Ignore Small Defects',
             variable=self.is_ignore_small_defects_checked,
-            command=self.on_command_ignore_small_defect_cb,
+            command=self.gui_ignore_small_defect,
         )
         self.ignore_defect_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        parameters_frame_row_number += 1
+        parameters_frame_line_number += 1
 
         self.autocrop_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Auto-Crop',
             variable=self.is_autocrop_checked,
-            command=self.on_command_auto_crop_cb,
+            command=self.gui_auto_crop,
         )
         self.autocrop_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=parameters_frame_row_number,
+            row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-
     def setup_action_frame(self):
-        self.conversion_tab_right_part_row_num += 1
+        ''' Set up the action frame. '''
+        self.conversion_tab_right_part_line_num += 1
 
         self.action_frame = ttk.Labelframe(self.conversion_tab, text='Actions')
         self.action_frame.grid(
             column=self.conversion_tab_right_part_column_num,
-            row=self.conversion_tab_right_part_row_num,
+            row=self.conversion_tab_right_part_line_num,
             rowspan=3,
             sticky=tk.N+tk.S+tk.E+tk.W,
             pady=0,
@@ -1399,7 +1406,7 @@ class MainFrame(ttk.Frame):
         self.preview_button = ttk.Button(
             self.action_frame, 
             text='Preview', 
-            command=self.on_command_ten_page_up_cb
+            command=self.gui_ten_page_up
         )
         self.preview_button.grid(
             column=0,
@@ -1412,7 +1419,7 @@ class MainFrame(ttk.Frame):
         self.convert_button = ttk.Button(
             self.action_frame, 
             text='Convert', 
-            command=self.on_command_convert_pdf_cb
+            command=self.gui_convert_pdf
         )
         self.convert_button.grid(
             column=1,
@@ -1425,7 +1432,7 @@ class MainFrame(ttk.Frame):
         self.cancel_button = ttk.Button(
             self.action_frame, 
             text='Abort', 
-            command=self.on_command_abort_conversion_cb
+            command=self.gui_abort_conversion
         )
         self.cancel_button.grid(
             column=2,
@@ -1457,7 +1464,7 @@ class MainFrame(ttk.Frame):
         self.first_button = ttk.Button(
             self.action_frame, 
             text='<<', 
-            command=self.on_command_ten_page_up_cb
+            command=self.gui_ten_page_up
         )
         self.first_button.grid(
             column=self.action_frame_column_num,
@@ -1471,7 +1478,7 @@ class MainFrame(ttk.Frame):
         self.previous_button = ttk.Button(
             self.action_frame, 
             text='<', 
-            command=self.on_command_page_up_cb
+            command=self.gui_page_up
         )
         self.previous_button.grid(
             column=self.action_frame_column_num,
@@ -1485,7 +1492,7 @@ class MainFrame(ttk.Frame):
         self.next_button = ttk.Button(
             self.action_frame, 
             text='>', 
-            command=self.on_command_page_down_cb
+            command=self.gui_page_down
         )
         self.next_button.grid(
             column=self.action_frame_column_num,
@@ -1499,7 +1506,7 @@ class MainFrame(ttk.Frame):
         self.last_button = ttk.Button(
             self.action_frame,
             text='>>',
-            command=self.on_command_ten_page_down_cb
+            command=self.gui_ten_page_down
         )
         self.last_button.grid(
             column=self.action_frame_column_num,
@@ -1542,32 +1549,31 @@ class MainFrame(ttk.Frame):
 
     def initialize(self):
         ''' Simulate a click on every field : execute all the binded method. '''
-        self.on_bind_event_device_unit_cbox()
-        self.on_bind_event_mode_cbox()
-        # self.on_bind_event_device_unit_cbox()
-        self.on_command_width_height_cb()
-        self.on_command_column_num_cb()
-        self.on_command_resolution_multipler_cb()
-        self.on_command_and_validate_crop_margin_cb()
-        self.on_command_dpi_cb()
-        self.on_validate_page_nums_cb()
-        self.on_command_fixed_font_size_cb()
-        self.on_command_ocr_and_cpu_cb()
-        self.on_command_and_validate_landscape_cb()
-        self.on_command_line_break_cb()
-        self.on_command_auto_straighten_cb()
-        self.on_command_break_page_cb()
-        self.on_command_color_output_cb()
-        self.on_command_native_pdf_cb()
-        self.on_command_right_to_left_cb()
-        self.on_command_post_gs_cb()
-        self.on_command_marked_src_cb()
-        self.on_command_reflow_text_cb()
-        self.on_command_erase_vertical_line_cb()
-        self.on_command_erase_horizontal_line_cb()
-        self.on_command_fast_preview_cb()
-        self.on_command_ignore_small_defect_cb()
-        self.on_command_auto_crop_cb()
+        self.gui_device_unit_cbox()
+        self.gui_mode_cbox()
+        self.gui_width_height()
+        self.gui_column_num()
+        self.gui_resolution_multipler()
+        self.gui_crop_margin()
+        self.gui_dpi()
+        self.validate_and_update_page_nums()
+        self.gui_fixed_font_size()
+        self.gui_ocr_and_cpu()
+        self.gui_and_validate_landscape()
+        self.gui_line_break()
+        self.gui_auto_straighten()
+        self.gui_break_page()
+        self.gui_color_output()
+        self.gui_native_pdf()
+        self.gui_right_to_left()
+        self.gui_post_gs()
+        self.gui_marked_src()
+        self.gui_reflow_text()
+        self.gui_erase_vertical_line()
+        self.gui_erase_horizontal_line()
+        self.gui_fast_preview()
+        self.gui_ignore_small_defect()
+        self.gui_auto_crop()
 
     def initialize_vars(self, dict_vars):
         ''' Initialize variables from a dictionnary and build the associated command line. '''
@@ -1625,7 +1631,7 @@ class MainFrame(ttk.Frame):
         cmd_arg_str = ' '.join(arg_list)
         return cmd_arg_str
 
-    def on_command_about_box_cb(self):
+    def gui_about_box(self):
         about_message = \
             '''ReBook 2 ßeta
 
@@ -1639,7 +1645,7 @@ class MainFrame(ttk.Frame):
 
         messagebox.showinfo(message=about_message)
 
-    def on_command_open_pdf_file_cb(self):
+    def gui_open_pdf_file(self):
         ''' Select a PDF/DJVU file and generate output path '''
         supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
         filename = filedialog.askopenfilename(
@@ -1663,7 +1669,7 @@ class MainFrame(ttk.Frame):
                         dict_to_save[key] = [var.get() for var in value]
                 json.dump(dict_to_save, preset_file)
 
-    def on_command_open_preset_file_cb(self):
+    def gui_open_preset_file(self):
         supported_formats = [('JSON files', '*.json'),]
         filename = filedialog.askopenfilename(
             filetypes=supported_formats,
@@ -1672,32 +1678,32 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.load_custom_preset(filename)
 
-    def on_bind_event_device_unit_cbox(self, e=None):
+    def gui_device_unit_cbox(self, e=None):
         self.update_device_unit_width_height()
 
-    def on_command_width_height_cb(self):
+    def gui_width_height(self):
         self.update_device_unit_width_height()
 
     def update_device_unit_width_height(self):
         if self.device_combobox.current() != 20:  # non-other type
-            self.unit_label.grid_remove()
-            self.width_label.grid_remove()
-            self.height_label.grid_remove()
-            self.unit_combobox.grid_remove()
-            self.width_spinbox.grid_remove()
-            self.height_spinbox.grid_remove()
+            # self.unit_label.grid_remove()
+            # self.width_label.grid_remove()
+            # self.height_label.grid_remove()
+            # self.unit_combobox.grid_remove()
+            # self.width_spinbox.grid_remove()
+            # self.height_spinbox.grid_remove()
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + ' ' + device_type
             self.add_or_update_command_argument(self.device_arg_name, arg)
             self.remove_command_argument(self.width_arg_name)
             self.remove_command_argument(self.height_arg_name)
         else:   # "Other type" chosen
-            self.unit_label.grid()
-            self.width_label.grid()
-            self.height_label.grid()
-            self.unit_combobox.grid()
-            self.width_spinbox.grid()
-            self.height_spinbox.grid()
+            # self.unit_label.grid()
+            # self.width_label.grid()
+            # self.height_label.grid()
+            # self.unit_combobox.grid()
+            # self.width_spinbox.grid()
+            # self.height_spinbox.grid()
             screen_unit = self.unit_argument_map[self.unit_combobox.current()]
             width_arg = (self.width_arg_name + ' ' + self.strvar_screen_width.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.width_arg_name, width_arg)
@@ -1705,22 +1711,22 @@ class MainFrame(ttk.Frame):
             self.add_or_update_command_argument(self.height_arg_name, height_arg)
             self.remove_command_argument(self.device_arg_name)
 
-    def on_bind_event_mode_cbox(self, e=None):
+    def gui_mode_cbox(self, e=None):
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = (self.conversion_mode_arg_name + ' ' + conversion_mode)
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
 
-    def on_bind_event_cmd_args_cb(self, e=None):
+    def gui_cmd_args(self, e=None):
         self.update_command_argument_entry_strvar()
 
-    def on_command_column_num_cb(self):
+    def gui_column_num(self):
         if self.is_column_num_checked.get():
             arg = (self.column_num_arg_name + ' ' + self.strvar_column_num.get().strip())
             self.add_or_update_command_argument(self.column_num_arg_name, arg)
         else:
             self.remove_command_argument(self.column_num_arg_name)
 
-    def on_command_resolution_multipler_cb(self):
+    def gui_resolution_multipler(self):
         if self.is_resolution_multipler_checked.get():
             arg = (
                 self.resolution_multiplier_arg_name + ' ' +
@@ -1730,7 +1736,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.resolution_multiplier_arg_name)
 
-    def on_command_and_validate_crop_margin_cb(self):
+    def gui_crop_margin(self):
         '''
         
             Remarks:
@@ -1778,7 +1784,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.crop_margin_right_arg_name)
             self.remove_command_argument(self.crop_margin_bottom_arg_name)
 
-    # def on_command_and_validate_cropbox_cb(self):
+    # def gui_and_validate_cropbox(self):
     #     if (len(self.strvar_crop_page_range.get().strip()) > 0 and
     #             not tools.check_page_nums(self.strvar_crop_page_range.get().strip())):
     #         self.remove_command_argument(self.crop_margin_arg_name)
@@ -1807,7 +1813,7 @@ class MainFrame(ttk.Frame):
     #     else:
     #         self.remove_command_argument(self.crop_margin_arg_name)
 
-    def on_command_dpi_cb(self):
+    def gui_dpi(self):
         if self.is_dpi_checked.get():
             arg = self.dpi_arg_name + ' ' + self.strvar_dpi.get().strip()
             self.add_or_update_command_argument(self.dpi_arg_name, arg)
@@ -1833,10 +1839,7 @@ class MainFrame(ttk.Frame):
 
         return True
 
-    def on_validate_page_nums_cb(self):
-        self.validate_and_update_page_nums()
-
-    def on_command_fixed_font_size_cb(self):
+    def gui_fixed_font_size(self):
         if self.is_fixed_font_size_checked.get():
             arg = (self.fixed_font_size_arg_name + ' ' + self.strvar_fixed_font_size.get().strip())
             self.add_or_update_command_argument(self.fixed_font_size_arg_name, arg)
@@ -1844,7 +1847,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.fixed_font_size_arg_name)
 
 
-    def on_command_ocr_and_cpu_cb(self):
+    def gui_ocr_and_cpu(self):
         ''' OCR CPU pourcentage management
 
             Remarks: 
@@ -1861,7 +1864,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ocr_arg_name)
             self.remove_command_argument(self.ocr_cpu_arg_name)
 
-    def on_command_and_validate_landscape_cb(self):
+    def gui_and_validate_landscape(self):
         if (len(self.strvar_landscape_pages.get().strip()) > 0 and
             not tools.check_page_nums(self.strvar_landscape_pages.get().strip())):
 
@@ -1882,20 +1885,20 @@ class MainFrame(ttk.Frame):
 
         return True
 
-    def on_command_line_break_cb(self):
+    def gui_line_break(self):
         if self.is_smart_linebreak_checked.get():
             arg = (self.linebreak_arg_name + ' ' + self.strvar_linebreak_space.get().strip())
             self.add_or_update_command_argument(self.linebreak_arg_name, arg)
         else:
             self.remove_command_argument(self.linebreak_arg_name)
 
-    def on_command_auto_straighten_cb(self):
+    def gui_auto_straighten(self):
         if self.is_autostraighten_checked.get():
             self.add_or_update_command_argument(self.auto_straignten_arg_name, self.auto_straignten_arg_name)
         else:
             self.remove_command_argument(self.auto_straignten_arg_name)
 
-    def on_command_break_page_cb(self):
+    def gui_break_page(self):
         ''' Native PDF management
         
             Remarks : break page conflicts with avoid overlap since they are both -bp flag
@@ -1907,13 +1910,13 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
-    def on_command_color_output_cb(self):
+    def gui_color_output(self):
         if self.is_coloroutput_checked.get():
             self.add_or_update_command_argument(self.color_output_arg_name, self.color_output_arg_name)
         else:
             self.remove_command_argument(self.color_output_arg_name)
 
-    def on_command_native_pdf_cb(self):
+    def gui_native_pdf(self):
         ''' Manage `Native PDF`option.
         
             Remarks : native pdf conflicts with 'ocr' and 'reflow text'
@@ -1928,25 +1931,25 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.native_pdf_arg_name)
 
-    def on_command_right_to_left_cb(self):
+    def gui_right_to_left(self):
         if self.is_right_to_left_checked.get():
             self.add_or_update_command_argument(self.right_to_left_arg_name, self.right_to_left_arg_name)
         else:
             self.remove_command_argument(self.right_to_left_arg_name)
 
-    def on_command_post_gs_cb(self):
+    def gui_post_gs(self):
         if self.is_ghostscript_postprocessing_checked.get():
             self.add_or_update_command_argument(self.post_gs_arg_name, self.post_gs_arg_name)
         else:
             self.remove_command_argument(self.post_gs_arg_name)
 
-    def on_command_marked_src_cb(self):
+    def gui_marked_src(self):
         if self.isMarkedSrc.get():
             self.add_or_update_command_argument(self.marked_source_arg_name, self.marked_source_arg_name)
         else:
             self.remove_command_argument(self.marked_source_arg_name)
 
-    def on_command_reflow_text_cb(self):
+    def gui_reflow_text(self):
         if self.is_reflow_text_checked.get():
             self.is_native_pdf_checked.set(False)  # reflow text conflicts with native pdf
             self.remove_command_argument(self.native_pdf_arg_name)
@@ -1955,7 +1958,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.reflow_text_arg_name)
 
-    def on_command_erase_vertical_line_cb(self):
+    def gui_erase_vertical_line(self):
         ''' Manage `Erase vertical line` option '''
         if self.is_erase_vertical_line_checked.get():
             arg = self.erase_vertical_line_arg_name + ' 1'
@@ -1963,7 +1966,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.erase_vertical_line_arg_name)
 
-    def on_command_fast_preview_cb(self):
+    def gui_fast_preview(self):
         ''' Manage fast preview option.'''
         if self.is_fast_preview_checked.get():
             arg = self.fast_preview_arg_name + ' 0'
@@ -1971,7 +1974,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.fast_preview_arg_name)
 
-    def on_command_avoid_text_selection_overlap_cb(self):
+    def gui_avoid_text_selection_overlap(self):
         ''' Manage avoid text selection overlap. '''
         if self.isAvoidOverlap.get():
             # avoid overlap conflicts with break page since they are both -bp flag
@@ -1983,7 +1986,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
-    def on_command_ignore_small_defect_cb(self):
+    def gui_ignore_small_defect(self):
         ''' Manage `ignore small defect` option. '''
         if self.is_ignore_small_defects_checked.get():
             arg = (self.ign_small_defects_arg_name + ' 1.5')
@@ -1991,7 +1994,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.ign_small_defects_arg_name)
 
-    def on_command_erase_horizontal_line_cb(self):
+    def gui_erase_horizontal_line(self):
         ''' Manage `Erase horizontal line` option '''
         if self.is_erase_horizontal_line_checked.get():
             arg = self.erase_horizontal_line_arg_name + ' 1'
@@ -1999,7 +2002,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.erase_horizontal_line_arg_name)
 
-    def on_command_auto_crop_cb(self):
+    def gui_auto_crop(self):
         ''' Manage autocrop option.
         
             Remarks:
@@ -2067,48 +2070,48 @@ class MainFrame(ttk.Frame):
         self.background_future = self.convert_pdf_file(output_arg)
         self.strvar_current_preview_page_num.set('Preview Generating...')
 
-        def preview_image_future_cb(bgf):
+        def preview_image_future(bgf):
             self.load_preview_image(self.preview_image_path, preview_page_index)
             self.log_string(
                 "Preview generation for page %d finished" %
                 preview_page_index
             )
 
-        self.background_future.add_done_callback(preview_image_future_cb)
+        self.background_future.add_done_callback(preview_image_future)
 
-    def on_command_restore_default_cb(self):
+    def gui_restore_default(self):
         ''' Restore all the default value (even if preset was defined). '''
         self.restore_default_values()
 
-    def on_command_abort_conversion_cb(self):
+    def gui_abort_conversion(self):
         ''' Abord the process of the preview/conversion. '''
         if self.background_future is not None:
             self.background_future.cancel()
         if (self.background_process is not None and self.background_process.returncode is None):
             self.background_process.terminate()
 
-    def on_command_convert_pdf_cb(self):
+    def gui_convert_pdf(self):
         if not self.pdf_conversion_is_done():
             return
         pdf_output_arg = self.output_path_arg_name + ' %s' + self.output_pdf_suffix
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
-    def on_command_ten_page_up_cb(self):
+    def gui_ten_page_up(self):
         self.current_preview_page_index -= 10
         if self.current_preview_page_index < 1:
             self.current_preview_page_index = 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def on_command_page_up_cb(self):
+    def gui_page_up(self):
         if self.current_preview_page_index > 1:
             self.current_preview_page_index -= 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def on_command_page_down_cb(self):
+    def gui_page_down(self):
         self.current_preview_page_index += 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def on_command_ten_page_down_cb(self):
+    def gui_ten_page_down(self):
         self.current_preview_page_index += 10
         self.generate_one_preview_image(self.current_preview_page_index)
 
@@ -2118,7 +2121,7 @@ class MainFrame(ttk.Frame):
     def xscroll_canvas(self, event):
         self.preview_canvas.xview_scroll(-1 * event.delta, 'units')
 
-    def on_command_clear_log_cb(self):
+    def gui_clear_log(self):
         self.clear_logs()
 
     def pdf_conversion_is_done(self):
@@ -2232,9 +2235,9 @@ class ReBook(tk.Tk):
 
     def configure_gui(self):
         self.title('Rebook v2.0ß')
-        width= self.winfo_screenwidth()
-        height= self.winfo_screenheight()
-        self.geometry('%dx%d' % (width, height))
+        self.width= self.winfo_screenwidth()
+        self.height= self.winfo_screenheight()
+        self.geometry('%dx%d' % (self.width, self.height))
         self.resizable(True, True)
 
 
