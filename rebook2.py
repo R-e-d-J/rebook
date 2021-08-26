@@ -589,7 +589,7 @@ class MainFrame(ttk.Frame):
         ''' Set up the device frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=132)
+        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=110)
         self.device_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -620,6 +620,7 @@ class MainFrame(ttk.Frame):
         self.device_combobox.bind('<<ComboboxSelected>>', self.gui_device_unit_cbox)
         self.device_combobox.grid(
             column=1,
+            columnspan=3,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -647,6 +648,7 @@ class MainFrame(ttk.Frame):
         self.unit_combobox.bind('<<ComboboxSelected>>', self.gui_device_unit_cbox)
         self.unit_combobox.grid(
             column=1,
+            columnspan=3,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -682,11 +684,11 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        device_frame_line_number += 1
+        # device_frame_line_number += 1
 
         self.height_label = ttk.Label(self.device_frame, text='Height')
         self.height_label.grid(
-            column=0,
+            column=2,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -703,7 +705,38 @@ class MainFrame(ttk.Frame):
             width=6
         )
         self.height_spinbox.grid(
-            column=1,
+            column=3,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.dpi_check_button = ttk.Checkbutton(
+            self.device_frame,
+            text='DPI',
+            variable=self.is_dpi_checked,
+            command=self.gui_dpi,
+        )
+        self.dpi_check_button.grid(
+            column=4,
+            row=device_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.dpi_spinbox = ttk.Spinbox(
+            self.device_frame,
+            from_=0,
+            to=1000,
+            increment=1,
+            state='readonly',
+            textvariable=self.strvar_dpi,
+            command=self.gui_dpi,
+            width=6
+        )
+        self.dpi_spinbox.grid(
+            column=5,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -714,7 +747,7 @@ class MainFrame(ttk.Frame):
         ''' Set up the parameters frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=574)
+        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=593)
         self.parameters_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -1028,40 +1061,6 @@ class MainFrame(ttk.Frame):
             width=6
         )
         self.height_margin_spinbox.grid(
-            column=1,
-            row=parameters_frame_line_number,
-            sticky=tk.N+tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
-        parameters_frame_line_number += 1
-
-        self.dpi_check_button = ttk.Checkbutton(
-            self.parameters_frame,
-            text='DPI',
-            variable=self.is_dpi_checked,
-            command=self.gui_dpi,
-        )
-        self.dpi_check_button.grid(
-            column=0,
-            row=parameters_frame_line_number,
-            sticky=tk.N+tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
-        self.dpi_spinbox = ttk.Spinbox(
-            self.parameters_frame,
-            from_=0,
-            to=1000,
-            increment=1,
-            state='readonly',
-            textvariable=self.strvar_dpi,
-            command=self.gui_dpi,
-            width=6
-        )
-        self.dpi_spinbox.grid(
             column=1,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
