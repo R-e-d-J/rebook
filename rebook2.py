@@ -105,7 +105,6 @@ class MainFrame(ttk.Frame):
     def __init__(self, window, k2pdfopt_path):
         super().__init__(window)
         self.root = window           # root of tkinter
-        # self.root.attributes('-fullscreen', True)
 
         self.logs_tab = None
         self.base_tab = None
@@ -442,29 +441,31 @@ class MainFrame(ttk.Frame):
         # Help menu
         menu_help = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_help, label='Help')
-        menu_help.add_command(label="K2pdfopt help", command=self.on_command_open_webpage)
+        menu_help.add_command(label="K2pdfopt website helppage", command=self.on_command_open_helpwebpage)
+        menu_help.add_command(label="K2pdfopt command line manual", command=self.on_command_open_cli_manual)
 
-    def on_command_open_webpage(self):
+    def on_command_open_helpwebpage(self):
         webbrowser.open('https://willus.com/k2pdfopt/help/')
 
-    def fill_conversion_tab(self):
+    def on_command_open_cli_manual(self):
+        webbrowser.open('https://www.willus.com/k2pdfopt/help/options.shtml')
+
+    def fill_left_side_of_conversion_tab(self):
         self.conversion_tab_left_part_column_num = 0
         self.conversion_tab_left_part_line_num = 0
-
         self.setup_file_frame()
         self.setup_parameters_frame()
-        self.setup_options_frame()
 
-        # ####################################################################################### #
-        # RIGHT SIDE OF CONVERSION TAB
-        # ####################################################################################### #
+    def fill_right_side_of_conversion_tab(self):
         self.conversion_tab_right_part_column_num = 1
         self.conversion_tab_right_part_row_num = 0
-
         self.setup_information_frame()
         self.setup_action_frame()
 
-        # Conversion tab
+    def fill_conversion_tab(self):
+        self.fill_left_side_of_conversion_tab()
+        self.fill_right_side_of_conversion_tab()
+        
         self.conversion_tab.columnconfigure(
             self.conversion_tab_right_part_column_num,
             weight=1,
@@ -591,7 +592,7 @@ class MainFrame(ttk.Frame):
         ''' Set up the parameters frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters')
+        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & Options')
         self.parameters_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -1162,236 +1163,223 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-    def setup_options_frame(self):
-        self.conversion_tab_left_part_line_num += 1
-
-        self.option_frame = ttk.Labelframe(
-            self.conversion_tab,
-            text='Options',
-        )
-        self.option_frame.grid(
-            column=self.conversion_tab_left_part_column_num,
-            row=self.conversion_tab_left_part_line_num,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
-
         option_frame_left_part_col_num = 0
-        option_frame_row_num = 0
+        parameters_frame_row_number += 1
+        save_parameters_frame_row_number = parameters_frame_row_number
 
         self.autostraighten_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Autostraighten',
             variable=self.is_autostraighten_checked,
             command=self.on_command_auto_straighten_cb,
         )
         self.autostraighten_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.break_after_source_page_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Break After Each Source Page',
             variable=self.isBreakPage,
             command=self.on_command_break_page_cb,
         )
         self.break_after_source_page_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.color_output_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Color Output',
             variable=self.is_coloroutput_checked,
             command=self.on_command_color_output_cb,
         )
         self.color_output_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.native_pdf_output_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Native PDF Output',
             variable=self.is_native_pdf_checked,
             command=self.on_command_native_pdf_cb,
         )
         self.native_pdf_output_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.right_to_left_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Right-to-Left Text',
             variable=self.is_right_to_left_checked,
             command=self.on_command_right_to_left_cb,
         )
         self.right_to_left_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.post_process_ghostscript_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Post Process w/GhostScript',
             variable=self.is_ghostscript_postprocessing_checked,
             command=self.on_command_post_gs_cb,
         )
         self.post_process_ghostscript_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.generate_markup_source_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Generate Marked-up Source',
             variable=self.isMarkedSrc,
             command=self.on_command_marked_src_cb,
         )
         self.generate_markup_source_check_button.grid(
             column=option_frame_left_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
 
         option_frace_right_part_col_num = 1
-        option_frame_row_num = 0
+        parameters_frame_row_number = save_parameters_frame_row_number
 
         self.reflow_text_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Re-flow Text',
             variable=self.is_reflow_text_checked,
             command=self.on_command_reflow_text_cb,
         )
         self.reflow_text_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.erase_vline_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Erase Vertical Lines',
             variable=self.is_erase_vertical_line_checked,
             command=self.on_command_erase_vertical_line_cb,
         )
         self.erase_vline_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.erase_hline_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Erase Horizontal Lines',
             variable=self.is_erase_horizontal_line_checked,
             command=self.on_command_erase_horizontal_line_cb,
         )
         self.erase_hline_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.fast_preview_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Fast Preview',
             variable=self.is_fast_preview_checked,
             command=self.on_command_fast_preview_cb,
         )
         self.fast_preview_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.avoid_text_overlap_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Avoid Text Selection Overlap',
             variable=self.isAvoidOverlap,
             command=self.on_command_avoid_text_selection_overlap_cb,
         )
         self.avoid_text_overlap_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.ignore_defect_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Ignore Small Defects',
             variable=self.is_ignore_small_defects_checked,
             command=self.on_command_ignore_small_defect_cb,
         )
         self.ignore_defect_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
-        option_frame_row_num += 1
+        parameters_frame_row_number += 1
 
         self.autocrop_check_button = ttk.Checkbutton(
-            self.option_frame,
+            self.parameters_frame,
             text='Auto-Crop',
             variable=self.is_autocrop_checked,
             command=self.on_command_auto_crop_cb,
         )
         self.autocrop_check_button.grid(
             column=option_frace_right_part_col_num,
-            row=option_frame_row_num,
+            row=parameters_frame_row_number,
             sticky=tk.N+tk.W,
             pady=0,
             padx=5,
         )
+
 
     def setup_action_frame(self):
         self.conversion_tab_right_part_row_num += 1
@@ -1599,7 +1587,7 @@ class MainFrame(ttk.Frame):
     def add_or_update_command_argument(self, arg_key, arg_value):
         ''' Add or update argument to k2pdfopt command line. '''
         self.k2pdfopt_cmd_args[arg_key] = arg_value
-        # self.update_command_argument_entry_strvar()
+        # self.update_command_argument_entry_strvar()   # KeyError: '-mode'
 
     def update_command_argument_entry_strvar(self):
         self.strvar_command_args.set(self.generate_command_argument_string())
@@ -1642,7 +1630,8 @@ class MainFrame(ttk.Frame):
                 Pu Wang's rebook.
 
                 The source code can be found at:
-                rebook: http://github.com/pwang7/rebook/rebook.py'''
+                 - rebook: http://github.com/pwang7/rebook/
+                 - ReBook2: https://github.com/R-e-d-J/rebook/'''
 
         messagebox.showinfo(message=about_message)
 
@@ -1656,7 +1645,7 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.strvar_input_file_path.set(filename)
             (base_path, file_ext) = os.path.splitext(filename)
-            self.strvar_output_file_path.set(base_path + '-output.pdf')
+            self.strvar_output_file_path.set(base_path + '_k2opt.pdf')
 
     def on_click_save_preset(self):
         ''' Save the current present into a json file for next use. '''
@@ -1963,6 +1952,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.reflow_text_arg_name)
 
     def on_command_erase_vertical_line_cb(self):
+        ''' Manage `Erase vertical line` option '''
         if self.is_erase_vertical_line_checked.get():
             arg = self.erase_vertical_line_arg_name + ' 1'
             self.add_or_update_command_argument(self.erase_vertical_line_arg_name, arg)
@@ -1998,7 +1988,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ign_small_defects_arg_name)
 
     def on_command_erase_horizontal_line_cb(self):
-        '''
+        ''' Manage `Erase horizontal line` option '''
         if self.is_erase_horizontal_line_checked.get():
             arg = self.erase_horizontal_line_arg_name + ' 1'
             self.add_or_update_command_argument(self.erase_horizontal_line_arg_name, arg)
@@ -2034,7 +2024,6 @@ class MainFrame(ttk.Frame):
             image = Image.open(img_path)
             image = image.resize((750, 1061), Image.ANTIALIAS)
             self.preview_image = ImageTk.PhotoImage(image)
-            # self.preview_image = tk.PhotoImage(file=img_path)
             self.canvas_image_tag = self.preview_canvas.create_image(
                 (0, 0),
                 anchor=tk.NW,
