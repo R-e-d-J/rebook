@@ -161,7 +161,7 @@ class MainFrame(ttk.Frame):
 
         self.strvar_column_num = tk.StringVar()
         self.strvar_resolution_multiplier = tk.StringVar()
-        self.strvar_crop_page_range = tk.StringVar()
+        # self.strvar_crop_page_range = tk.StringVar()
         self.strvar_left_margin = tk.StringVar()
         self.strvar_top_margin = tk.StringVar()
         self.strvar_width_margin = tk.StringVar()
@@ -217,7 +217,7 @@ class MainFrame(ttk.Frame):
             self.resolution_multiplier_arg_name:     [False, '1.0'],
             self.crop_margin_arg_name:               [
                                                         False,
-                                                        '',
+                                                        # '',
                                                         '0.0',
                                                         '0.0',
                                                         '0.0',
@@ -266,7 +266,7 @@ class MainFrame(ttk.Frame):
                                                 ],
             self.crop_margin_arg_name:               [
                                                     self.is_crop_margin_checked,
-                                                    self.strvar_crop_page_range,
+                                                    # self.strvar_crop_page_range,
                                                     self.strvar_left_margin,
                                                     self.strvar_top_margin,
                                                     self.strvar_width_margin,
@@ -364,7 +364,7 @@ class MainFrame(ttk.Frame):
             self.strvar_screen_height,
             self.strvar_column_num,
             self.strvar_resolution_multiplier,
-            self.strvar_crop_page_range,
+            # self.strvar_crop_page_range,
             self.strvar_left_margin,
             self.strvar_width_margin,
             self.strvar_top_margin,
@@ -884,31 +884,31 @@ class MainFrame(ttk.Frame):
             padx=5,
         )
 
-        parameters_frame_row_number += 1
+        # parameters_frame_row_number += 1
 
-        crop_page_range_label = ttk.Label(self.parameters_frame, text='      Page Range')
-        crop_page_range_label.grid(
-            column=0,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
+        # crop_page_range_label = ttk.Label(self.parameters_frame, text='      Page Range')
+        # crop_page_range_label.grid(
+        #     column=0,
+        #     row=parameters_frame_row_number,
+        #     sticky=tk.N+tk.W,
+        #     pady=0,
+        #     padx=5,
+        # )
 
-        self.crop_page_range_entry = ttk.Entry(
-            self.parameters_frame,
-            textvariable=self.strvar_crop_page_range,
-            validate='focusout',
-            validatecommand=self.on_command_and_validate_crop_margin_cb,
-            width=13
-        )
-        self.crop_page_range_entry.grid(
-            column=1,
-            row=parameters_frame_row_number,
-            sticky=tk.N+tk.W,
-            pady=0,
-            padx=5,
-        )
+        # self.crop_page_range_entry = ttk.Entry(
+        #     self.parameters_frame,
+        #     textvariable=self.strvar_crop_page_range,
+        #     validate='focusout',
+        #     validatecommand=self.on_command_and_validate_crop_margin_cb,
+        #     width=13
+        # )
+        # self.crop_page_range_entry.grid(
+        #     column=1,
+        #     row=parameters_frame_row_number,
+        #     sticky=tk.N+tk.W,
+        #     pady=0,
+        #     padx=5,
+        # )
 
         parameters_frame_row_number += 1
 
@@ -1736,25 +1736,25 @@ class MainFrame(ttk.Frame):
             Remarks:
                 - conflict with Auto-Crop option
         '''
-        if (len(self.strvar_crop_page_range.get().strip()) > 0 and
-                not tools.check_page_nums(self.strvar_crop_page_range.get().strip())):
-            self.remove_command_argument(self.crop_margin_arg_name)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
-            self.strvar_crop_page_range.set('')
+        # if (len(self.strvar_crop_page_range.get().strip()) > 0 and
+        #         not tools.check_page_nums(self.strvar_crop_page_range.get().strip())):
+        #     self.remove_command_argument(self.crop_margin_arg_name)
+        #     self.remove_command_argument(self.crop_margin_left_arg_name)
+        #     self.remove_command_argument(self.crop_margin_top_arg_name)
+        #     self.remove_command_argument(self.crop_margin_right_arg_name)
+        #     self.remove_command_argument(self.crop_margin_bottom_arg_name)
+        #     self.strvar_crop_page_range.set('')
 
-            messagebox.showerror(
-                message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
-            )
+        #     messagebox.showerror(
+        #         message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
+        #     )
 
-            return False
+        #     return False
 
         if self.is_crop_margin_checked.get():
             self.is_autocrop_checked.set(False)
             self.remove_command_argument(self.auto_crop_arg_name)
-            page_range_arg = self.strvar_crop_page_range.get().strip()
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
 
             if len(self.strvar_left_margin.get().strip()) > 0:
                 arg = self.crop_margin_left_arg_name + ' ' + self.strvar_left_margin.get().strip()
