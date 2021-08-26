@@ -817,7 +817,7 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             text='Output in Landscape',
             variable=self.is_landscape_checked,
-            command=self.gui_and_validate_landscape,
+            command=self.gui_validate_landscape,
         )
         self.landscape_check_button.grid(
             column=0,
@@ -831,7 +831,7 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             textvariable=self.strvar_landscape_pages,
             validate='focusout',
-            validatecommand=self.gui_and_validate_landscape,
+            validatecommand=self.gui_validate_landscape,
             width=13
         )
         self.landscapepage_number_entry.grid(
@@ -1560,7 +1560,7 @@ class MainFrame(ttk.Frame):
         self.validate_and_update_page_nums()
         self.gui_fixed_font_size()
         self.gui_ocr_and_cpu()
-        self.gui_and_validate_landscape()
+        self.gui_validate_landscape()
         self.gui_line_break()
         self.gui_auto_straighten()
         self.gui_break_page()
@@ -1865,7 +1865,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ocr_arg_name)
             self.remove_command_argument(self.ocr_cpu_arg_name)
 
-    def gui_and_validate_landscape(self):
+    def gui_validate_landscape(self):
         if (len(self.strvar_landscape_pages.get().strip()) > 0 and
             not tools.check_page_nums(self.strvar_landscape_pages.get().strip())):
 
