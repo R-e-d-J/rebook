@@ -686,7 +686,7 @@ class MainFrame(ttk.Frame):
 
         self.height_label = ttk.Label(self.device_frame, text='Height')
         self.height_label.grid(
-            column=0,
+            column=2,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -703,7 +703,7 @@ class MainFrame(ttk.Frame):
             width=6
         )
         self.height_spinbox.grid(
-            column=1,
+            column=3,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
