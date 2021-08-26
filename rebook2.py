@@ -2030,7 +2030,7 @@ class MainFrame(ttk.Frame):
     def load_preview_image(self, img_path, preview_page_index):
         if os.path.exists(img_path):
             image = Image.open(img_path)
-            image = image.resize((750, 1061), Image.ANTIALIAS)
+            image = image.resize(((self.half_screen - 5), int((self.half_screen - 5) * 1.4143)), Image.ANTIALIAS)
             self.preview_image = ImageTk.PhotoImage(image)
             self.canvas_image_tag = self.preview_canvas.create_image(
                 (0, 0),
