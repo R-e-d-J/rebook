@@ -1542,8 +1542,9 @@ class MainFrame(ttk.Frame):
 
     def initialize(self):
         ''' Simulate a click on every field : execute all the binded method. '''
-        self.on_bind_event_mode_cbox()
         self.on_bind_event_device_unit_cbox()
+        self.on_bind_event_mode_cbox()
+        # self.on_bind_event_device_unit_cbox()
         self.on_command_width_height_cb()
         self.on_command_column_num_cb()
         self.on_command_resolution_multipler_cb()
@@ -1573,7 +1574,6 @@ class MainFrame(ttk.Frame):
         for key, value in dict_vars.items():
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
-        print(self.arg_var_map)
         self.initialize()
         self.update_command_argument_entry_strvar()
 
@@ -1588,7 +1588,7 @@ class MainFrame(ttk.Frame):
     def add_or_update_command_argument(self, arg_key, arg_value):
         ''' Add or update argument to k2pdfopt command line. '''
         self.k2pdfopt_cmd_args[arg_key] = arg_value
-        self.update_command_argument_entry_strvar()   # KeyError: '-mode'
+        self.update_command_argument_entry_strvar()
 
     def update_command_argument_entry_strvar(self):
         self.strvar_command_args.set(self.generate_command_argument_string())
@@ -1599,15 +1599,17 @@ class MainFrame(ttk.Frame):
             Remarks: at the end, the chosen argument are completed by `mandatory` arguments
                     ('-a- -ui- -x').
         '''
-        print(self.k2pdfopt_cmd_args)
         device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
         if device_arg is None:
             width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name, None)
             height_arg = self.k2pdfopt_cmd_args.pop(self.height_arg_name, None)
 
         mode_arg = self.k2pdfopt_cmd_args.pop(self.conversion_mode_arg_name, None)
-        arg_list = [mode_arg] + list(self.k2pdfopt_cmd_args.values())
-        self.k2pdfopt_cmd_args[self.conversion_mode_arg_name] = mode_arg
+        if mode_arg is not None:
+            arg_list = [mode_arg]  + list(self.k2pdfopt_cmd_args.values())
+            self.k2pdfopt_cmd_args[self.conversion_mode_arg_name] = mode_arg
+        else:
+            arg_list = list(self.k2pdfopt_cmd_args.values())
 
         if device_arg is not None:
             arg_list.append(device_arg)
