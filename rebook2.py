@@ -442,6 +442,8 @@ class MainFrame(ttk.Frame):
     def setup_file_frame(self):
         ''' Set up the file frame. '''
         self.conversion_tab_left_part_line_num += 1
+        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
+
         self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_screen, height=78)
         self.file_frame.grid(
             column=self.conversion_tab_left_part_column_num,
@@ -501,6 +503,7 @@ class MainFrame(ttk.Frame):
     def setup_device_frame(self):
         ''' Set up the device frame. '''
         self.conversion_tab_left_part_line_num += 1
+        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=110)
         self.device_frame.grid(
@@ -657,6 +660,7 @@ class MainFrame(ttk.Frame):
     def setup_margin_and_cropboxes_frame(self):
         ''' Set up the cropbax and margin frame'''
         self.conversion_tab_left_part_line_num += 1
+        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.margin_and_cropboxes_frame = ttk.Labelframe(
             self.conversion_tab,
@@ -832,8 +836,9 @@ class MainFrame(ttk.Frame):
         )
 
     def setup_parameters_frame(self):
-        ''' Set up the parameters frame. '''
+        ''' Draw the parameters frame and its widgets. '''
         self.conversion_tab_left_part_line_num += 1
+        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=593)
         self.parameters_frame.grid(
@@ -1543,9 +1548,6 @@ class MainFrame(ttk.Frame):
         self.initialize()
         self.update_command_argument_entry_strvar()
 
-    def create_widgets(self):
-        pass
-
     # Command management methods
     def remove_command_argument(self, arg_key):
         ''' Removing argument from k2pdfopt command line. '''
@@ -1870,7 +1872,7 @@ class MainFrame(ttk.Frame):
     def gui_native_pdf(self):
         ''' Manage `Native PDF`option.
         
-            Remarks : `native pdf` conflicts with 'ocr' and 'reflow text'
+            Remarks: `native pdf` conflicts with 'ocr' and 'reflow text'
         '''
         if self.is_native_pdf_checked.get():
             self.is_reflow_text_checked.set(False)
@@ -1901,8 +1903,12 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.marked_source_arg_name)
 
     def gui_reflow_text(self):
+        '''
+        
+            Remarks: `reflow text` conflicts with `native pdf`
+        '''
         if self.is_reflow_text_checked.get():
-            self.is_native_pdf_checked.set(False)  # reflow text conflicts with native pdf
+            self.is_native_pdf_checked.set(False)
             self.remove_command_argument(self.native_pdf_arg_name)
             arg = self.reflow_text_arg_name + '+'
             self.add_or_update_command_argument(self.reflow_text_arg_name, arg)
