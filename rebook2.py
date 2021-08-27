@@ -116,12 +116,11 @@ class MainFrame(ttk.Frame):
         self.strvar_device = tk.StringVar()
         self.strvar_screen_unit = tk.StringVar()
         self.strvar_screen_width = tk.StringVar()
+        self.strvar_command_args = tk.StringVar()
         self.strvar_screen_height = tk.StringVar()
+        self.strvar_conversion_mode = tk.StringVar()
         self.strvar_input_file_path = tk.StringVar()
         self.strvar_output_file_path = tk.StringVar()
-        self.strvar_conversion_mode = tk.StringVar()
-        
-        self.strvar_command_args = tk.StringVar()
         self.strvar_current_preview_page_num = tk.StringVar()
         
         self.device_arg_name = '-dev'               # -dev <name>
@@ -129,7 +128,7 @@ class MainFrame(ttk.Frame):
         self.height_arg_name = '-h'                 # -h <height>[in|cm|s|t|p|x]
         self.conversion_mode_arg_name = '-mode'     # -mode <mode>
         self.output_path_arg_name = '-o'            # -o <namefmt>
-        self.output_pdf_suffix = '-output.pdf'
+        self.output_pdf_suffix = '_k2opt.pdf'
         self.screen_unit_prefix = '-screen_unit'
 
         # Parameters frame
@@ -1584,7 +1583,7 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.strvar_input_file_path.set(filename)
             (base_path, file_ext) = os.path.splitext(filename)
-            self.strvar_output_file_path.set(base_path + '_k2opt.pdf')
+            self.strvar_output_file_path.set(base_path + self.output_pdf_suffix)
 
     def on_click_save_preset(self):
         ''' Save the current present into a json file for next use. '''
