@@ -356,27 +356,27 @@ class MainFrame(ttk.Frame):
         # File menu
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label='File')
-        menu_file.add_command(label="Open file…", command=self.gui_open_pdf_file)
-        menu_file.add_command(label='About', command=self.gui_about_box)
+        menu_file.add_command(label="Open file…", command=self.menu_open_pdf_file)
+        menu_file.add_command(label='About', command=self.menu_about_box)
         menu_file.add_command(label="Quit", command=self.root.quit)
 
         # Settings menu
         menu_settings = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_settings, label='Settings')
         menu_settings.add_command(label='Save current settings', command=self.on_click_save_preset)
-        menu_settings.add_command(label='Load settings', command=self.gui_open_preset_file)
+        menu_settings.add_command(label='Load settings', command=self.menu_open_preset_file)
         menu_settings.add_command(label='Reset settings to default', command=self.restore_default_values)
 
         # Help menu
         menu_help = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_help, label='Help')
-        menu_help.add_command(label="K2pdfopt website helppage", command=self.gui_open_helpwebpage)
-        menu_help.add_command(label="K2pdfopt command line manual", command=self.gui_open_cli_manual)
+        menu_help.add_command(label="K2pdfopt website helppage", command=self.menu_open_helpwebpage)
+        menu_help.add_command(label="K2pdfopt command line manual", command=self.menu_open_cli_manual)
 
-    def gui_open_helpwebpage(self):
+    def menu_open_helpwebpage(self):
         webbrowser.open('https://willus.com/k2pdfopt/help/')
 
-    def gui_open_cli_manual(self):
+    def menu_open_cli_manual(self):
         webbrowser.open('https://www.willus.com/k2pdfopt/help/options.shtml')
 
     def fill_left_side_of_conversion_tab(self):
@@ -426,7 +426,7 @@ class MainFrame(ttk.Frame):
         open_button = ttk.Button(
             self.file_frame, 
             text='Choose a File', 
-            command=self.gui_open_pdf_file
+            command=self.menu_open_pdf_file
         )
         open_button.grid(
             column=0,
@@ -1306,7 +1306,7 @@ class MainFrame(ttk.Frame):
         self.preview_button = ttk.Button(
             self.action_frame, 
             text='Preview', 
-            command=self.gui_ten_page_up
+            command=self.action_ten_page_up
         )
         self.preview_button.grid(
             column=0,
@@ -1319,7 +1319,7 @@ class MainFrame(ttk.Frame):
         self.convert_button = ttk.Button(
             self.action_frame, 
             text='Convert', 
-            command=self.gui_convert_pdf
+            command=self.action_convert_pdf
         )
         self.convert_button.grid(
             column=1,
@@ -1332,7 +1332,7 @@ class MainFrame(ttk.Frame):
         self.cancel_button = ttk.Button(
             self.action_frame, 
             text='Abort', 
-            command=self.gui_abort_conversion
+            command=self.action_abort_conversion
         )
         self.cancel_button.grid(
             column=2,
@@ -1364,7 +1364,7 @@ class MainFrame(ttk.Frame):
         self.first_button = ttk.Button(
             self.action_frame, 
             text='<<', 
-            command=self.gui_ten_page_up
+            command=self.action_ten_page_up
         )
         self.first_button.grid(
             column=self.action_frame_column_num,
@@ -1378,7 +1378,7 @@ class MainFrame(ttk.Frame):
         self.previous_button = ttk.Button(
             self.action_frame, 
             text='<', 
-            command=self.gui_page_up
+            command=self.action_page_up
         )
         self.previous_button.grid(
             column=self.action_frame_column_num,
@@ -1392,7 +1392,7 @@ class MainFrame(ttk.Frame):
         self.next_button = ttk.Button(
             self.action_frame, 
             text='>', 
-            command=self.gui_page_down
+            command=self.action_page_down
         )
         self.next_button.grid(
             column=self.action_frame_column_num,
@@ -1406,7 +1406,7 @@ class MainFrame(ttk.Frame):
         self.last_button = ttk.Button(
             self.action_frame,
             text='>>',
-            command=self.gui_ten_page_down
+            command=self.action_ten_page_down
         )
         self.last_button.grid(
             column=self.action_frame_column_num,
@@ -1500,31 +1500,9 @@ class MainFrame(ttk.Frame):
 
     def initialize(self):
         ''' Simulate a click on every field : execute all the binded method. '''
-        self.gui_device_unit_cbox()
-        self.gui_mode_cbox()
-        self.gui_width_height()
-        self.gui_column_num()
-        self.gui_resolution_multipler()
-        self.gui_crop_margin()
-        self.gui_dpi()
+        for method_name in [x for x in dir(self.__class__) if x.startswith('gui_')]:
+                getattr(self, method_name)()
         self.validate_and_update_page_nums()
-        self.gui_fixed_font_size()
-        self.gui_ocr_and_cpu()
-        self.gui_validate_landscape()
-        self.gui_line_break()
-        self.gui_auto_straighten()
-        self.gui_break_page()
-        self.gui_color_output()
-        self.gui_native_pdf()
-        self.gui_right_to_left()
-        self.gui_post_gs()
-        self.gui_marked_src()
-        self.gui_reflow_text()
-        self.gui_erase_vertical_line()
-        self.gui_erase_horizontal_line()
-        self.gui_fast_preview()
-        self.gui_ignore_small_defect()
-        self.gui_auto_crop()
 
     def initialize_vars(self, dict_vars):
         ''' Initialize variables from a dictionnary and build the associated command line. '''
@@ -1582,7 +1560,7 @@ class MainFrame(ttk.Frame):
         cmd_arg_str = ' '.join(arg_list)
         return cmd_arg_str
 
-    def gui_about_box(self):
+    def menu_about_box(self):
         about_message = \
             '''ReBook 2 ßeta
 
@@ -1596,7 +1574,7 @@ class MainFrame(ttk.Frame):
 
         messagebox.showinfo(message=about_message)
 
-    def gui_open_pdf_file(self):
+    def menu_open_pdf_file(self):
         ''' Select a PDF/DJVU file and generate output path '''
         supported_formats = [('PDF files', '*.pdf'), ('DJVU files', '*.djvu')]
         filename = filedialog.askopenfilename(
@@ -1620,7 +1598,7 @@ class MainFrame(ttk.Frame):
                         dict_to_save[key] = [var.get() for var in value]
                 json.dump(dict_to_save, preset_file)
 
-    def gui_open_preset_file(self):
+    def menu_open_preset_file(self):
         supported_formats = [('JSON files', '*.json'),]
         filename = filedialog.askopenfilename(
             filetypes=supported_formats,
@@ -2018,39 +1996,35 @@ class MainFrame(ttk.Frame):
 
         self.background_future.add_done_callback(preview_image_future)
 
-    def gui_restore_default(self):
-        ''' Restore all the default value (even if preset was defined). '''
-        self.restore_default_values()
-
-    def gui_abort_conversion(self):
+    def action_abort_conversion(self):
         ''' Abord the process of the preview/conversion. '''
         if self.background_future is not None:
             self.background_future.cancel()
         if (self.background_process is not None and self.background_process.returncode is None):
             self.background_process.terminate()
 
-    def gui_convert_pdf(self):
+    def action_convert_pdf(self):
         if not self.pdf_conversion_is_done():
             return
         pdf_output_arg = self.output_path_arg_name + ' %s' + self.output_pdf_suffix
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
-    def gui_ten_page_up(self):
+    def action_ten_page_up(self):
         self.current_preview_page_index -= 10
         if self.current_preview_page_index < 1:
             self.current_preview_page_index = 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def gui_page_up(self):
+    def action_page_up(self):
         if self.current_preview_page_index > 1:
             self.current_preview_page_index -= 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def gui_page_down(self):
+    def action_page_down(self):
         self.current_preview_page_index += 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
-    def gui_ten_page_down(self):
+    def action_ten_page_down(self):
         self.current_preview_page_index += 10
         self.generate_one_preview_image(self.current_preview_page_index)
 
