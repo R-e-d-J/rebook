@@ -147,9 +147,9 @@ class MainFrame(ttk.Frame):
 
         self.strvar_device = tk.StringVar()
         self.strvar_screen_unit = tk.StringVar()
-        self.strvar_screen_width = tk.StringVar()
+        self.strvar_device_screen_width = tk.StringVar()
         self.strvar_command_args = tk.StringVar()
-        self.strvar_screen_height = tk.StringVar()
+        self.strvar_device_screen_height = tk.StringVar()
         self.strvar_conversion_mode = tk.StringVar()
         self.strvar_input_file_path = tk.StringVar()
         self.strvar_output_file_path = tk.StringVar()
@@ -195,7 +195,7 @@ class MainFrame(ttk.Frame):
         self.strvar_top_margin = tk.StringVar()
         self.strvar_width_margin = tk.StringVar()
         self.strvar_height_margin = tk.StringVar()
-        self.strvar_dpi = tk.StringVar()
+        self.strvar_device_screen_dpi = tk.StringVar()
         self.strvar_page_numbers = tk.StringVar()
         self.strvar_fixed_font_size = tk.StringVar()
         self.strvar_ocr_cpu_percentage = tk.StringVar()
@@ -280,8 +280,8 @@ class MainFrame(ttk.Frame):
         self.arg_var_map = {
             self.device_arg_name:                    [self.strvar_device],
             self.screen_unit_prefix:                 [self.strvar_screen_unit],
-            self.width_arg_name:                     [self.strvar_screen_width],
-            self.height_arg_name:                    [self.strvar_screen_height],
+            self.width_arg_name:                     [self.strvar_device_screen_width],
+            self.height_arg_name:                    [self.strvar_device_screen_height],
             self.conversion_mode_arg_name:           [self.strvar_conversion_mode],
             self.output_path_arg_name:               [self.strvar_output_file_path],
 
@@ -303,7 +303,7 @@ class MainFrame(ttk.Frame):
                                                 ],
             self.dpi_arg_name:                       [
                                                     self.is_dpi_checked,
-                                                    self.strvar_dpi,
+                                                    self.strvar_device_screen_dpi,
                                                 ],
             self.page_num_arg_name:                  [
                                                     self.strvar_page_numbers,
@@ -570,8 +570,8 @@ class MainFrame(ttk.Frame):
 
         device_frame_line_number += 1
 
-        self.width_label = ttk.Label(self.device_frame, text='Width')
-        self.width_label.grid(
+        self.device_width_label = ttk.Label(self.device_frame, text='Width')
+        self.device_width_label.grid(
             column=0,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
@@ -579,17 +579,17 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        self.width_spinbox = ttk.Spinbox(
+        self.device_width_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
             to=2000,
             increment=1,
             state='readonly',
-            textvariable=self.strvar_screen_width,
+            textvariable=self.strvar_device_screen_width,
             command=self.gui_width_height,
             width=6
         )
-        self.width_spinbox.grid(
+        self.device_width_spinbox.grid(
             column=1,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
@@ -597,25 +597,25 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        self.height_label = ttk.Label(self.device_frame, text='Height')
-        self.height_label.grid(
+        self.device_height_label = ttk.Label(self.device_frame, text='Height')
+        self.device_height_label.grid(
             column=2,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-        self.height_spinbox = ttk.Spinbox(
+        self.device_height_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
             to=2000,
             increment=1,
             state='readonly',
-            textvariable=self.strvar_screen_height,
+            textvariable=self.strvar_device_screen_height,
             command=self.gui_width_height,
             width=6
         )
-        self.height_spinbox.grid(
+        self.device_height_spinbox.grid(
             column=3,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
@@ -636,17 +636,17 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        self.dpi_spinbox = ttk.Spinbox(
+        self.device_dpi_spinbox = ttk.Spinbox(
             self.device_frame,
             from_=0,
             to=500,
             increment=1,
             state='readonly',
-            textvariable=self.strvar_dpi,
+            textvariable=self.strvar_device_screen_dpi,
             command=self.gui_dpi,
             width=6
         )
-        self.dpi_spinbox.grid(
+        self.device_dpi_spinbox.grid(
             column=5,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
@@ -1651,11 +1651,14 @@ class MainFrame(ttk.Frame):
             self.add_or_update_command_argument(self.device_arg_name, arg)
             self.remove_command_argument(self.width_arg_name)
             self.remove_command_argument(self.height_arg_name)
+            self.strvar_device_screen_width.set(self.device_width_height_dpi_info[self.device_combobox.current()][0])
+            self.strvar_device_screen_height.set(self.device_width_height_dpi_info[self.device_combobox.current()][1])
+            self.strvar_device_screen_dpi.set(self.device_width_height_dpi_info[self.device_combobox.current()][2])
         else:   # "Other type" chosen
             screen_unit = self.unit_argument_map[self.unit_combobox.current()]
-            width_arg = (self.width_arg_name + ' ' + self.strvar_screen_width.get().strip() + screen_unit)
+            width_arg = (self.width_arg_name + ' ' + self.strvar_device_screen_width.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.width_arg_name, width_arg)
-            height_arg = (self.height_arg_name + ' ' + self.strvar_screen_height.get().strip() + screen_unit)
+            height_arg = (self.height_arg_name + ' ' + self.strvar_device_screen_height.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.height_arg_name, height_arg)
             self.remove_command_argument(self.device_arg_name)
 
@@ -1763,7 +1766,7 @@ class MainFrame(ttk.Frame):
 
     def gui_dpi(self):
         if self.is_dpi_checked.get():
-            arg = self.dpi_arg_name + ' ' + self.strvar_dpi.get().strip()
+            arg = self.dpi_arg_name + ' ' + self.strvar_device_screen_dpi.get().strip()
             self.add_or_update_command_argument(self.dpi_arg_name, arg)
         else:
             self.remove_command_argument(self.dpi_arg_name)
