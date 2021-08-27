@@ -1567,6 +1567,7 @@ class MainFrame(ttk.Frame):
             Remarks: at the end, the chosen argument are completed by `mandatory` arguments
                     ('-a- -ui- -x').
         '''
+
         device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
         if device_arg is None:
             width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name, None)
