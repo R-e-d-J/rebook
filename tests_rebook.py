@@ -1,5 +1,5 @@
 # Test
-import rebook
+import rebook2
 
 def test_command_arguments_string_generation():
-    assert "-a- ui- -x" in rebook.generate_command_argument_string()
+    pass

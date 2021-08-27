@@ -186,17 +186,17 @@ class MainFrame(ttk.Frame):
         self.auto_crop_arg_name = '-ac'                  # -ac-/-ac
 
         self.is_autostraighten_checked = tk.BooleanVar()
-        self.isBreakPage = tk.BooleanVar()
+        self.is_break_page_checked = tk.BooleanVar()
         self.is_coloroutput_checked = tk.BooleanVar()
         self.is_native_pdf_checked = tk.BooleanVar()
         self.is_right_to_left_checked = tk.BooleanVar()
         self.is_ghostscript_postprocessing_checked = tk.BooleanVar()
-        self.isMarkedSrc = tk.BooleanVar()
+        self.is_markedup_source_checked = tk.BooleanVar()
         self.is_reflow_text_checked = tk.BooleanVar()
         self.is_erase_vertical_line_checked = tk.BooleanVar()
         self.is_erase_horizontal_line_checked = tk.BooleanVar()
         self.is_fast_preview_checked = tk.BooleanVar()
-        self.isAvoidOverlap = tk.BooleanVar()
+        self.is_avoid_overlap_checked = tk.BooleanVar()
         self.is_ignore_small_defects_checked = tk.BooleanVar()
         self.is_autocrop_checked = tk.BooleanVar()
 
@@ -300,12 +300,12 @@ class MainFrame(ttk.Frame):
                                                 ],
 
             self.auto_straignten_arg_name:           [self.is_autostraighten_checked],
-            self.break_page_avoid_overlap_arg_name:  [self.isBreakPage, self.isAvoidOverlap],
+            self.break_page_avoid_overlap_arg_name:  [self.is_break_page_checked, self.is_avoid_overlap_checked],
             self.color_output_arg_name:              [self.is_coloroutput_checked],
             self.native_pdf_arg_name:                [self.is_native_pdf_checked],
             self.right_to_left_arg_name:             [self.is_right_to_left_checked],
             self.post_gs_arg_name:                   [self.is_ghostscript_postprocessing_checked],
-            self.marked_source_arg_name:             [self.isMarkedSrc],
+            self.marked_source_arg_name:             [self.is_markedup_source_checked],
             self.reflow_text_arg_name:               [self.is_reflow_text_checked],
             self.erase_vertical_line_arg_name:       [self.is_erase_vertical_line_checked],
             self.erase_horizontal_line_arg_name:     [self.is_erase_horizontal_line_checked],
@@ -325,74 +325,6 @@ class MainFrame(ttk.Frame):
 
         self.create_menus()
         self.create_tabs()
-
-        self.bool_var_list = [
-            self.is_column_num_checked,
-            self.is_resolution_multipler_checked,
-            self.is_crop_margin_checked,
-            self.is_dpi_checked,
-            self.is_fixed_font_size_checked,
-            self.is_ocr_cpu_limitation_checked,
-            self.is_landscape_checked,
-            self.is_smart_linebreak_checked,
-
-            self.is_autostraighten_checked,
-            self.isBreakPage,
-            self.is_coloroutput_checked,
-            self.is_native_pdf_checked,
-            self.is_right_to_left_checked,
-            self.is_ghostscript_postprocessing_checked,
-            self.isMarkedSrc,
-            self.is_reflow_text_checked,
-            self.is_erase_vertical_line_checked,
-            self.is_erase_horizontal_line_checked,
-            self.is_fast_preview_checked,
-            self.isAvoidOverlap,
-            self.is_ignore_small_defects_checked,
-            self.is_autocrop_checked,
-        ]
-
-        self.string_var_list = [
-            self.strvar_input_file_path,
-            self.strvar_device,
-            self.strvar_conversion_mode,
-            self.strvar_screen_unit,
-            self.strvar_screen_width,
-            self.strvar_screen_height,
-            self.strvar_column_num,
-            self.strvar_resolution_multiplier,
-            # self.strvar_crop_page_range,
-            self.strvar_left_margin,
-            self.strvar_width_margin,
-            self.strvar_top_margin,
-            self.strvar_height_margin,
-            self.strvar_dpi,
-            self.strvar_page_numbers,
-
-            self.strvar_fixed_font_size,
-            self.strvar_ocr_cpu_percentage,
-            self.strvar_landscape_pages,
-            self.strvar_linebreak_space,
-
-            self.strvar_current_preview_page_num,
-            self.strvar_output_file_path,
-            self.strvar_command_args,
-        ]
-
-        self.combo_box_list = [
-            self.device_combobox,
-            self.mode_combobox,
-            self.unit_combobox,
-        ]
-
-        self.entry_list = [
-            self.input_path_entry,
-            self.output_path_entry,
-            self.command_arguments_entry,
-            self.page_number_entry,
-            self.landscapepage_number_entry,
-            self.current_preview_page_number_entry,
-        ]
 
         # Prepare to run
         self.thread_loop = asyncio.get_event_loop()
@@ -1160,7 +1092,7 @@ class MainFrame(ttk.Frame):
         self.break_after_source_page_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Break After Each Source Page',
-            variable=self.isBreakPage,
+            variable=self.is_break_page_checked,
             command=self.gui_break_page,
         )
         self.break_after_source_page_check_button.grid(
@@ -1237,7 +1169,7 @@ class MainFrame(ttk.Frame):
         self.generate_markup_source_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Generate Marked-up Source',
-            variable=self.isMarkedSrc,
+            variable=self.is_markedup_source_checked,
             command=self.gui_marked_src,
         )
         self.generate_markup_source_check_button.grid(
@@ -1314,7 +1246,7 @@ class MainFrame(ttk.Frame):
         self.avoid_text_overlap_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text='Avoid Text Selection Overlap',
-            variable=self.isAvoidOverlap,
+            variable=self.is_avoid_overlap_checked,
             command=self.gui_avoid_text_selection_overlap,
         )
         self.avoid_text_overlap_check_button.grid(
@@ -1705,24 +1637,12 @@ class MainFrame(ttk.Frame):
 
     def update_device_unit_width_height(self):
         if self.device_combobox.current() != 20:  # non-other type
-            # self.unit_label.grid_remove()
-            # self.width_label.grid_remove()
-            # self.height_label.grid_remove()
-            # self.unit_combobox.grid_remove()
-            # self.width_spinbox.grid_remove()
-            # self.height_spinbox.grid_remove()
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + ' ' + device_type
             self.add_or_update_command_argument(self.device_arg_name, arg)
             self.remove_command_argument(self.width_arg_name)
             self.remove_command_argument(self.height_arg_name)
         else:   # "Other type" chosen
-            # self.unit_label.grid()
-            # self.width_label.grid()
-            # self.height_label.grid()
-            # self.unit_combobox.grid()
-            # self.width_spinbox.grid()
-            # self.height_spinbox.grid()
             screen_unit = self.unit_argument_map[self.unit_combobox.current()]
             width_arg = (self.width_arg_name + ' ' + self.strvar_screen_width.get().strip() + screen_unit)
             self.add_or_update_command_argument(self.width_arg_name, width_arg)
@@ -1922,8 +1842,8 @@ class MainFrame(ttk.Frame):
         
             Remarks : break page conflicts with avoid overlap since they are both -bp flag
         '''
-        if self.isBreakPage.get():
-            self.isAvoidOverlap.set(False)
+        if self.is_break_page_checked.get():
+            self.is_avoid_overlap_checked.set(False)
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
             self.add_or_update_command_argument(self.break_page_avoid_overlap_arg_name, self.break_page_avoid_overlap_arg_name)
         else:
@@ -1963,7 +1883,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.post_gs_arg_name)
 
     def gui_marked_src(self):
-        if self.isMarkedSrc.get():
+        if self.is_markedup_source_checked.get():
             self.add_or_update_command_argument(self.marked_source_arg_name, self.marked_source_arg_name)
         else:
             self.remove_command_argument(self.marked_source_arg_name)
@@ -1995,9 +1915,9 @@ class MainFrame(ttk.Frame):
 
     def gui_avoid_text_selection_overlap(self):
         ''' Manage avoid text selection overlap. '''
-        if self.isAvoidOverlap.get():
+        if self.is_avoid_overlap_checked.get():
             # avoid overlap conflicts with break page since they are both -bp flag
-            self.isBreakPage.set(False)
+            self.is_break_page_checked.set(False)
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
             arg = self.break_page_avoid_overlap_arg_name + ' m'
@@ -2221,26 +2141,18 @@ class MainFrame(ttk.Frame):
         return False
 
     def restore_default_values(self):
+        ''' Clear logs, preview and reset all the default values
+
+            Remarks :
+                - Why erase input and output file path ?
         '''
-            Clear logs, preview and reset all the default values
-
-            THINKING :
-            1. Not sure the next 3 for loop are necessary
-            2. Why erase input and output file path ?
-            3. Why not restore with the custom preset ?
-                or have another button to reload custom preset ?
-        '''
-        # for attribute, value in self.__dict__.items():
-        #     print(attribute, "=", type(attribute))
-
-        for sv in self.string_var_list:
-            sv.set('')
-
-        for bv in self.bool_var_list:
-            bv.set(False)
-
-        for b in self.combo_box_list:
-            b.current(0)
+        for attribute, value in self.__dict__.items():
+            if(isinstance(value, tk.StringVar) and attribute.startswith('strvar_')):
+                value.set('')
+            if(isinstance(value, tk.BooleanVar) and attribute.startswith('is_') and attribute.endswith('_checked')):
+                value.set(False)
+            if(isinstance(value, ttk.Combobox) and attribute.endswith('_combobox')):
+                value.current(0)
 
         self.clear_logs()
         self.remove_preview_image_and_clear_canvas()
