@@ -1494,7 +1494,7 @@ class MainFrame(ttk.Frame):
         self.clear_button = ttk.Button(
             self.stdout_frame,
             text='Clear',
-            command=self.gui_clear_log
+            command=self.action_clear_log
         )
         self.clear_button.grid(
             column=0,
@@ -1852,7 +1852,7 @@ class MainFrame(ttk.Frame):
     def gui_break_page(self):
         ''' Native PDF management
         
-            Remarks : break page conflicts with avoid overlap since they are both -bp flag
+            Remarks : `break page` conflicts with `avoid overlap` since they are both -bp flag
         '''
         if self.is_break_page_checked.get():
             self.is_avoid_overlap_checked.set(False)
@@ -1870,7 +1870,7 @@ class MainFrame(ttk.Frame):
     def gui_native_pdf(self):
         ''' Manage `Native PDF`option.
         
-            Remarks : native pdf conflicts with 'ocr' and 'reflow text'
+            Remarks : `native pdf` conflicts with 'ocr' and 'reflow text'
         '''
         if self.is_native_pdf_checked.get():
             self.is_reflow_text_checked.set(False)
@@ -1956,8 +1956,7 @@ class MainFrame(ttk.Frame):
     def gui_auto_crop(self):
         ''' Manage autocrop option.
         
-            Remarks:
-                - conflict with crop margin
+            Remarks: conflict with `crop margin`
         '''
         if self.is_autocrop_checked.get():
             self.is_crop_margin_checked.set(False)
@@ -2068,7 +2067,7 @@ class MainFrame(ttk.Frame):
     def xscroll_canvas(self, event):
         self.preview_canvas.xview_scroll(-1 * event.delta, 'units')
 
-    def gui_clear_log(self):
+    def action_clear_log(self):
         self.clear_logs()
 
     def pdf_conversion_is_done(self):
