@@ -15,92 +15,124 @@ import tools
 
 class MainFrame(ttk.Frame):
     device_argument_map =   {
-                                0: 'k2',
-                                1: 'dx',
-                                2: 'kpw',
-                                3: 'kp2',
-                                4: 'kp3',
-                                5: 'kv',
-                                6: 'ko2',
-                                7: 'pb2',
-                                8: 'nookst',
-                                9: 'kbt',
-                                10: 'kbg',
-                                11: 'kghd',
-                                12: 'kghdfs',
-                                13: 'kbm',
-                                14: 'kba',
-                                15: 'kbhd',
-                                16: 'kbh2o',
-                                17: 'kbh2ofs',
-                                18: 'kao',
-                                19: 'nex7',
-                                20: None,
-                            }
+        0: 'k2',
+        1: 'dx',
+        2: 'kpw',
+        3: 'kp2',
+        4: 'kp3',
+        5: 'kv',
+        6: 'ko2',
+        7: 'pb2',
+        8: 'nookst',
+        9: 'kbt',
+        10: 'kbg',
+        11: 'kghd',
+        12: 'kghdfs',
+        13: 'kbm',
+        14: 'kba',
+        15: 'kbhd',
+        16: 'kbh2o',
+        17: 'kbh2ofs',
+        18: 'kao',
+        19: 'koc',
+        20: 'kof',
+        21: 'kol',
+        22: 'nex7',
+        23: None,
+    }
+
+    device_width_height_dpi_info = {
+        0: [560, 735, 167],
+        1: [800, 1180, 167],
+        2: [658, 889, 212],
+        3: [718, 965, 212],
+        4: [1016, 1354, 300],
+        5: [1016, 1354, 300],
+        6: [1200, 1583, 300],
+        7: [600, 800, 167],
+        8: [352, 725, 167],
+        9: [600, 735, 167],
+        10: [758, 942, 218],
+        11: [1072, 1328, 250],
+        12: [1072, 1448, 250],
+        13: [600, 730, 200],
+        14: [758, 932, 211],
+        15: [1080, 1320, 250],
+        16: [1080, 1309, 265],
+        17: [1080, 1429, 265],
+        18: [1404, 1713, 300],
+        19: [1072, 1317, 300],
+        20: [1440, 1745, 300],
+        21: [1264, 1527, 300],
+        22: [1187, 1811, 323],
+    }
 
     device_choice_map = {
-                            0: 'Kindle 1-5',
-                            1: 'Kindle DX',
-                            2: 'Kindle Paperwhite',
-                            3: 'Kindle Paperwhite 2',
-                            4: 'Kindle Paperwhite 3',
-                            5: 'Kindle Voyage/PW3+/Oasis',
-                            6: 'Kindle Oasis 2',
-                            7: 'Pocketbook Basic 2',
-                            8: 'Nook Simple Touch',
-                            9: 'Kobo Touch',
-                            10: 'Kobo Glo',
-                            11: 'Kobo Glo HD',
-                            12: 'Kobo Glo HD Full Screen',
-                            13: 'Kobo Mini',
-                            14: 'Kobo Aura',
-                            15: 'Kobo Aura HD',
-                            16: 'Kobo H2O',
-                            17: 'Kobo H2O Full Screen',
-                            18: 'Kobo Aura One',
-                            19: 'Nexus 7',
-                            20: 'Other (specify width & height)',
-                        }
+        0: 'Kindle 1-5',
+        1: 'Kindle DX',
+        2: 'Kindle Paperwhite',
+        3: 'Kindle Paperwhite 2',
+        4: 'Kindle Paperwhite 3',
+        5: 'Kindle Voyage/PW3+/Oasis',
+        6: 'Kindle Oasis 2',
+        7: 'Pocketbook Basic 2',
+        8: 'Nook Simple Touch',
+        9: 'Kobo Touch',
+        10: 'Kobo Glo',
+        11: 'Kobo Glo HD',
+        12: 'Kobo Glo HD Full Screen',
+        13: 'Kobo Mini',
+        14: 'Kobo Aura',
+        15: 'Kobo Aura HD',
+        16: 'Kobo H2O',
+        17: 'Kobo H2O Full Screen',
+        18: 'Kobo Aura One',
+        19: 'Kobo Clara HD',
+        20: 'Kobo Forma',
+        21: 'Kobo Libra H20',
+        22: 'Nexus 7',
+        23: 'Other (specify width & height)',
+    }
 
     mode_argument_map = {
-                            0: 'def',
-                            1: 'copy',
-                            2: 'fp',
-                            3: 'fw',
-                            4: '2col',
-                            5: 'tm',
-                            6: 'crop',
-                            7: 'concat',
-                        }
+        0: 'def',
+        1: 'copy',
+        2: 'fp',
+        3: 'fw',
+        4: '2col',
+        5: 'tm',
+        6: 'crop',
+        7: 'concat',
+    }
 
     mode_choice_map =   {
-                            0: 'Default',
-                            1: 'Copy',
-                            2: 'Fit Page',
-                            3: 'Fit Width',
-                            4: '2 Columns',
-                            5: 'Trim Margins',
-                            6: 'Crop',
-                            7: 'Concat'
-                        }
+        0: 'Default',
+        1: 'Copy',
+        2: 'Fit Page',
+        3: 'Fit Width',
+        4: '2 Columns',
+        5: 'Trim Margins',
+        6: 'Crop',
+        7: 'Concat'
+    }
 
     unit_argument_map = {
-                            0: 'in',
-                            1: 'cm',
-                            2: 's',
-                            3: 't',
-                            4: 'p',
-                            5: 'x',
-                        }
+        0: 'in',
+        1: 'cm',
+        2: 's',
+        3: 't',
+        4: 'p',
+        5: 'x',
+    }
 
     unit_choice_map =   {
-                            0: 'Inches',
-                            1: 'Centimeters',
-                            2: 'Source Page Size',
-                            3: 'Trimmed Source Region Size',
-                            4: 'Pixels',
-                            5: 'Relative to the OCR Text Layer',
-                        }
+        0: 'Inches',
+        1: 'Centimeters',
+        2: 'Source Page Size',
+        3: 'Trimmed Source Region Size',
+        4: 'Pixels',
+        5: 'Relative to the OCR Text Layer',
+    }
 
     def __init__(self, app, k2pdfopt_path):
         super().__init__(app)
@@ -383,7 +415,7 @@ class MainFrame(ttk.Frame):
         self.conversion_tab_left_part_line_num = -1
         self.setup_file_frame()
         self.setup_device_frame()
-        self.setup_margin_and_cropboxes_frame()
+        # self.setup_margin_and_cropboxes_frame()
         self.setup_parameters_frame()
 
     def fill_right_side_of_conversion_tab(self):
@@ -1613,7 +1645,7 @@ class MainFrame(ttk.Frame):
         self.update_device_unit_width_height()
 
     def update_device_unit_width_height(self):
-        if self.device_combobox.current() != 20:  # non-other type
+        if self.device_combobox.current() != 23:  # non-other type
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + ' ' + device_type
             self.add_or_update_command_argument(self.device_arg_name, arg)
