@@ -139,6 +139,24 @@ class MainFrame(ttk.Frame):
         self.root = app           # root of tkinter
 
         self.half_screen = int(self.root.width / 2) - 60
+
+        # limits and default value
+        self.device_width_min_value = 300
+        self.device_width_max_value = 2500
+        self.device_height_min_value = 700
+        self.device_height_max_value = 3000
+        self.device_dpi_min_value = 100
+        self.device_dpi_max_value = 500
+        self.max_column_min_value = 1
+        self.max_column_max_value = 10
+        self.fixed_font_size_min_value = 9
+        self.fixed_font_size_max_value = 48
+        self.ocr_cpu_min_value = 1
+        self.ocr_cpu_max_value = 100
+        self.document_resolution_factor_min_value = 0.1
+        self.document_resolution_factor_max_value = 10.0
+        self.smart_line_break_min_value = 0.01
+        self.smart_line_break_max_value = 2.00
         self.default_padx = 5
         self.default_pady = 0
         self.k2pdfopt_path = k2pdfopt_path
@@ -156,8 +174,8 @@ class MainFrame(ttk.Frame):
         self.strvar_current_preview_page_num = tk.StringVar()
         
         self.device_arg_name = '-dev'               # -dev <name>
-        self.width_arg_name = '-w'                  # -w <width>[in|cm|s|t|p]
-        self.height_arg_name = '-h'                 # -h <height>[in|cm|s|t|p|x]
+        self.device_width_arg_name = '-w'                  # -w <width>[in|cm|s|t|p]
+        self.device_height_arg_name = '-h'                 # -h <height>[in|cm|s|t|p|x]
         self.conversion_mode_arg_name = '-mode'     # -mode <mode>
         self.output_path_arg_name = '-o'            # -o <namefmt>
         self.output_pdf_suffix = '_k2opt.pdf'
@@ -237,8 +255,8 @@ class MainFrame(ttk.Frame):
         self.default_var_map = {
             self.device_arg_name:                    ['Kindle 1-5'],
             self.screen_unit_prefix:                 ['Pixels'],
-            self.width_arg_name:                     ['560'],
-            self.height_arg_name:                    ['735'],
+            self.device_width_arg_name:                     ['560'],
+            self.device_height_arg_name:                    ['735'],
             self.conversion_mode_arg_name:           ['Default'],
             self.output_path_arg_name:               [''],
 
@@ -280,8 +298,8 @@ class MainFrame(ttk.Frame):
         self.arg_var_map = {
             self.device_arg_name:                    [self.strvar_device],
             self.screen_unit_prefix:                 [self.strvar_screen_unit],
-            self.width_arg_name:                     [self.strvar_device_screen_width],
-            self.height_arg_name:                    [self.strvar_device_screen_height],
+            self.device_width_arg_name:                     [self.strvar_device_screen_width],
+            self.device_height_arg_name:                    [self.strvar_device_screen_height],
             self.conversion_mode_arg_name:           [self.strvar_conversion_mode],
             self.output_path_arg_name:               [self.strvar_output_file_path],
 
@@ -584,10 +602,9 @@ class MainFrame(ttk.Frame):
 
         self.device_width_spinbox = ttk.Spinbox(
             self.device_frame,
-            from_=0,
-            to=2000,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
             increment=1,
-            state='readonly',
             textvariable=self.strvar_device_screen_width,
             command=self.gui_width_height,
             width=6
@@ -610,10 +627,9 @@ class MainFrame(ttk.Frame):
         )
         self.device_height_spinbox = ttk.Spinbox(
             self.device_frame,
-            from_=0,
-            to=2000,
+            from_=self.device_height_min_value,
+            to=self.device_height_max_value,
             increment=1,
-            state='readonly',
             textvariable=self.strvar_device_screen_height,
             command=self.gui_width_height,
             width=6
@@ -641,10 +657,9 @@ class MainFrame(ttk.Frame):
 
         self.device_dpi_spinbox = ttk.Spinbox(
             self.device_frame,
-            from_=0,
-            to=500,
+            from_=self.device_dpi_min_value,
+            to=self.device_dpi_max_value,
             increment=1,
-            state='readonly',
             textvariable=self.strvar_device_screen_dpi,
             command=self.gui_dpi,
             width=6
@@ -953,10 +968,10 @@ class MainFrame(ttk.Frame):
 
         self.max_column_spinbox = ttk.Spinbox(
             self.parameters_frame,
-            from_=1,
-            to=10,
+            from_=self.max_column_min_value,
+            to=self.max_column_max_value,
             increment=1,
-            state='readonly',
+            # state='readonly',
             textvariable=self.strvar_column_num,
             command=self.gui_column_num,
             width=6
@@ -975,7 +990,7 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             text='Document Resolution Factor',
             variable=self.is_resolution_multipler_checked,
-            command=self.gui_resolution_multipler,
+            command=self.gui_document_resolution_multipler,
         )
         self.resolution_check_button.grid(
             column=0,
@@ -987,12 +1002,12 @@ class MainFrame(ttk.Frame):
 
         self.resolution_spinbox = ttk.Spinbox(
             self.parameters_frame,
-            from_=0.1,
-            to=10.0,
+            from_=self.document_resolution_factor_min_value,
+            to=self.document_resolution_factor_max_value,
             increment=0.1,
-            state='readonly',
+            # state='readonly',
             textvariable=self.strvar_resolution_multiplier,
-            command=self.gui_resolution_multipler,
+            command=self.gui_document_resolution_multipler,
             width=6
         )
         self.resolution_spinbox.grid(
@@ -1022,10 +1037,10 @@ class MainFrame(ttk.Frame):
 
         self.fixed_font_size_spinbox = ttk.Spinbox(
             self.parameters_frame,
-            from_=0,
-            to=100,
+            from_=self.fixed_font_size_min_value,
+            to=self.fixed_font_size_max_value,
             increment=1,
-            state='readonly',
+            # state='readonly',
             textvariable=self.strvar_fixed_font_size,
             command=self.gui_fixed_font_size,
             width=6
@@ -1056,10 +1071,10 @@ class MainFrame(ttk.Frame):
 
         self.ocr_cpu_spinbox = ttk.Spinbox(
             self.parameters_frame,
-            from_=0,
-            to=100,
+            from_=self.ocr_cpu_min_value,
+            to=self.ocr_cpu_max_value,
             increment=1,
-            state='readonly',
+            # state='readonly',
             textvariable=self.strvar_ocr_cpu_percentage,
             command=self.gui_ocr_and_cpu,
             width=6
@@ -1090,10 +1105,10 @@ class MainFrame(ttk.Frame):
 
         self.smart_line_break_spinbox = ttk.Spinbox(
             self.parameters_frame,
-            from_=0.01,
-            to=2.00,
+            from_=self.smart_line_break_min_value,
+            to=self.smart_line_break_max_value,
             increment=0.01,
-            state='readonly',
+            # state='readonly',
             textvariable=self.strvar_linebreak_space,
             command=self.gui_line_break,
             width=6
@@ -1570,8 +1585,8 @@ class MainFrame(ttk.Frame):
 
         device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
         if device_arg is None:
-            width_arg = self.k2pdfopt_cmd_args.pop(self.width_arg_name, None)
-            height_arg = self.k2pdfopt_cmd_args.pop(self.height_arg_name, None)
+            width_arg = self.k2pdfopt_cmd_args.pop(self.device_width_arg_name, None)
+            height_arg = self.k2pdfopt_cmd_args.pop(self.device_height_arg_name, None)
 
         mode_arg = self.k2pdfopt_cmd_args.pop(self.conversion_mode_arg_name, None)
         if mode_arg is not None:
@@ -1586,8 +1601,8 @@ class MainFrame(ttk.Frame):
         elif width_arg is not None and height_arg is not None:
             arg_list.append(width_arg)
             arg_list.append(height_arg)
-            self.k2pdfopt_cmd_args[self.width_arg_name] = width_arg
-            self.k2pdfopt_cmd_args[self.height_arg_name] = height_arg
+            self.k2pdfopt_cmd_args[self.device_width_arg_name] = width_arg
+            self.k2pdfopt_cmd_args[self.device_height_arg_name] = height_arg
 
         arg_list.append('-a- -ui- -x')
         self.log_string('Generate Argument List: ' + str(arg_list))
@@ -1652,17 +1667,28 @@ class MainFrame(ttk.Frame):
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + ' ' + device_type
             self.add_or_update_command_argument(self.device_arg_name, arg)
-            self.remove_command_argument(self.width_arg_name)
-            self.remove_command_argument(self.height_arg_name)
+            self.remove_command_argument(self.device_width_arg_name)
+            self.remove_command_argument(self.device_height_arg_name)
             self.strvar_device_screen_width.set(self.device_width_height_dpi_info[self.device_combobox.current()][0])
             self.strvar_device_screen_height.set(self.device_width_height_dpi_info[self.device_combobox.current()][1])
             self.strvar_device_screen_dpi.set(self.device_width_height_dpi_info[self.device_combobox.current()][2])
         else:   # "Other type" chosen
             screen_unit = self.unit_argument_map[self.unit_combobox.current()]
-            width_arg = (self.width_arg_name + ' ' + self.strvar_device_screen_width.get().strip() + screen_unit)
-            self.add_or_update_command_argument(self.width_arg_name, width_arg)
-            height_arg = (self.height_arg_name + ' ' + self.strvar_device_screen_height.get().strip() + screen_unit)
-            self.add_or_update_command_argument(self.height_arg_name, height_arg)
+
+            width = self.strvar_device_screen_width.get().strip()
+            if tools.is_acceptable_number(width, 'int', self.device_width_min_value, self.device_width_max_value):
+                width_arg = (self.device_width_arg_name + ' ' + width + screen_unit)
+                self.add_or_update_command_argument(self.device_width_arg_name, width_arg)
+            else:
+                self.remove_command_argument(self.device_width_arg_name)
+
+            height = self.strvar_device_screen_height.get().strip()
+            if tools.is_acceptable_number(width, 'int', self.device_height_min_value, self.device_height_max_value):
+                height_arg = (self.device_height_arg_name + ' ' + height + screen_unit)
+                self.add_or_update_command_argument(self.device_height_arg_name, height_arg)
+            else:
+                self.remove_command_argument(self.device_height_arg_name)
+
             self.remove_command_argument(self.device_arg_name)
 
     def gui_mode_cbox(self, e=None):
@@ -1674,17 +1700,19 @@ class MainFrame(ttk.Frame):
         self.update_command_argument_entry_strvar()
 
     def gui_column_num(self):
-        if self.is_column_num_checked.get():
-            arg = (self.column_num_arg_name + ' ' + self.strvar_column_num.get().strip())
+        nb_column = self.strvar_column_num.get().strip()
+        if self.is_column_num_checked.get() and tools.is_acceptable_number(nb_column, 'int', self.max_column_min_value, self.max_column_min_value):
+            arg = (self.column_num_arg_name + ' ' + nb_column)
             self.add_or_update_command_argument(self.column_num_arg_name, arg)
         else:
             self.remove_command_argument(self.column_num_arg_name)
 
-    def gui_resolution_multipler(self):
-        if self.is_resolution_multipler_checked.get():
+    def gui_document_resolution_multipler(self):
+        multiplier = self.strvar_resolution_multiplier.get().strip()
+        if self.is_resolution_multipler_checked.get() and tools.is_acceptable_number(multiplier, 'float', self.document_resolution_factor_min_value, self.document_resolution_factor_max_value):
             arg = (
                 self.resolution_multiplier_arg_name + ' ' +
-                self.strvar_resolution_multiplier.get().strip()
+                multiplier
             )
             self.add_or_update_command_argument(self.resolution_multiplier_arg_name, arg)
         else:
@@ -1768,8 +1796,9 @@ class MainFrame(ttk.Frame):
     #         self.remove_command_argument(self.crop_margin_arg_name)
 
     def gui_dpi(self):
-        if self.is_dpi_checked.get():
-            arg = self.dpi_arg_name + ' ' + self.strvar_device_screen_dpi.get().strip()
+        dpi_value = self.strvar_device_screen_dpi.get().strip()
+        if self.is_dpi_checked.get() and tools.is_acceptable_number(dpi_value, 'int', self.device_dpi_min_value, self.device_dpi_max_value):
+            arg = self.dpi_arg_name + ' ' + dpi_value
             self.add_or_update_command_argument(self.dpi_arg_name, arg)
         else:
             self.remove_command_argument(self.dpi_arg_name)
@@ -1794,8 +1823,9 @@ class MainFrame(ttk.Frame):
         return True
 
     def gui_fixed_font_size(self):
-        if self.is_fixed_font_size_checked.get():
-            arg = (self.fixed_font_size_arg_name + ' ' + self.strvar_fixed_font_size.get().strip())
+        font_size = self.strvar_fixed_font_size.get().strip()
+        if self.is_fixed_font_size_checked.get() and tools.is_acceptable_number(font_size, 'int', self.fixed_font_size_min_value, self.fixed_font_size_max_value):
+            arg = (self.fixed_font_size_arg_name + ' ' + font_size)
             self.add_or_update_command_argument(self.fixed_font_size_arg_name, arg)
         else:
             self.remove_command_argument(self.fixed_font_size_arg_name)
@@ -1819,8 +1849,9 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ocr_cpu_arg_name)
 
     def gui_validate_landscape(self):
-        if (len(self.strvar_landscape_pages.get().strip()) > 0 and
-            not tools.check_page_nums(self.strvar_landscape_pages.get().strip())):
+        page_range = self.strvar_landscape_pages.get().strip()
+        if (len(page_range) > 0 and
+            not tools.check_page_nums(page_range)):
 
             self.remove_command_argument(self.landscape_arg_name)
             self.strvar_landscape_pages.set('')
@@ -1829,10 +1860,9 @@ class MainFrame(ttk.Frame):
             return False
 
         if self.is_landscape_checked.get():
-            arg = '-ls'
-            if len(self.strvar_landscape_pages.get().strip()) > 0:
-                # no space between -ls and page numbers
-                arg += self.strvar_landscape_pages.get().strip()
+            arg = self.landscape_arg_name
+            if len(page_range) > 0:
+                arg += page_range # no space between -ls and page numbers
             self.add_or_update_command_argument(self.landscape_arg_name, arg)
         else:
             self.remove_command_argument(self.landscape_arg_name)
@@ -1840,8 +1870,11 @@ class MainFrame(ttk.Frame):
         return True
 
     def gui_line_break(self):
-        if self.is_smart_linebreak_checked.get():
-            arg = (self.linebreak_arg_name + ' ' + self.strvar_linebreak_space.get().strip())
+        line_break = self.strvar_linebreak_space.get().strip()
+        # print(tools.is_acceptable_number(line_break, 'float',     self.smart_line_break_min_value, self.smart_line_break_max_value))
+        if self.is_smart_linebreak_checked.get() and tools.is_acceptable_number(line_break, 'float', self.smart_line_break_min_value, self.smart_line_break_max_value):
+        # if self.is_smart_linebreak_checked.get():
+            arg = (self.linebreak_arg_name + ' ' + str(line_break))
             self.add_or_update_command_argument(self.linebreak_arg_name, arg)
         else:
             self.remove_command_argument(self.linebreak_arg_name)
