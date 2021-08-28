@@ -147,8 +147,8 @@ class MainFrame(ttk.Frame):
 
         self.strvar_device = tk.StringVar()
         self.strvar_screen_unit = tk.StringVar()
-        self.strvar_device_screen_width = tk.StringVar()
         self.strvar_command_args = tk.StringVar()
+        self.strvar_device_screen_width = tk.StringVar()
         self.strvar_device_screen_height = tk.StringVar()
         self.strvar_conversion_mode = tk.StringVar()
         self.strvar_input_file_path = tk.StringVar()

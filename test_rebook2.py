@@ -29,3 +29,15 @@ def test_generate_commande_for_device():
             frame.k2pdfopt_cmd_args = {}
             frame.k2pdfopt_cmd_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
             assert frame.generate_command_argument_string() == frame.device_arg_name + ' ' + MainFrame.device_argument_map[device] + ' -a- -ui- -x'
+
+def test_generate_commande_device_correspondance():
+    ''' Check if for each element of MainFrame.device_choice_map there is an correspondence in
+        MainFrame.device_argument_map whitch allow to build a correct command.
+    '''
+    rebook = ReBook()
+    frame = MainFrame(rebook, k2pdfopt_path)
+    for device in MainFrame.device_choice_map:
+        if MainFrame.device_choice_map[device] != 'Other (specify width & height)':
+            frame.k2pdfopt_cmd_args = {}
+            frame.k2pdfopt_cmd_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
+            assert frame.generate_command_argument_string() == frame.device_arg_name + ' ' + MainFrame.device_argument_map[device] + ' -a- -ui- -x'
