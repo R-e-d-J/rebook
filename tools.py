@@ -1,4 +1,5 @@
 # tools_function
+import re
 
 def check_page_nums(input_pages):
     page_num_list = re.split(',|-|o|e', input_pages)
