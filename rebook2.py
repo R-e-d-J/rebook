@@ -157,6 +157,8 @@ class MainFrame(ttk.Frame):
         self.document_resolution_factor_max_value = 10.0
         self.smart_line_break_min_value = 0.01
         self.smart_line_break_max_value = 2.00
+        self.margin_and_crop_areas_min_value = 0
+        self.margin_and_crop_areas_max_value = 10
         self.default_padx = 5
         self.default_pady = 0
         self.k2pdfopt_path = k2pdfopt_path
@@ -197,6 +199,7 @@ class MainFrame(ttk.Frame):
         self.landscape_arg_name = '-ls'              # -ls[-][pagelist]
         self.linebreak_arg_name = '-ws'              # -ws <spacing>
 
+        self.strvar_crop_page_range = tk.StringVar()
         self.is_column_num_checked = tk.BooleanVar()
         self.is_resolution_multipler_checked = tk.BooleanVar()
         self.is_crop_margin_checked = tk.BooleanVar()
@@ -433,13 +436,13 @@ class MainFrame(ttk.Frame):
         self.conversion_tab_left_part_line_num = -1
         self.setup_file_frame()
         self.setup_device_frame()
-        # self.setup_margin_and_cropboxes_frame()
+        self.setup_margin_and_cropboxes_frame()
         self.setup_parameters_frame()
 
     def fill_right_side_of_conversion_tab(self):
         self.conversion_tab_right_part_column_num = 1
-        self.conversion_tab_right_part_line_num = 0
-        self.setup_information_frame()
+        self.conversion_tab_right_part_line_num = -1
+        self.setup_command_line_frame()
         self.setup_action_frame()
 
     def fill_conversion_tab(self):
@@ -450,17 +453,17 @@ class MainFrame(ttk.Frame):
             self.conversion_tab_right_part_column_num,
             weight=1,
         )
-        self.conversion_tab.rowconfigure(
-            self.conversion_tab_right_part_line_num,
-            weight=1,
-        )
+        # self.conversion_tab.rowconfigure(
+        #     self.conversion_tab_right_part_line_num,
+        #     weight=1,
+        # )
         self.action_frame.columnconfigure(0, weight=1)
         self.action_frame.rowconfigure(self.action_frame_row_num, weight=1)
 
     def setup_file_frame(self):
         ''' Set up the file frame. '''
         self.conversion_tab_left_part_line_num += 1
-        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
+        # # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_screen, height=78)
         self.file_frame.grid(
@@ -487,8 +490,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
         self.input_path_entry = ttk.Entry(
-            self.file_frame, 
-            state='readonly', 
+            self.file_frame,  
             textvariable=self.strvar_input_file_path,
             width=35
         )
@@ -505,8 +507,7 @@ class MainFrame(ttk.Frame):
         output_label = ttk.Label(self.file_frame, text='Output file path')
         output_label.grid(column=0, row=file_frame_line_number, sticky=tk.N+tk.W, pady=self.default_pady, padx=self.default_padx)
         self.output_path_entry = ttk.Entry(
-            self.file_frame, 
-            state='readonly', 
+            self.file_frame,  
             textvariable=self.strvar_output_file_path,
             width=40
         )
@@ -523,7 +524,7 @@ class MainFrame(ttk.Frame):
         self.conversion_tab_left_part_line_num += 1
         # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
-        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=110)
+        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=80)
         self.device_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -545,7 +546,6 @@ class MainFrame(ttk.Frame):
         )
         self.device_combobox = ttk.Combobox(
             self.device_frame,
-            state='readonly',
             textvariable=self.strvar_device,
             width=25
         )
@@ -561,19 +561,16 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        device_frame_line_number += 1
-
         self.unit_label = ttk.Label(self.device_frame, text='Unit')
         self.unit_label.grid(
-            column=0,
+            column=4,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
         self.unit_combobox = ttk.Combobox(
-            self.device_frame, 
-            state='readonly', 
+            self.device_frame,  
             textvariable=self.strvar_screen_unit,
             width=20
         )
@@ -581,7 +578,7 @@ class MainFrame(ttk.Frame):
         self.unit_combobox.current(0)
         self.unit_combobox.bind('<<ComboboxSelected>>', self.gui_device_unit_cbox)
         self.unit_combobox.grid(
-            column=1,
+            column=5,
             columnspan=3,
             row=device_frame_line_number,
             sticky=tk.N+tk.W,
@@ -681,7 +678,7 @@ class MainFrame(ttk.Frame):
             self.conversion_tab,
             text='Margin & cropboxes',
             width=self.half_screen,
-            height=152
+            height=223
         )
         self.margin_and_cropboxes_frame.grid(
             column=self.conversion_tab_left_part_column_num,
@@ -694,127 +691,275 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number = 0
 
-        self.margin_check_button = ttk.Checkbutton(
+        self.cropmargin_label = ttk.Label(
             self.margin_and_cropboxes_frame,
             text='Crop Margins (in)',
+        )
+        self.cropmargin_label.grid(
+            column=0,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.global_margin_check_button = ttk.Checkbutton(
+            self.margin_and_cropboxes_frame,
             variable=self.is_crop_margin_checked,
             command=self.gui_crop_margin,
         )
-        self.margin_check_button.grid(
-            column=0,
+        self.global_margin_check_button.grid(
+            column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
-        # parameters_frame_line_number += 1
-
-        # crop_page_range_label = ttk.Label(self.parameters_frame, text='      Page Range')
-        # crop_page_range_label.grid(
-        #     column=0,
-        #     row=parameters_frame_line_number,
-        #     sticky=tk.N+tk.W,
-        #     pady=self.default_pady,
-        #     padx=self.default_padx,
-        # )
-
-        # self.crop_page_range_entry = ttk.Entry(
-        #     self.parameters_frame,
-        #     textvariable=self.strvar_crop_page_range,
-        #     validate='focusout',
-        #     validatecommand=self.gui_crop_margin,
-        #     width=13
-        # )
-        # self.crop_page_range_entry.grid(
-        #     column=1,
-        #     row=parameters_frame_line_number,
-        #     sticky=tk.N+tk.W,
-        #     pady=self.default_pady,
-        #     padx=self.default_padx,
-        # )
-
-        margin_and_cropboxes_frame_line_number += 1
-
-        left_margin_label = ttk.Label(self.margin_and_cropboxes_frame, text='      Left')
-        left_margin_label.grid(
-            column=0,
-            row=margin_and_cropboxes_frame_line_number,
-            sticky=tk.N+tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
         self.left_margin_spinbox = ttk.Spinbox(
             self.margin_and_cropboxes_frame,
-            from_=0,
-            to=10,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
             increment=0.1,
-            state='readonly',
             textvariable=self.strvar_left_margin,
             command=self.gui_crop_margin,
-            width=6
+            width=4
         )
         self.left_margin_spinbox.grid(
-            column=1,
+            column=2,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
-        margin_and_cropboxes_frame_line_number += 1
-
-        top_margin_label = ttk.Label(self.margin_and_cropboxes_frame, text='      Top')
-        top_margin_label.grid(
-            column=0,
-            row=margin_and_cropboxes_frame_line_number,
-            sticky=tk.N+tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
         self.top_margin_spinbox = ttk.Spinbox(
             self.margin_and_cropboxes_frame,
-            from_=0,
-            to=10,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
             increment=0.1,
-            state='readonly',
             textvariable=self.strvar_top_margin,
             command=self.gui_crop_margin,
-            width=6
+            width=4
         )
         self.top_margin_spinbox.grid(
-            column=1,
+            column=3,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
-        margin_and_cropboxes_frame_line_number += 1
-
-        width_margin_textlabel = ttk.Label(self.margin_and_cropboxes_frame, text='      Right')
-        width_margin_textlabel.grid(
-            column=0,
-            row=margin_and_cropboxes_frame_line_number,
-            sticky=tk.N+tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
         self.width_margin_spinbox = ttk.Spinbox(
             self.margin_and_cropboxes_frame,
-            from_=0,
-            to=10,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
             increment=0.1,
-            state='readonly',
             textvariable=self.strvar_width_margin,
             command=self.gui_crop_margin,
-            width=6
+            width=4
         )
         self.width_margin_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_margin_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_height_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.height_margin_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropmargin_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='(left, top, right, bottom)',
+        )
+        self.cropmargin_label.grid(
+            column=6,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        margin_and_cropboxes_frame_line_number += 1
+        whitespace_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='',
+        )
+        whitespace_label.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        margin_and_cropboxes_frame_line_number += 1
+
+        self.cropbox_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Crop Areas (in)',
+        )
+        self.cropbox_label.grid(
+            column=0,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        cropaera_left_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Left',
+        )
+        cropaera_left_label.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        cropaera_top_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Top',
+        )
+        cropaera_top_label.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        cropaera_width_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Width',
+        )
+        cropaera_width_label.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        cropaera_height_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Height',
+        )
+        cropaera_height_label.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        cropaera_page_range_label = ttk.Label(
+            self.margin_and_cropboxes_frame,
+            text='Page range',
+            anchor=tk.CENTER,
+        )
+        cropaera_page_range_label.grid(
+            column=6,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        
+
+        margin_and_cropboxes_frame_line_number += 1
+
+        self.cropbox1_check_button = ttk.Checkbutton(
+            self.margin_and_cropboxes_frame,
+            variable=self.is_crop_margin_checked,
+            command=self.gui_crop_margin,
+        )
+        self.cropbox1_check_button.grid(
             column=1,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.left_cropbox1_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_left_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.left_cropbox1_spinbox.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.top_cropbox1_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_top_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.top_cropbox1_spinbox.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.width_cropbox1_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_width_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.width_cropbox1_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_cropbox1_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_height_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.height_cropbox1_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropbox1_page_range_entry = ttk.Entry(
+            self.margin_and_cropboxes_frame,
+            textvariable=self.strvar_crop_page_range,
+            validate='focusout',
+            validatecommand=self.gui_crop_margin,
+            width=13
+        )
+        self.cropbox1_page_range_entry.grid(
+            column=6,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -823,27 +968,370 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
 
-        height_margin_textlabel = ttk.Label(self.margin_and_cropboxes_frame, text='      Bottom')
-        height_margin_textlabel.grid(
-            column=0,
+        self.cropbox2_check_button = ttk.Checkbutton(
+            self.margin_and_cropboxes_frame,
+            variable=self.is_crop_margin_checked,
+            command=self.gui_crop_margin,
+        )
+        self.cropbox2_check_button.grid(
+            column=1,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.left_cropbox2_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_left_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.left_cropbox2_spinbox.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.top_cropbox2_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_top_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.top_cropbox2_spinbox.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.width_cropbox2_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_width_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.width_cropbox2_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_cropbox2_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_height_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.height_cropbox2_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropbox2_page_range_entry = ttk.Entry(
+            self.margin_and_cropboxes_frame,
+            textvariable=self.strvar_crop_page_range,
+            validate='focusout',
+            validatecommand=self.gui_crop_margin,
+            width=13
+        )
+        self.cropbox2_page_range_entry.grid(
+            column=6,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        self.height_margin_spinbox = ttk.Spinbox(
+        margin_and_cropboxes_frame_line_number += 1
+
+        self.cropbox3_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
-            from_=0,
-            to=10,
+            variable=self.is_crop_margin_checked,
+            command=self.gui_crop_margin,
+        )
+        self.cropbox3_check_button.grid(
+            column=1,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.left_cropbox3_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
             increment=0.1,
-            state='readonly',
+            textvariable=self.strvar_left_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.left_cropbox3_spinbox.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.top_cropbox3_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_top_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.top_cropbox3_spinbox.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.width_cropbox3_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_width_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.width_cropbox3_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_cropbox3_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
             textvariable=self.strvar_height_margin,
             command=self.gui_crop_margin,
-            width=6
+            width=4
         )
-        self.height_margin_spinbox.grid(
+        self.height_cropbox3_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropbox3_page_range_entry = ttk.Entry(
+            self.margin_and_cropboxes_frame,
+            textvariable=self.strvar_crop_page_range,
+            validate='focusout',
+            validatecommand=self.gui_crop_margin,
+            width=13
+        )
+        self.cropbox3_page_range_entry.grid(
+            column=6,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        margin_and_cropboxes_frame_line_number += 1
+
+        self.cropbox4_check_button = ttk.Checkbutton(
+            self.margin_and_cropboxes_frame,
+            variable=self.is_crop_margin_checked,
+            command=self.gui_crop_margin,
+        )
+        self.cropbox4_check_button.grid(
             column=1,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.left_cropbox4_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_left_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.left_cropbox4_spinbox.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.top_cropbox4_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_top_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.top_cropbox4_spinbox.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.width_cropbox4_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_width_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.width_cropbox4_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_cropbox4_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_height_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.height_cropbox4_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropbox4_page_range_entry = ttk.Entry(
+            self.margin_and_cropboxes_frame,
+            textvariable=self.strvar_crop_page_range,
+            validate='focusout',
+            validatecommand=self.gui_crop_margin,
+            width=13
+        )
+        self.cropbox4_page_range_entry.grid(
+            column=6,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        margin_and_cropboxes_frame_line_number += 1
+
+        self.cropbox5_check_button = ttk.Checkbutton(
+            self.margin_and_cropboxes_frame,
+            variable=self.is_crop_margin_checked,
+            command=self.gui_crop_margin,
+        )
+        self.cropbox5_check_button.grid(
+            column=1,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.left_cropbox5_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_left_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.left_cropbox5_spinbox.grid(
+            column=2,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.top_cropbox5_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_top_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.top_cropbox5_spinbox.grid(
+            column=3,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.width_cropbox5_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_width_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.width_cropbox5_spinbox.grid(
+            column=4,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.height_cropbox5_spinbox = ttk.Spinbox(
+            self.margin_and_cropboxes_frame,
+            from_=self.margin_and_crop_areas_min_value,
+            to=self.margin_and_crop_areas_max_value,
+            increment=0.1,
+            textvariable=self.strvar_height_margin,
+            command=self.gui_crop_margin,
+            width=4
+        )
+        self.height_cropbox5_spinbox.grid(
+            column=5,
+            row=margin_and_cropboxes_frame_line_number,
+            sticky=tk.N+tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.cropbox5_page_range_entry = ttk.Entry(
+            self.margin_and_cropboxes_frame,
+            textvariable=self.strvar_crop_page_range,
+            validate='focusout',
+            validatecommand=self.gui_crop_margin,
+            width=13
+        )
+        self.cropbox5_page_range_entry.grid(
+            column=6,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -877,8 +1365,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.mode_combobox = ttk.Combobox(
-            self.parameters_frame,
-            state='readonly', 
+            self.parameters_frame, 
             textvariable=self.strvar_conversion_mode,
             width=10
         )
@@ -971,10 +1458,9 @@ class MainFrame(ttk.Frame):
             from_=self.max_column_min_value,
             to=self.max_column_max_value,
             increment=1,
-            # state='readonly',
             textvariable=self.strvar_column_num,
             command=self.gui_column_num,
-            width=6
+            width=4
         )
         self.max_column_spinbox.grid(
             column=1,
@@ -1005,10 +1491,9 @@ class MainFrame(ttk.Frame):
             from_=self.document_resolution_factor_min_value,
             to=self.document_resolution_factor_max_value,
             increment=0.1,
-            # state='readonly',
             textvariable=self.strvar_resolution_multiplier,
             command=self.gui_document_resolution_multipler,
-            width=6
+            width=4
         )
         self.resolution_spinbox.grid(
             column=1,
@@ -1040,10 +1525,9 @@ class MainFrame(ttk.Frame):
             from_=self.fixed_font_size_min_value,
             to=self.fixed_font_size_max_value,
             increment=1,
-            # state='readonly',
             textvariable=self.strvar_fixed_font_size,
             command=self.gui_fixed_font_size,
-            width=6
+            width=4
         )
         self.fixed_font_size_spinbox.grid(
             column=1,
@@ -1074,10 +1558,9 @@ class MainFrame(ttk.Frame):
             from_=self.ocr_cpu_min_value,
             to=self.ocr_cpu_max_value,
             increment=1,
-            # state='readonly',
             textvariable=self.strvar_ocr_cpu_percentage,
             command=self.gui_ocr_and_cpu,
-            width=6
+            width=4
         )
         self.ocr_cpu_spinbox.grid(
             column=1,
@@ -1108,10 +1591,9 @@ class MainFrame(ttk.Frame):
             from_=self.smart_line_break_min_value,
             to=self.smart_line_break_max_value,
             increment=0.01,
-            # state='readonly',
             textvariable=self.strvar_linebreak_space,
             command=self.gui_line_break,
-            width=6
+            width=5
         )
         self.smart_line_break_spinbox.grid(
             column=1,
@@ -1221,7 +1703,7 @@ class MainFrame(ttk.Frame):
             self.parameters_frame,
             text='Generate Marked-up Source',
             variable=self.is_markedup_source_checked,
-            command=self.gui_marked_src,
+            command=self.gui_marked_source,
         )
         self.generate_markup_source_check_button.grid(
             column=option_frame_left_part_col_num,
@@ -1231,7 +1713,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        option_frace_right_part_col_num = 1
+        option_frame_right_part_col_num = 1
         parameters_frame_line_number = save_parameters_frame_line_number
 
         self.reflow_text_check_button = ttk.Checkbutton(
@@ -1241,7 +1723,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_reflow_text,
         )
         self.reflow_text_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1256,7 +1738,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_erase_vertical_line,
         )
         self.erase_vline_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1271,7 +1753,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_erase_horizontal_line,
         )
         self.erase_hline_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1286,7 +1768,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_fast_preview,
         )
         self.fast_preview_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1301,7 +1783,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_avoid_text_selection_overlap,
         )
         self.avoid_text_overlap_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1316,7 +1798,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_ignore_small_defect,
         )
         self.ignore_defect_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1331,7 +1813,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_auto_crop,
         )
         self.autocrop_check_button.grid(
-            column=option_frace_right_part_col_num,
+            column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N+tk.W,
             pady=self.default_pady,
@@ -1339,8 +1821,9 @@ class MainFrame(ttk.Frame):
         )
 
     def setup_action_frame(self):
-        ''' Set up the action frame. '''
+        ''' Set up the action frame and draw its widgets '''
         self.conversion_tab_right_part_line_num += 1
+        # print(self.conversion_tab_right_part_line_num, ' - ', self.conversion_tab_right_part_column_num)
 
         self.action_frame = ttk.Labelframe(self.conversion_tab, text='Actions')
         self.action_frame.grid(
@@ -1397,7 +1880,6 @@ class MainFrame(ttk.Frame):
 
         self.current_preview_page_number_entry = ttk.Entry(
             self.action_frame,
-            state='readonly',
             textvariable=self.strvar_current_preview_page_num
         )
         self.current_preview_page_number_entry.grid(
@@ -1524,7 +2006,11 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_information_frame(self):
+    def setup_command_line_frame(self):
+        ''' Set up the `command line` frame and draw its widgets '''
+        self.conversion_tab_right_part_line_num += 1
+        # print(self.conversion_tab_right_part_line_num, ' - ', self.conversion_tab_right_part_column_num)
+        
         self.information_frame = ttk.Labelframe(self.conversion_tab, text='Command-line Options')
         self.information_frame.grid(
             column=self.conversion_tab_right_part_column_num,
@@ -1535,8 +2021,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.command_arguments_entry = ttk.Entry(
-            self.information_frame, 
-            state='readonly', 
+            self.information_frame,  
             textvariable=self.strvar_command_args,
             width=100
         )
@@ -1871,9 +2356,7 @@ class MainFrame(ttk.Frame):
 
     def gui_line_break(self):
         line_break = self.strvar_linebreak_space.get().strip()
-        # print(tools.is_acceptable_number(line_break, 'float',     self.smart_line_break_min_value, self.smart_line_break_max_value))
         if self.is_smart_linebreak_checked.get() and tools.is_acceptable_number(line_break, 'float', self.smart_line_break_min_value, self.smart_line_break_max_value):
-        # if self.is_smart_linebreak_checked.get():
             arg = (self.linebreak_arg_name + ' ' + str(line_break))
             self.add_or_update_command_argument(self.linebreak_arg_name, arg)
         else:
@@ -1930,7 +2413,7 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.post_gs_arg_name)
 
-    def gui_marked_src(self):
+    def gui_marked_source(self):
         if self.is_markedup_source_checked.get():
             self.add_or_update_command_argument(self.marked_source_arg_name, self.marked_source_arg_name)
         else:
@@ -1966,9 +2449,11 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.fast_preview_arg_name)
 
     def gui_avoid_text_selection_overlap(self):
-        ''' Manage avoid text selection overlap. '''
+        ''' Manage `Avoid text selection overlap` option
+
+            Remarks: avoid overlap conflicts with break page since they are both -bp flag
+        '''
         if self.is_avoid_overlap_checked.get():
-            # avoid overlap conflicts with break page since they are both -bp flag
             self.is_break_page_checked.set(False)
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
@@ -1978,7 +2463,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def gui_ignore_small_defect(self):
-        ''' Manage `ignore small defect` option. '''
+        ''' Manage `ignore small defect` option '''
         if self.is_ignore_small_defects_checked.get():
             arg = (self.ign_small_defects_arg_name + ' 1.5')
             self.add_or_update_command_argument(self.ign_small_defects_arg_name, arg)
@@ -1994,7 +2479,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.erase_horizontal_line_arg_name)
 
     def gui_auto_crop(self):
-        ''' Manage autocrop option.
+        ''' Manage `Auto-Crop` option.
         
             Remarks: conflict with `crop margin`
         '''
@@ -2055,7 +2540,7 @@ class MainFrame(ttk.Frame):
             return
 
         self.remove_preview_image_and_clear_canvas()
-        (base_path, file_ext) = os.path.splitext(self.strvar_input_file_path.get().strip())
+        # (base_path, file_ext) = os.path.splitext(self.strvar_input_file_path.get().strip())
         output_arg = ' '.join([self.preview_output_arg_name, str(preview_page_index)])
         self.background_future = self.convert_pdf_file(output_arg)
         self.strvar_current_preview_page_num.set('Preview Generating...')
