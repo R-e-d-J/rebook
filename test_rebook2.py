@@ -41,3 +41,19 @@ def test_generate_commande_device_correspondance():
             frame.k2pdfopt_cmd_args = {}
             frame.k2pdfopt_cmd_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
             assert frame.generate_command_argument_string() == frame.device_arg_name + ' ' + MainFrame.device_argument_map[device] + ' -a- -ui- -x'
+
+def test_cleaning_command_line_from_cbox():
+    '''
+    '''
+    rebook = ReBook()
+    frame = MainFrame(rebook, k2pdfopt_path)
+    result = '-mode def -rt 0 -ws 0.200 -wrap+ -ehl 1 -evl 1 -sm -dev kp3 -a- -ui- -x'
+    frame.strvar_command_args = '-mode def -rt 0 -ws 0.200 -wrap+ -cbox5-51o 0.5,1.0,7.0,5.2 -ehl 1 -evl 1 -sm -dev kp3 -a- -ui- -x'
+    frame.cleaning_command_line_from_cbox()
+    assert frame.strvar_command_args == result
+    frame.strvar_command_args = '-mode def -rt 0 -ws 0.200 -wrap+ -cbox5-51o 0.5,1.0,7.0,5.2 -cbox2-3,5,9,10- 0.5,1.5,9.0,7.0 -ehl 1 -evl 1 -sm -dev kp3 -a- -ui- -x'
+    frame.cleaning_command_line_from_cbox()
+    assert frame.strvar_command_args == result
+    frame.strvar_command_args = '-mode def -rt 0 -ws 0.200 -wrap+ -cbox5-51o 0.5,1.0,7.0,5.2 -cbox2-3,5,9,10- 0.5,1.5,9.0,7.0 -cbox2-52e,3-33o 0.8,0.5,8.0,8.0 -cbox2-5e,3-7o,9- 0.5,1.5,9.0,7.0 -ehl 1 -evl 1 -sm -dev kp3 -a- -ui- -x'
+    frame.cleaning_command_line_from_cbox()
+    assert frame.strvar_command_args == result

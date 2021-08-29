@@ -176,8 +176,8 @@ class MainFrame(ttk.Frame):
         self.strvar_current_preview_page_num = tk.StringVar()
         
         self.device_arg_name = '-dev'               # -dev <name>
-        self.device_width_arg_name = '-w'                  # -w <width>[in|cm|s|t|p]
-        self.device_height_arg_name = '-h'                 # -h <height>[in|cm|s|t|p|x]
+        self.device_width_arg_name = '-w'           # -w <width>[in|cm|s|t|p]
+        self.device_height_arg_name = '-h'          # -h <height>[in|cm|s|t|p|x]
         self.conversion_mode_arg_name = '-mode'     # -mode <mode>
         self.output_path_arg_name = '-o'            # -o <namefmt>
         self.output_pdf_suffix = '_k2opt.pdf'
@@ -186,7 +186,13 @@ class MainFrame(ttk.Frame):
         # Parameters frame
         self.column_num_arg_name = '-col'            # -col <maxcol>
         self.resolution_multiplier_arg_name = '-dr'  # -dr <value>
-        self.crop_margin_arg_name = '-cbox'          # -cbox[<pagelist>|u|-]
+        self.cropmargin_arg_name = 'm'
+        self.cropbox_arg_name = '-cbox'              # -cbox[<pagelist>|u|-]
+        self.cropbox_1_arg_name = 'cbox_1'
+        self.cropbox_2_arg_name = 'cbox_2'
+        self.cropbox_3_arg_name = 'cbox_3'
+        self.cropbox_4_arg_name = 'cbox_4'
+        self.cropbox_5_arg_name = 'cbox_5'
         self.crop_margin_left_arg_name = '-ml'
         self.crop_margin_top_arg_name = '-mt'
         self.crop_margin_right_arg_name = '-mr'
@@ -297,7 +303,7 @@ class MainFrame(ttk.Frame):
         self.preview_image_path = './k2pdfopt_out.png'
 
         self.default_var_map = {
-            self.device_arg_name:                    ['Kindle 1-5'],
+            self.device_arg_name:                    ['Kindle Paperwhite 3'],
             self.screen_unit_prefix:                 ['Pixels'],
             self.device_width_arg_name:              ['560'],
             self.device_height_arg_name:             ['735'],
@@ -305,12 +311,52 @@ class MainFrame(ttk.Frame):
             self.output_path_arg_name:               [''],
             self.column_num_arg_name:                [False, '2'],
             self.resolution_multiplier_arg_name:     [False, '1.0'],
-            self.crop_margin_arg_name:               [
+            self.cropmargin_arg_name:               [ ##########
                                                         False,
                                                         '0.0',
                                                         '0.0',
                                                         '0.0',
                                                         '0.0',
+                                                     ],
+            self.cropbox_1_arg_name:               [ ##########
+                                                        False,
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '',
+                                                     ],
+            self.cropbox_2_arg_name:               [ ##########
+                                                        False,
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '',
+                                                     ],
+            self.cropbox_3_arg_name:               [ ##########
+                                                        False,
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '',
+                                                     ],
+            self.cropbox_4_arg_name:               [ ##########
+                                                        False,
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '',
+                                                     ],
+            self.cropbox_5_arg_name:               [ ##########
+                                                        False,
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '0.0',
+                                                        '',
                                                      ],
             self.dpi_arg_name:                       [False, '167'],
             self.page_num_arg_name:                  [''],
@@ -325,10 +371,10 @@ class MainFrame(ttk.Frame):
             self.native_pdf_arg_name:                [False],
             self.right_to_left_arg_name:             [False],
             self.post_gs_arg_name:                   [False],
-            self.marked_source_arg_name:             [False],
+            self.marked_source_arg_name:             [True], ######
             self.reflow_text_arg_name:               [True],
-            self.erase_vertical_line_arg_name:       [False],
-            self.erase_horizontal_line_arg_name:     [False],
+            self.erase_vertical_line_arg_name:       [True], ######
+            self.erase_horizontal_line_arg_name:     [True], ######
             self.fast_preview_arg_name:              [True],
             self.ign_small_defects_arg_name:         [False],
             self.auto_crop_arg_name:                 [False],
@@ -350,13 +396,53 @@ class MainFrame(ttk.Frame):
                                                         self.is_resolution_multipler_checked,
                                                         self.strvar_resolution_multiplier,
                                                     ],
-            self.crop_margin_arg_name:              [
+            self.cropmargin_arg_name:              [    #########
                                                         self.is_cropmargin_checked,
                                                         self.strvar_left_cropmargin,
                                                         self.strvar_top_cropmargin,
                                                         self.strvar_width_cropmargin,
                                                         self.strvar_height_cropmargin,
                                                     ],
+            self.cropbox_1_arg_name:               [ ##########
+                                                        self.is_cropbox_1_checked,
+                                                        self.strvar_left_cropbox_1,
+                                                        self.strvar_top_cropbox_1,
+                                                        self.strvar_width_cropbox_1,
+                                                        self.strvar_height_cropbox_1,
+                                                        self.strvar_page_range_cropbox_1,
+                                                     ],
+            self.cropbox_2_arg_name:               [ ##########
+                                                        self.is_cropbox_2_checked,
+                                                        self.strvar_left_cropbox_2,
+                                                        self.strvar_top_cropbox_2,
+                                                        self.strvar_width_cropbox_2,
+                                                        self.strvar_height_cropbox_2,
+                                                        self.strvar_page_range_cropbox_2,
+                                                     ],
+            self.cropbox_3_arg_name:               [ ##########
+                                                        self.is_cropbox_3_checked,
+                                                        self.strvar_left_cropbox_3,
+                                                        self.strvar_top_cropbox_3,
+                                                        self.strvar_width_cropbox_3,
+                                                        self.strvar_height_cropbox_3,
+                                                        self.strvar_page_range_cropbox_3,
+                                                     ],
+            self.cropbox_4_arg_name:               [ ##########
+                                                        self.is_cropbox_4_checked,
+                                                        self.strvar_left_cropbox_4,
+                                                        self.strvar_top_cropbox_4,
+                                                        self.strvar_width_cropbox_4,
+                                                        self.strvar_height_cropbox_4,
+                                                        self.strvar_page_range_cropbox_4,
+                                                     ],
+            self.cropbox_5_arg_name:               [ ##########
+                                                        self.is_cropbox_5_checked,
+                                                        self.strvar_left_cropbox_5,
+                                                        self.strvar_top_cropbox_5,
+                                                        self.strvar_width_cropbox_5,
+                                                        self.strvar_height_cropbox_5,
+                                                        self.strvar_page_range_cropbox_5,
+                                                     ],
             self.dpi_arg_name:                      [
                                                         self.is_dpi_checked,
                                                         self.strvar_device_screen_dpi,
@@ -494,7 +580,6 @@ class MainFrame(ttk.Frame):
     def setup_file_frame(self):
         ''' Set up the file frame. '''
         self.conversion_tab_left_part_line_num += 1
-        # # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_screen, height=78)
         self.file_frame.grid(
@@ -553,7 +638,6 @@ class MainFrame(ttk.Frame):
     def setup_device_frame(self):
         ''' Set up the device frame. '''
         self.conversion_tab_left_part_line_num += 1
-        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=80)
         self.device_frame.grid(
@@ -703,7 +787,6 @@ class MainFrame(ttk.Frame):
     def setup_margin_and_cropboxes_frame(self):
         ''' Set up the cropbax and margin frame'''
         self.conversion_tab_left_part_line_num += 1
-        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.margin_and_cropboxes_frame = ttk.Labelframe(
             self.conversion_tab,
@@ -893,7 +976,6 @@ class MainFrame(ttk.Frame):
             pady=self.default_pady,
             padx=self.default_padx,
         )
-        
 
         margin_and_cropboxes_frame_line_number += 1
 
@@ -1363,7 +1445,6 @@ class MainFrame(ttk.Frame):
     def setup_parameters_frame(self):
         ''' Draw the parameters frame and its widgets. '''
         self.conversion_tab_left_part_line_num += 1
-        # print(self.conversion_tab_left_part_line_num, ' - ', self.conversion_tab_left_part_column_num)
 
         self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=593)
         self.parameters_frame.grid(
@@ -1845,7 +1926,6 @@ class MainFrame(ttk.Frame):
     def setup_action_frame(self):
         ''' Set up the action frame and draw its widgets '''
         self.conversion_tab_right_part_line_num += 1
-        # print(self.conversion_tab_right_part_line_num, ' - ', self.conversion_tab_right_part_column_num)
 
         self.action_frame = ttk.Labelframe(self.conversion_tab, text='Actions')
         self.action_frame.grid(
@@ -2031,7 +2111,6 @@ class MainFrame(ttk.Frame):
     def setup_command_line_frame(self):
         ''' Set up the `command line` frame and draw its widgets '''
         self.conversion_tab_right_part_line_num += 1
-        # print(self.conversion_tab_right_part_line_num, ' - ', self.conversion_tab_right_part_column_num)
         
         self.information_frame = ttk.Labelframe(self.conversion_tab, text='Command-line Options')
         self.information_frame.grid(
@@ -2241,6 +2320,7 @@ class MainFrame(ttk.Frame):
             self.is_cropbox_3_checked.set(False)
             self.is_cropbox_4_checked.set(False)
             self.is_cropbox_5_checked.set(False)
+            self.cleaning_command_line_from_cbox()
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
                 arg = self.crop_margin_left_arg_name + ' ' + self.strvar_left_cropmargin.get().strip()
@@ -2258,55 +2338,196 @@ class MainFrame(ttk.Frame):
                 arg = self.crop_margin_bottom_arg_name + ' ' + self.strvar_height_cropmargin.get().strip()
                 self.add_or_update_command_argument(self.crop_margin_bottom_arg_name, arg)
         else:
-            self.remove_command_argument(self.crop_margin_arg_name)
             self.remove_command_argument(self.crop_margin_left_arg_name)
             self.remove_command_argument(self.crop_margin_top_arg_name)
             self.remove_command_argument(self.crop_margin_right_arg_name)
             self.remove_command_argument(self.crop_margin_bottom_arg_name)
 
     def gui_cropbox1_margin(self):
-        pass
+        page_range = self.strvar_page_range_cropbox_1.get().strip()
+        if (len(page_range) > 0 and not tools.check_page_nums(page_range)):
+            # self.remove_command_argument(self.cropbox_arg_name)
+            self.strvar_page_range_cropbox_1.set('')
+            messagebox.showerror(
+                message='Invalide cropbox 1\'s page range. It should be like : 2-5e,3-7o,9-'
+            )
+            return False
+
+        if self.is_cropbox_1_checked.get():
+            self.is_cropmargin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
+            cropbox_value = [
+                self.strvar_left_cropbox_1.get(),
+                self.strvar_top_cropbox_1.get(),
+                self.strvar_width_cropbox_1.get(),
+                self.strvar_height_cropbox_1.get()
+            ]
+            arg = (
+                # no space between -cbox and page range
+                self.cropbox_arg_name + page_range + ' ' + ',' . join(map(str.strip, cropbox_value))
+            )
+            self.add_or_update_command_argument(self.cropbox_1_arg_name, arg)
+        else:
+            self.remove_command_argument(self.cropbox_1_arg_name)
 
     def gui_cropbox2_margin(self):
-        pass
+        page_range = self.strvar_page_range_cropbox_2.get().strip()
+        if (len(page_range) > 0 and not tools.check_page_nums(page_range)):
+            # self.remove_command_argument(self.cropbox_arg_name)
+            self.strvar_page_range_cropbox_2.set('')
+            messagebox.showerror(
+                message='Invalide cropbox 2\'s page range. It should be like : 2-5e,3-7o,9-'
+            )
+            return False
+
+        if self.is_cropbox_2_checked.get():
+            self.is_cropmargin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
+            cropbox_value = [
+                self.strvar_left_cropbox_2.get(),
+                self.strvar_top_cropbox_2.get(),
+                self.strvar_width_cropbox_2.get(),
+                self.strvar_height_cropbox_2.get()
+            ]
+            arg = (
+                # no space between -cbox and page range
+                self.cropbox_arg_name + page_range + ' ' + ',' . join(map(str.strip, cropbox_value))
+            )
+            self.add_or_update_command_argument(self.cropbox_2_arg_name, arg)
+        else:
+            self.remove_command_argument(self.cropbox_2_arg_name)
 
     def gui_cropbox3_margin(self):
-        pass
+        page_range = self.strvar_page_range_cropbox_3.get().strip()
+        if (len(page_range) > 0 and not tools.check_page_nums(page_range)):
+            # self.remove_command_argument(self.cropbox_arg_name)
+            self.strvar_page_range_cropbox_3.set('')
+            messagebox.showerror(
+                message='Invalide cropbox 3\'s page range. It should be like : 2-5e,3-7o,9-'
+            )
+            return False
+
+        if self.is_cropbox_3_checked.get():
+            self.is_cropmargin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
+            cropbox_value = [
+                self.strvar_left_cropbox_3.get(),
+                self.strvar_top_cropbox_3.get(),
+                self.strvar_width_cropbox_3.get(),
+                self.strvar_height_cropbox_3.get()
+            ]
+            arg = (
+                # no space between -cbox and page range
+                self.cropbox_arg_name + page_range + ' ' + ',' . join(map(str.strip, cropbox_value))
+            )
+            self.add_or_update_command_argument(self.cropbox_3_arg_name, arg)
+        else:
+            self.remove_command_argument(self.cropbox_3_arg_name)
 
     def gui_cropbox4_margin(self):
-        pass
+        page_range = self.strvar_page_range_cropbox_4.get().strip()
+        if (len(page_range) > 0 and not tools.check_page_nums(page_range)):
+            # self.remove_command_argument(self.cropbox_arg_name)
+            self.strvar_page_range_cropbox_4.set('')
+            messagebox.showerror(
+                message='Invalide cropbox 4\'s page range. It should be like : 2-5e,3-7o,9-'
+            )
+            return False
+
+        if self.is_cropbox_4_checked.get():
+            self.is_cropmargin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
+            cropbox_value = [
+                self.strvar_left_cropbox_4.get(),
+                self.strvar_top_cropbox_4.get(),
+                self.strvar_width_cropbox_4.get(),
+                self.strvar_height_cropbox_4.get()
+            ]
+            arg = (
+                # no space between -cbox and page range
+                self.cropbox_arg_name + page_range + ' ' + ',' . join(map(str.strip, cropbox_value))
+            )
+            self.add_or_update_command_argument(self.cropbox_4_arg_name, arg)
+        else:
+            self.remove_command_argument(self.cropbox_4_arg_name)
 
     def gui_cropbox5_margin(self):
+        page_range = self.strvar_page_range_cropbox_5.get().strip()
+        if (len(page_range) > 0 and not tools.check_page_nums(page_range)):
+            # self.remove_command_argument(self.cropbox_arg_name)
+            self.strvar_page_range_cropbox_5.set('')
+            messagebox.showerror(
+                message='Invalide cropbox 5\'s page range. It should be like : 2-5e,3-7o,9-'
+            )
+            return False
+
+        if self.is_cropbox_5_checked.get():
+            self.is_cropmargin_checked.set(False)
+            self.remove_command_argument(self.crop_margin_left_arg_name)
+            self.remove_command_argument(self.crop_margin_top_arg_name)
+            self.remove_command_argument(self.crop_margin_right_arg_name)
+            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+
+            # page_range_arg = self.strvar_crop_page_range.get().strip()
+            cropbox_value = [
+                self.strvar_left_cropbox_5.get(),
+                self.strvar_top_cropbox_5.get(),
+                self.strvar_width_cropbox_5.get(),
+                self.strvar_height_cropbox_5.get()
+            ]
+            arg = (
+                # no space between -cbox and page range
+                self.cropbox_arg_name + page_range + ' ' + ',' . join(map(str.strip, cropbox_value))
+            )
+            self.add_or_update_command_argument(self.cropbox_5_arg_name, arg)
+        else:
+            self.remove_command_argument(self.cropbox_5_arg_name)
+
+    def cleaning_command_line_from_cbox(self):
+        ''' Cleaning the command line by removing all cbox args
+
+            !!! NOT WORKING YET !!!
+        '''
         pass
 
-    # def gui_and_validate_cropbox(self):
-    #     if (len(self.strvar_crop_page_range.get().strip()) > 0 and
-    #             not tools.check_page_nums(self.strvar_crop_page_range.get().strip())):
-    #         self.remove_command_argument(self.crop_margin_arg_name)
-    #         self.strvar_crop_page_range.set('')
+        # print('Inside cleaning_command_line_from_cbox')
+        # command_line = str(self.strvar_command_args)
+        # print('    ', type(command_line))
+        # print('    ', isinstance(command_line, str))
+        # print('    ', command_line)
+        # while True:
+        #     start_pos = command_line.find('-cbox')
 
-    #         messagebox.showerror(
-    #             message='Invalide Crop Page Range. It should be like : 2-5e,3-7o,9-'
-    #         )
-
-    #         return False
-
-    #     if self.is_cropmargin_checked.get():
-    #         page_range_arg = self.strvar_crop_page_range.get().strip()
-    #         margin_args = [
-    #             self.strvar_left_cropmargin.get(),
-    #             self.strvar_top_cropmargin.get(),
-    #             self.strvar_width_cropmargin.get(),
-    #             self.strvar_height_cropmargin.get(),
-    #         ]
-    #         arg = (
-    #             # no space between -cbox and page range
-    #             self.crop_margin_arg_name + page_range_arg + ' '
-    #             + 'in,' . join(map(str.strip, margin_args)) + 'in'
-    #         )
-    #         self.add_or_update_command_argument(self.crop_margin_arg_name, arg)
-    #     else:
-    #         self.remove_command_argument(self.crop_margin_arg_name)
+        #     if start_pos == -1:
+        #         print('Element non trouvé')
+        #         break
+        #     print('Element trouvé : ', start_pos)
+        #     step = command_line.find(' ', start_pos) + 1
+        #     end_pos = command_line.find(' ', step) + 1
+        #     command_line = command_line[0:start_pos] + command_line[end_pos:len(command_line)]
+        
+        # self.strvar_command_args.set(command_line)
+        # print(self.strvar_command_args)
 
     def gui_dpi(self):
         dpi_value = self.strvar_device_screen_dpi.get().strip()
@@ -2513,7 +2734,7 @@ class MainFrame(ttk.Frame):
         '''
         if self.is_autocrop_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_arg_name)
+            self.remove_command_argument(self.cropbox_arg_name)
             self.remove_command_argument(self.crop_margin_left_arg_name)
             self.remove_command_argument(self.crop_margin_top_arg_name)
             self.remove_command_argument(self.crop_margin_right_arg_name)
