@@ -1,8 +1,19 @@
 # Rebook 2
 
-rebook is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
+ReBook2 is a OOP rewriting of rebook whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
+ReBook2 is ***largely*** inspired by Pu Wang's rebook.
 
-Rebook depends on python3 and Tcl/Tk 8.6. Tck/Tk with version lower than 8.6 doesn't work.
+#### Advantage of ReBook2
+
+- rebook rewrote in the *Object Oriented Programming* paradigm (and other code improvement)
+- support crop-margin and cropboxes
+- cropboxes bug fixed
+- support multiple saved preset
+- support more device
+- support DJVU file
+- …
+
+Rebook2 depends on python3 and Tcl/Tk 8.6 (Tck/Tk with version lower than 8.6 doesn't work).
 
 ## Installation
 Download or clone the git projet.
