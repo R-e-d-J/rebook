@@ -484,10 +484,10 @@ class MainFrame(ttk.Frame):
             self.conversion_tab_right_part_column_num,
             weight=1,
         )
-        # self.conversion_tab.rowconfigure(
-        #     self.conversion_tab_right_part_line_num,
-        #     weight=1,
-        # )
+        self.conversion_tab.rowconfigure(
+            self.conversion_tab_left_part_line_num,
+            weight=1,
+        )
         self.action_frame.columnconfigure(0, weight=1)
         self.action_frame.rowconfigure(self.action_frame_row_num, weight=1)
 
