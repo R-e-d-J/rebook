@@ -1727,7 +1727,7 @@ class MainFrame(ttk.Frame):
 
         self.break_after_source_page_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Break After Each Source Page',
+            text='Break after each source page',
             variable=self.is_break_page_checked,
             command=self.gui_break_page,
         )
@@ -1757,7 +1757,7 @@ class MainFrame(ttk.Frame):
 
         self.native_pdf_output_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Native PDF Output',
+            text='Native PDF output',
             variable=self.is_native_pdf_checked,
             command=self.gui_native_pdf,
         )
@@ -1772,7 +1772,7 @@ class MainFrame(ttk.Frame):
 
         self.right_to_left_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Right-to-Left Text',
+            text='Right-to-left text',
             variable=self.is_right_to_left_checked,
             command=self.gui_right_to_left,
         )
@@ -1788,7 +1788,7 @@ class MainFrame(ttk.Frame):
 
         self.post_process_ghostscript_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Post Process w/GhostScript',
+            text='Post process w/GhostScript',
             variable=self.is_ghostscript_postprocessing_checked,
             command=self.gui_post_gs,
         )
@@ -1804,7 +1804,7 @@ class MainFrame(ttk.Frame):
 
         self.generate_markup_source_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Generate Marked-up Source',
+            text='Generate marked-up source',
             variable=self.is_markedup_source_checked,
             command=self.gui_marked_source,
         )
@@ -1821,7 +1821,7 @@ class MainFrame(ttk.Frame):
 
         self.reflow_text_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Re-flow Text',
+            text='Re-flow text',
             variable=self.is_reflow_text_checked,
             command=self.gui_reflow_text,
         )
@@ -1836,7 +1836,7 @@ class MainFrame(ttk.Frame):
 
         self.erase_vline_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Erase Vertical Lines',
+            text='Erase vertical lines',
             variable=self.is_erase_vertical_line_checked,
             command=self.gui_erase_vertical_line,
         )
@@ -1851,7 +1851,7 @@ class MainFrame(ttk.Frame):
 
         self.erase_hline_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Erase Horizontal Lines',
+            text='Erase horizontal lines',
             variable=self.is_erase_horizontal_line_checked,
             command=self.gui_erase_horizontal_line,
         )
@@ -1866,7 +1866,7 @@ class MainFrame(ttk.Frame):
 
         self.fast_preview_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Fast Preview',
+            text='Fast preview',
             variable=self.is_fast_preview_checked,
             command=self.gui_fast_preview,
         )
@@ -1881,7 +1881,7 @@ class MainFrame(ttk.Frame):
 
         self.avoid_text_overlap_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Avoid Text Selection Overlap',
+            text='Avoid text selection overlap',
             variable=self.is_avoid_overlap_checked,
             command=self.gui_avoid_text_selection_overlap,
         )
@@ -1896,7 +1896,7 @@ class MainFrame(ttk.Frame):
 
         self.ignore_defect_check_button = ttk.Checkbutton(
             self.parameters_frame,
-            text='Ignore Small Defects',
+            text='Ignore small defects',
             variable=self.is_ignore_small_defects_checked,
             command=self.gui_ignore_small_defect,
         )
@@ -2153,6 +2153,7 @@ class MainFrame(ttk.Frame):
     def remove_command_argument(self, arg_key):
         ''' Removing argument from k2pdfopt command line. '''
         self.k2pdfopt_cmd_args.pop(arg_key, None)
+        self.update_command_argument_entry_strvar()
 
     def add_or_update_command_argument(self, arg_key, arg_value):
         ''' Add or update argument to k2pdfopt command line. '''
@@ -2160,6 +2161,7 @@ class MainFrame(ttk.Frame):
         self.update_command_argument_entry_strvar()
 
     def update_command_argument_entry_strvar(self):
+        ''' Update command-line '''
         self.strvar_command_args.set(self.generate_command_argument_string())
 
     def generate_command_argument_string(self):
