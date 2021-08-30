@@ -1,15 +1,17 @@
 # Rebook 2
 
 ReBook2 is a OOP rewriting of rebook whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
-ReBook2 is ***largely*** inspired by Pu Wang's rebook.
+ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 
 #### Advantage of ReBook2
 
-- rebook rewrote in the *Object Oriented Programming* paradigm (and other code improvement)
-- support crop-margin and cropboxes
+- rebook totally rewritten in the *Object Oriented Programming* paradigm (and other code improvement)
+- GUI rethought
+- run in a virtual environnement
 - cropboxes bug fixed
-- support multiple saved preset
-- support more device
+- support crop-margin and cropboxes
+- support multiple saved settings files
+- support more devices
 - support DJVU file
 - …
 
@@ -43,4 +45,4 @@ python3 -m tkinter
 
 To run rebook, put k2pdfopt binary and rebook.py into the same directory and run `python3 rebook2.py`
 
-rebook is still under developing, please feel free to report any issue.
+ReBook2 is still under development so, please report any issue.

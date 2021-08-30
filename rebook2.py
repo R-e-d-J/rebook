@@ -138,7 +138,7 @@ class MainFrame(ttk.Frame):
         super().__init__(app)
         self.root = app           # root of tkinter
 
-        self.half_screen = int(self.root.width / 2) - 60
+        self.half_width_screen = int(self.root.width / 2) - 60
 
         # limits and default value
         self.device_width_min_value = 300
@@ -581,7 +581,7 @@ class MainFrame(ttk.Frame):
         ''' Set up the file frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_screen, height=78)
+        self.file_frame = ttk.Labelframe(self.conversion_tab, text='Files', width=self.half_width_screen, height=78)
         self.file_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -639,7 +639,7 @@ class MainFrame(ttk.Frame):
         ''' Set up the device frame. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_screen, height=80)
+        self.device_frame = ttk.Labelframe(self.conversion_tab, text='Device', width=self.half_width_screen, height=80)
         self.device_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -791,7 +791,7 @@ class MainFrame(ttk.Frame):
         self.margin_and_cropboxes_frame = ttk.Labelframe(
             self.conversion_tab,
             text='Margin & cropboxes',
-            width=self.half_screen,
+            width=self.half_width_screen,
             height=223
         )
         self.margin_and_cropboxes_frame.grid(
@@ -1446,7 +1446,7 @@ class MainFrame(ttk.Frame):
         ''' Draw the parameters frame and its widgets. '''
         self.conversion_tab_left_part_line_num += 1
 
-        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_screen, height=593)
+        self.parameters_frame = ttk.Labelframe(self.conversion_tab, text='Parameters & options', width=self.half_width_screen, height=593)
         self.parameters_frame.grid(
             column=self.conversion_tab_left_part_column_num,
             row=self.conversion_tab_left_part_line_num,
@@ -2753,7 +2753,7 @@ class MainFrame(ttk.Frame):
     def load_preview_image(self, img_path, preview_page_index):
         if os.path.exists(img_path):
             image = Image.open(img_path)
-            image = image.resize(((self.half_screen - 5), int((self.half_screen - 5) * 1.4143)), Image.ANTIALIAS)
+            image = image.resize((int(self.root.width / 2), int((self.root.width / 2) * 1.4143)), Image.ANTIALIAS)
             self.preview_image = ImageTk.PhotoImage(image)
             self.canvas_image_tag = self.preview_canvas.create_image(
                 (0, 0),
