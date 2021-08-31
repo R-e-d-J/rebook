@@ -1,9 +1,5 @@
 """ This script define a GUI to chose options to build a k2pdfopt command-line """
 
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=too-many-ancestors
-# pylint: disable=too-many-statements
-
 from threading import Thread
 import tkinter as tk
 from tkinter import ttk
@@ -21,6 +17,10 @@ import tools
 
 
 class MainFrame(ttk.Frame):
+    # pylint: disable=attribute-defined-outside-init
+    # pylint: disable=too-many-ancestors
+    # pylint: disable=too-many-statements
+
     """ MainFrame for ReBook Application """
 
     device_argument_map = {
@@ -529,8 +529,8 @@ class MainFrame(ttk.Frame):
         self.notebook.add(self.logs_tab, text="Logs")
         self.notebook.pack(expand=1, fill="both")
 
-        self.fill_conversion_tab()
-        self.fill_logs_tab()
+        self.__fill_conversion_tab()
+        self.__fill_logs_tab()
 
     def create_menus(self):
         """Create the menus for ReBook."""
@@ -541,17 +541,17 @@ class MainFrame(ttk.Frame):
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label="File")
         menu_file.add_command(label="Open file…", command=self.menu_open_pdf_file)
-        menu_file.add_command(label="About", command=self.menu_about_box)
+        menu_file.add_command(label="About", command=self.__menu_about_box)
         menu_file.add_command(label="Quit", command=self.root.quit)
 
         # Settings menu
         menu_settings = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_settings, label="Settings")
         menu_settings.add_command(
-            label="Save current settings", command=self.on_click_save_preset
+            label="Save current settings", command=self.__menu_save_preset
         )
         menu_settings.add_command(
-            label="Load settings", command=self.menu_open_preset_file
+            label="Load settings", command=self.__menu_open_preset_file
         )
         menu_settings.add_command(
             label="Reset settings to default", command=self.restore_default_values
@@ -561,21 +561,21 @@ class MainFrame(ttk.Frame):
         menu_help = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_help, label="Help")
         menu_help.add_command(
-            label="K2pdfopt website helppage", command=self.menu_open_helpwebpage
+            label="K2pdfopt website helppage", command=self.__menu_open_helpwebpage
         )
         menu_help.add_command(
-            label="K2pdfopt command line manual", command=self.menu_open_cli_manual
+            label="K2pdfopt command line manual", command=self.__menu_open_cli_manual
         )
 
-    def menu_open_helpwebpage(self):
+    def __menu_open_helpwebpage(self):
         """ Menu `Webpage help` """
         webbrowser.open("https://willus.com/k2pdfopt/help/")
 
-    def menu_open_cli_manual(self):
+    def __menu_open_cli_manual(self):
         """ Menu `CLI help` """
         webbrowser.open("https://www.willus.com/k2pdfopt/help/options.shtml")
 
-    def fill_left_side_of_conversion_tab(self):
+    def __fill_left_side_of_conversion_tab(self):
         """ Fill the left side of Conversion tab """
         self.conversion_tab_left_part_column_num = 0
         self.conversion_tab_left_part_line_num = -1
@@ -584,17 +584,17 @@ class MainFrame(ttk.Frame):
         self.setup_margin_and_cropboxes_frame()
         self.setup_parameters_frame()
 
-    def fill_right_side_of_conversion_tab(self):
+    def __fill_right_side_of_conversion_tab(self):
         """ Fill the right side of Conversion tab """
         self.conversion_tab_right_part_column_num = 1
         self.conversion_tab_right_part_line_num = -1
         self.setup_command_line_frame()
         self.setup_action_frame()
 
-    def fill_conversion_tab(self):
+    def __fill_conversion_tab(self):
         """ Fill the Conversion tab """
-        self.fill_left_side_of_conversion_tab()
-        self.fill_right_side_of_conversion_tab()
+        self.__fill_left_side_of_conversion_tab()
+        self.__fill_right_side_of_conversion_tab()
 
         self.conversion_tab.columnconfigure(
             self.conversion_tab_right_part_column_num,
@@ -2104,7 +2104,7 @@ class MainFrame(ttk.Frame):
         self.preview_canvas.bind("<MouseWheel>", self.yscroll_canvas)
         self.preview_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
 
-    def fill_logs_tab(self):
+    def __fill_logs_tab(self):
         """ Fill the Log tab with widget """
         self.stdout_frame = ttk.Labelframe(self.logs_tab, text="k2pdfopt STDOUT:")
         self.stdout_frame.pack(expand=1, fill="both")
@@ -2216,7 +2216,7 @@ class MainFrame(ttk.Frame):
         cmd_arg_str = " ".join(arg_list)
         return cmd_arg_str
 
-    def menu_about_box(self):
+    def __menu_about_box(self):
         """ Generate About's menu """
         about_message = """ReBook 2 ßeta
 
@@ -2242,7 +2242,7 @@ class MainFrame(ttk.Frame):
             (base_path, file_ext) = os.path.splitext(filename)
             self.strvar_output_file_path.set(base_path + self.output_file_suffix) #  + file_ext
 
-    def on_click_save_preset(self):
+    def __menu_save_preset(self):
         """Save the current present into a json file for next use."""
         filename = filedialog.asksaveasfilename()
         if filename is not None and len(filename.strip()) > 0:
@@ -2254,7 +2254,7 @@ class MainFrame(ttk.Frame):
                         dict_to_save[key] = [var.get() for var in value]
                 json.dump(dict_to_save, preset_file)
 
-    def menu_open_preset_file(self):
+    def __menu_open_preset_file(self):
         """ Open and load custom preset file """
         supported_formats = [
             ("JSON files", "*.json"),
@@ -2266,7 +2266,7 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.load_custom_preset(filename)
 
-    def gui_device_unit_cbox(self, binded_event=None):
+    def gui_device_unit_cbox(self, binded_event=None):  # pylint: disable=unused-argument
         """ Manage `Unit` option """
         self.update_device_unit_width_height()
 
@@ -2318,13 +2318,13 @@ class MainFrame(ttk.Frame):
 
             self.remove_command_argument(self.device_arg_name)
 
-    def gui_mode_cbox(self, binded_event=None):
+    def gui_mode_cbox(self, binded_event=None):   # pylint: disable=unused-argument
         """ Manage `Mode` options """
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = self.conversion_mode_arg_name + " " + conversion_mode
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
 
-    def gui_cmd_args(self, binded_event=None):
+    def gui_cmd_args(self, binded_event=None):  # pylint: disable=unused-argument
         """ update the k2pdfopt command-line """
         self.update_command_argument_entry_strvar()
 
