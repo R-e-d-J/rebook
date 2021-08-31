@@ -2976,21 +2976,21 @@ class MainFrame(ttk.Frame):
 
             self.log_string(executed)
 
-            p = await asyncio.create_subprocess_shell(
+            process = await asyncio.create_subprocess_shell(
                 executed,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            self.background_process = p
+            self.background_process = process
 
             while True:
-                line = await p.stdout.readline()
+                line = await process.stdout.readline()
                 log_bytes(line)
 
                 if not line:
                     break
 
-                if line == "" and p.returncode is not None:
+                if line == "" and process.returncode is not None:
                     break
 
         input_pdf_path = self.strvar_input_file_path.get().strip()
