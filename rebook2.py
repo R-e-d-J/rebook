@@ -1,11 +1,16 @@
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-statements
+
 from threading import Thread
 import tkinter as tk
-import tkinter.ttk as ttk
-import tkinter.filedialog as filedialog
-import tkinter.messagebox as messagebox
-import tkinter.scrolledtext as scrolledtext
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import scrolledtext
 import asyncio
 import json
+import sys
 import os
 import webbrowser
 from PIL import Image, ImageTk
@@ -14,6 +19,8 @@ import tools
 
 
 class MainFrame(ttk.Frame):
+    """ MainFrame for ReBook Application """
+
     device_argument_map = {
         0: "k2",
         1: "dx",
@@ -493,8 +500,8 @@ class MainFrame(ttk.Frame):
         self.background_process = None
         self.background_future = None
 
-        s = ttk.Style()
-        s.configure("TLabelframe.Label", font=("arial", 14, "bold"))
+        labelframe_style = ttk.Style()
+        labelframe_style.configure("TLabelframe.Label", font=("arial", 14, "bold"))
 
         self.create_menus()
         self.create_tabs()
@@ -2102,7 +2109,7 @@ class MainFrame(ttk.Frame):
         self.stdout_text.grid(column=0, row=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         self.clear_button = ttk.Button(
-            self.stdout_frame, text="Clear", command=self.action_clear_log
+            self.stdout_frame, text="Clear", command=self.clear_logs
         )
         self.clear_button.grid(
             column=0,
@@ -2202,6 +2209,7 @@ class MainFrame(ttk.Frame):
         return cmd_arg_str
 
     def menu_about_box(self):
+        """ Generate About's menu """
         about_message = """ReBook 2 ßeta
 
                 TclTk GUI for k2pdfopt
@@ -2239,6 +2247,7 @@ class MainFrame(ttk.Frame):
                 json.dump(dict_to_save, preset_file)
 
     def menu_open_preset_file(self):
+        """ Open and load custom preset file """
         supported_formats = [
             ("JSON files", "*.json"),
         ]
@@ -2299,6 +2308,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.device_arg_name)
 
     def gui_mode_cbox(self, e=None):
+        """ Manage `Mode` options """
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = self.conversion_mode_arg_name + " " + conversion_mode
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
@@ -2307,6 +2317,7 @@ class MainFrame(ttk.Frame):
         self.update_command_argument_entry_strvar()
 
     def gui_column_num(self):
+        """ Manage `Max Column` options """
         nb_column = self.strvar_column_num.get().strip()
         if self.is_column_num_checked.get() and tools.is_acceptable_number(
             nb_column, "int", self.max_column_min_value, self.max_column_min_value
@@ -2317,6 +2328,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.column_num_arg_name)
 
     def gui_document_resolution_multipler(self):
+        """ Manage `Document Resolution Factor` options """
         multiplier = self.strvar_resolution_multiplier.get().strip()
         if self.is_resolution_multipler_checked.get() and tools.is_acceptable_number(
             multiplier,
@@ -2391,6 +2403,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.crop_margin_bottom_arg_name)
 
     def gui_cropbox1_margin(self):
+        """ Manage `Cropbox 1` options """
         page_range = self.strvar_page_range_cropbox_1.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
             # self.remove_command_argument(self.cropbox_arg_name)
@@ -2426,6 +2439,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.cropbox_1_arg_name)
 
     def gui_cropbox2_margin(self):
+        """ Manage `Cropbox 2` options """
         page_range = self.strvar_page_range_cropbox_2.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
             # self.remove_command_argument(self.cropbox_arg_name)
@@ -2461,6 +2475,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.cropbox_2_arg_name)
 
     def gui_cropbox3_margin(self):
+        """ Manage `Cropbox 3` options """
         page_range = self.strvar_page_range_cropbox_3.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
             # self.remove_command_argument(self.cropbox_arg_name)
@@ -2496,6 +2511,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.cropbox_3_arg_name)
 
     def gui_cropbox4_margin(self):
+        """ Manage `Cropbox 4` options """
         page_range = self.strvar_page_range_cropbox_4.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
             # self.remove_command_argument(self.cropbox_arg_name)
@@ -2531,6 +2547,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.cropbox_4_arg_name)
 
     def gui_cropbox5_margin(self):
+        """ Manage `Cropbox 5` options """
         page_range = self.strvar_page_range_cropbox_5.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
             # self.remove_command_argument(self.cropbox_arg_name)
@@ -2592,6 +2609,7 @@ class MainFrame(ttk.Frame):
         # print(self.strvar_command_args)
 
     def gui_dpi(self):
+        """ Manage device's `DPI` option """
         dpi_value = self.strvar_device_screen_dpi.get().strip()
         if self.is_dpi_checked.get() and tools.is_acceptable_number(
             dpi_value, "int", self.device_dpi_min_value, self.device_dpi_max_value
@@ -2622,6 +2640,7 @@ class MainFrame(ttk.Frame):
         return True
 
     def gui_fixed_font_size(self):
+        """ Manage `Fixed output font size` option """
         font_size = self.strvar_fixed_font_size.get().strip()
         if self.is_fixed_font_size_checked.get() and tools.is_acceptable_number(
             font_size,
@@ -2678,6 +2697,7 @@ class MainFrame(ttk.Frame):
         return True
 
     def gui_line_break(self):
+        """ Manage `Line Breack on eacht source page breack` option """
         line_break = self.strvar_linebreak_space.get().strip()
         if self.is_smart_linebreak_checked.get() and tools.is_acceptable_number(
             line_break,
@@ -2691,6 +2711,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.linebreak_arg_name)
 
     def gui_auto_straighten(self):
+        """ Manage `Auto Straighten` option """
         if self.is_autostraighten_checked.get():
             self.add_or_update_command_argument(
                 self.auto_straignten_arg_name, self.auto_straignten_arg_name
@@ -2714,6 +2735,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def gui_color_output(self):
+        """ Manage `Color Output` option """
         if self.is_coloroutput_checked.get():
             self.add_or_update_command_argument(
                 self.color_output_arg_name, self.color_output_arg_name
@@ -2739,6 +2761,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.native_pdf_arg_name)
 
     def gui_right_to_left(self):
+        """ Manage `Right to left` option """
         if self.is_right_to_left_checked.get():
             self.add_or_update_command_argument(
                 self.right_to_left_arg_name, self.right_to_left_arg_name
@@ -2747,6 +2770,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.right_to_left_arg_name)
 
     def gui_post_gs(self):
+        """ Manage `post precessing with GhostScript` option """
         if self.is_ghostscript_postprocessing_checked.get():
             self.add_or_update_command_argument(
                 self.post_gs_arg_name, self.post_gs_arg_name
@@ -2755,6 +2779,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.post_gs_arg_name)
 
     def gui_marked_source(self):
+        """ Manage `Show Markup Source` option """
         if self.is_markedup_source_checked.get():
             self.add_or_update_command_argument(
                 self.marked_source_arg_name, self.marked_source_arg_name
@@ -2843,12 +2868,14 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.auto_crop_arg_name)
 
     def remove_preview_image_and_clear_canvas(self):
+        """ Remove the preview image and clear the preview canevas """
         if os.path.exists(self.preview_image_path):
             os.remove(self.preview_image_path)
         self.preview_canvas.delete(tk.ALL)
         self.canvas_image_tag = None
 
     def load_preview_image(self, img_path, preview_page_index):
+        """ Load the preview image into the preview canevas """
         if os.path.exists(img_path):
             image = Image.open(img_path)
             image = image.resize(
@@ -2915,38 +2942,40 @@ class MainFrame(ttk.Frame):
             self.background_process.terminate()
 
     def action_convert_pdf(self):
+        """ Convert the input PDF/DJVU file """
         if not self.pdf_conversion_is_done():
             return
         pdf_output_arg = self.output_path_arg_name + " %s" + self.output_pdf_suffix
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
     def action_ten_page_up(self):
-        self.current_preview_page_index -= 10
-        if self.current_preview_page_index < 1:
-            self.current_preview_page_index = 1
+        """ Generate preview of the 10th previous page """
+        self.current_preview_page_index = max(self.current_preview_page_index, 1)
         self.generate_one_preview_image(self.current_preview_page_index)
 
     def action_page_up(self):
+        """ Generate preview of the previous page """
         if self.current_preview_page_index > 1:
             self.current_preview_page_index -= 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
     def action_page_down(self):
+        """ Generate preview of the next page """
         self.current_preview_page_index += 1
         self.generate_one_preview_image(self.current_preview_page_index)
 
     def action_ten_page_down(self):
+        """ Generate preview of the 10th next page """
         self.current_preview_page_index += 10
         self.generate_one_preview_image(self.current_preview_page_index)
 
     def yscroll_canvas(self, event):
+        """ Y Scrollbar for the preview canevas """
         self.preview_canvas.yview_scroll(-1 * event.delta, "units")
 
     def xscroll_canvas(self, event):
+        """ X Scrollbar for the preview canevas """
         self.preview_canvas.xview_scroll(-1 * event.delta, "units")
-
-    def action_clear_log(self):
-        self.clear_logs()
 
     def pdf_conversion_is_done(self):
         """Check if the PDF conversion is already done or not."""
@@ -2962,6 +2991,7 @@ class MainFrame(ttk.Frame):
         return False
 
     def start_loop(self, loop):
+        """ Loop for asyncio """
         asyncio.set_event_loop(loop)
         loop.run_forever()
 
@@ -3014,6 +3044,7 @@ class MainFrame(ttk.Frame):
         return future
 
     def log_string(self, str_line):
+        """ Write a line into the log textbox """
         log_content = str_line.strip()
 
         if len(log_content) > 0:
@@ -3022,11 +3053,13 @@ class MainFrame(ttk.Frame):
             self.stdout_text.config(state=tk.DISABLED)
 
     def clear_logs(self):
+        """ Clear the logs textbox """
         self.stdout_text.config(state=tk.NORMAL)
         self.stdout_text.delete(1.0, tk.END)
         self.stdout_text.config(state=tk.DISABLED)
 
     def load_custom_preset(self, json_path_file=None):
+        """ Load a JSON file with user custom preset """
         if json_path_file is None:
             json_path_file = self.custom_preset_file_path
         if os.path.exists(json_path_file):
@@ -3063,11 +3096,14 @@ class MainFrame(ttk.Frame):
 
 
 class ReBook(tk.Tk):
+    """ Application class """
+
     def __init__(self):
         super().__init__()
         self.configure_gui()
 
     def configure_gui(self):
+        """ Configure the application's windows """
         self.title("Rebook v2.0ß")
         self.width = self.winfo_screenwidth()
         self.height = self.winfo_screenheight()
@@ -3076,18 +3112,19 @@ class ReBook(tk.Tk):
 
 
 def check_k2pdfopt_path_exists(k2pdfopt_path):
+    """ Check if k2pdfopt is reachable """
     if not os.path.exists(k2pdfopt_path):
         messagebox.showerror(
             message="Failed to find k2pdfopt, "
             + "please put it under the same directory "
             + "as rebook and then restart."
         )
-        quit()
+        sys.exit()
 
 
 if __name__ == "__main__":
-    k2pdfopt_path = "./k2pdfopt"
-    check_k2pdfopt_path_exists(k2pdfopt_path)
+    K2PDFOPT_PATH = "./k2pdfopt"
+    check_k2pdfopt_path_exists(K2PDFOPT_PATH)
     rebook = ReBook()
-    frame = MainFrame(rebook, k2pdfopt_path)
+    frame = MainFrame(rebook, K2PDFOPT_PATH)
     rebook.mainloop()
