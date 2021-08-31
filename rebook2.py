@@ -1,3 +1,5 @@
+""" This script define a GUI to chose options to build a k2pdfopt command-line """
+
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-ancestors
 # pylint: disable=too-many-statements
@@ -187,7 +189,7 @@ class MainFrame(ttk.Frame):
         self.device_height_arg_name = "-h"  # -h <height>[in|cm|s|t|p|x]
         self.conversion_mode_arg_name = "-mode"  # -mode <mode>
         self.output_path_arg_name = "-o"  # -o <namefmt>
-        self.output_pdf_suffix = "_k2opt.pdf"
+        self.output_file_suffix = "_k2opt.pdf"
         self.screen_unit_prefix = "-screen_unit"
 
         # Parameters frame
@@ -566,12 +568,15 @@ class MainFrame(ttk.Frame):
         )
 
     def menu_open_helpwebpage(self):
+        """ Menu `Webpage help` """
         webbrowser.open("https://willus.com/k2pdfopt/help/")
 
     def menu_open_cli_manual(self):
+        """ Menu `CLI help` """
         webbrowser.open("https://www.willus.com/k2pdfopt/help/options.shtml")
 
     def fill_left_side_of_conversion_tab(self):
+        """ Fill the left side of Conversion tab """
         self.conversion_tab_left_part_column_num = 0
         self.conversion_tab_left_part_line_num = -1
         self.setup_file_frame()
@@ -580,12 +585,14 @@ class MainFrame(ttk.Frame):
         self.setup_parameters_frame()
 
     def fill_right_side_of_conversion_tab(self):
+        """ Fill the right side of Conversion tab """
         self.conversion_tab_right_part_column_num = 1
         self.conversion_tab_right_part_line_num = -1
         self.setup_command_line_frame()
         self.setup_action_frame()
 
     def fill_conversion_tab(self):
+        """ Fill the Conversion tab """
         self.fill_left_side_of_conversion_tab()
         self.fill_right_side_of_conversion_tab()
 
@@ -2098,6 +2105,7 @@ class MainFrame(ttk.Frame):
         self.preview_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
 
     def fill_logs_tab(self):
+        """ Fill the Log tab with widget """
         self.stdout_frame = ttk.Labelframe(self.logs_tab, text="k2pdfopt STDOUT:")
         self.stdout_frame.pack(expand=1, fill="both")
         self.stdout_frame.columnconfigure(0, weight=1)
@@ -2232,14 +2240,14 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.strvar_input_file_path.set(filename)
             (base_path, file_ext) = os.path.splitext(filename)
-            self.strvar_output_file_path.set(base_path + self.output_pdf_suffix)
+            self.strvar_output_file_path.set(base_path + self.output_file_suffix) #  + file_ext
 
     def on_click_save_preset(self):
         """Save the current present into a json file for next use."""
         filename = filedialog.asksaveasfilename()
         if filename is not None and len(filename.strip()) > 0:
             filename += ".json"
-            with open(filename, "w") as preset_file:
+            with open(filename, "w", encoding="UTF-8") as preset_file:
                 dict_to_save = {}
                 for key, value in self.arg_var_map.items():
                     if key != self.output_path_arg_name:
@@ -2258,13 +2266,16 @@ class MainFrame(ttk.Frame):
         if filename is not None and len(filename.strip()) > 0:
             self.load_custom_preset(filename)
 
-    def gui_device_unit_cbox(self, e=None):
+    def gui_device_unit_cbox(self, binded_event=None):
+        """ Manage `Unit` option """
         self.update_device_unit_width_height()
 
     def gui_width_height(self):
+        """ Manage `Width` and `Height` options """
         self.update_device_unit_width_height()
 
     def update_device_unit_width_height(self):
+        """ Update the command-line information with device's unit, width and height """
         if self.device_combobox.current() != 23:  # non-other type
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + " " + device_type
@@ -2307,13 +2318,14 @@ class MainFrame(ttk.Frame):
 
             self.remove_command_argument(self.device_arg_name)
 
-    def gui_mode_cbox(self, e=None):
+    def gui_mode_cbox(self, binded_event=None):
         """ Manage `Mode` options """
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = self.conversion_mode_arg_name + " " + conversion_mode
         self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
 
-    def gui_cmd_args(self, e=None):
+    def gui_cmd_args(self, binded_event=None):
+        """ update the k2pdfopt command-line """
         self.update_command_argument_entry_strvar()
 
     def gui_column_num(self):
@@ -2359,7 +2371,6 @@ class MainFrame(ttk.Frame):
             self.is_cropbox_3_checked.set(False)
             self.is_cropbox_4_checked.set(False)
             self.is_cropbox_5_checked.set(False)
-            self.cleaning_command_line_from_cbox()
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2582,32 +2593,6 @@ class MainFrame(ttk.Frame):
         else:
             self.remove_command_argument(self.cropbox_5_arg_name)
 
-    def cleaning_command_line_from_cbox(self):
-        """Cleaning the command line by removing all cbox args
-
-        !!! NOT WORKING YET !!!
-        """
-        pass
-
-        # print('Inside cleaning_command_line_from_cbox')
-        # command_line = str(self.strvar_command_args)
-        # print('    ', type(command_line))
-        # print('    ', isinstance(command_line, str))
-        # print('    ', command_line)
-        # while True:
-        #     start_pos = command_line.find('-cbox')
-
-        #     if start_pos == -1:
-        #         print('Element non trouvé')
-        #         break
-        #     print('Element trouvé : ', start_pos)
-        #     step = command_line.find(' ', start_pos) + 1
-        #     end_pos = command_line.find(' ', step) + 1
-        #     command_line = command_line[0:start_pos] + command_line[end_pos:len(command_line)]
-
-        # self.strvar_command_args.set(command_line)
-        # print(self.strvar_command_args)
-
     def gui_dpi(self):
         """ Manage device's `DPI` option """
         dpi_value = self.strvar_device_screen_dpi.get().strip()
@@ -2620,6 +2605,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.dpi_arg_name)
 
     def validate_and_update_page_nums(self):
+        """ Update the command-line with page range if it's a valid range """
         if len(
             self.strvar_page_numbers.get().strip()
         ) > 0 and not tools.check_page_nums(self.strvar_page_numbers.get().strip()):
@@ -2675,6 +2661,7 @@ class MainFrame(ttk.Frame):
             self.remove_command_argument(self.ocr_cpu_arg_name)
 
     def gui_validate_landscape(self):
+        """ Update the command-line with landscape (page range if valid range) """
         page_range = self.strvar_landscape_pages.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
 
@@ -2918,7 +2905,6 @@ class MainFrame(ttk.Frame):
             return
 
         self.remove_preview_image_and_clear_canvas()
-        # (base_path, file_ext) = os.path.splitext(self.strvar_input_file_path.get().strip())
         output_arg = " ".join([self.preview_output_arg_name, str(preview_page_index)])
         self.background_future = self.convert_pdf_file(output_arg)
         self.strvar_current_preview_page_num.set("Preview Generating...")
@@ -2945,7 +2931,9 @@ class MainFrame(ttk.Frame):
         """ Convert the input PDF/DJVU file """
         if not self.pdf_conversion_is_done():
             return
-        pdf_output_arg = self.output_path_arg_name + " %s" + self.output_pdf_suffix
+        # pdf_output_arg = self.output_path_arg_name + self.output_file_suffix + ".pdf"
+        # pdf_output_arg = self.output_path_arg_name + "_k2opt_.pdf"
+        pdf_output_arg = self.output_path_arg_name + " %s" + self.output_file_suffix # + ".pdf"
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
     def action_ten_page_up(self):
@@ -3063,7 +3051,7 @@ class MainFrame(ttk.Frame):
         if json_path_file is None:
             json_path_file = self.custom_preset_file_path
         if os.path.exists(json_path_file):
-            with open(json_path_file) as preset_file:
+            with open(json_path_file, encoding="UTF-8") as preset_file:
                 dict_to_load = json.load(preset_file)
 
                 if dict_to_load:
