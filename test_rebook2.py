@@ -5,7 +5,7 @@ k2pdfopt_path = './k2pdfopt'
 def test_generate_command_with_empty_default_var_map():
     rebook = ReBook()
     frame = MainFrame(rebook, k2pdfopt_path)
-    frame.k2pdfopt_cmd_args = {}
+    frame.k2pdfopt_command_args = {}
     assert frame.generate_command_argument_string() == '-a- -ui- -x'
 
 def test_generate_command_with_default_var_map():
@@ -17,8 +17,8 @@ def test_generate_command_for_mode():
     rebook = ReBook()
     frame = MainFrame(rebook, k2pdfopt_path)
     for mode_argument in MainFrame.mode_argument_map:
-        frame.k2pdfopt_cmd_args = {}
-        frame.k2pdfopt_cmd_args[frame.conversion_mode_arg_name] = frame.conversion_mode_arg_name + ' ' + MainFrame.mode_argument_map[mode_argument]
+        frame.k2pdfopt_command_args = {}
+        frame.k2pdfopt_command_args[frame.conversion_mode_arg_name] = frame.conversion_mode_arg_name + ' ' + MainFrame.mode_argument_map[mode_argument]
         assert frame.generate_command_argument_string() == frame.conversion_mode_arg_name + ' ' + MainFrame.mode_argument_map[mode_argument] + ' -a- -ui- -x'
 
 def test_generate_commande_for_device():
@@ -26,8 +26,8 @@ def test_generate_commande_for_device():
     frame = MainFrame(rebook, k2pdfopt_path)
     for device in MainFrame.device_argument_map:
         if MainFrame.device_argument_map[device] is not None:
-            frame.k2pdfopt_cmd_args = {}
-            frame.k2pdfopt_cmd_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
+            frame.k2pdfopt_command_args = {}
+            frame.k2pdfopt_command_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
             assert frame.generate_command_argument_string() == frame.device_arg_name + ' ' + MainFrame.device_argument_map[device] + ' -a- -ui- -x'
 
 def test_generate_commande_device_correspondance():
@@ -38,8 +38,8 @@ def test_generate_commande_device_correspondance():
     frame = MainFrame(rebook, k2pdfopt_path)
     for device in MainFrame.device_choice_map:
         if MainFrame.device_choice_map[device] != 'Other (specify width & height)':
-            frame.k2pdfopt_cmd_args = {}
-            frame.k2pdfopt_cmd_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
+            frame.k2pdfopt_command_args = {}
+            frame.k2pdfopt_command_args[frame.device_arg_name] = frame.device_arg_name + ' ' + MainFrame.device_argument_map[device]
             assert frame.generate_command_argument_string() == frame.device_arg_name + ' ' + MainFrame.device_argument_map[device] + ' -a- -ui- -x'
 
 # def test_cleaning_command_line_from_cbox():

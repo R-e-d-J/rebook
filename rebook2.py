@@ -171,7 +171,7 @@ class MainFrame(ttk.Frame):
         self.default_padx = 5
         self.default_pady = 0
         self.k2pdfopt_path = k2pdfopt_path
-        self.k2pdfopt_cmd_args = {}
+        self.k2pdfopt_command_args = {}
         self.custom_preset_file_path = "rebook_preset.json"
 
         self.strvar_device = tk.StringVar()
@@ -579,17 +579,17 @@ class MainFrame(ttk.Frame):
         """ Fill the left side of Conversion tab """
         self.conversion_tab_left_part_column_num = 0
         self.conversion_tab_left_part_line_num = -1
-        self.setup_file_frame()
-        self.setup_device_frame()
-        self.setup_margin_and_cropboxes_frame()
-        self.setup_parameters_frame()
+        self.__setup_file_frame()
+        self.__setup_device_frame()
+        self.__setup_margin_and_cropboxes_frame()
+        self.__setup_parameters_frame()
 
     def __fill_right_side_of_conversion_tab(self):
         """ Fill the right side of Conversion tab """
         self.conversion_tab_right_part_column_num = 1
         self.conversion_tab_right_part_line_num = -1
-        self.setup_command_line_frame()
-        self.setup_action_frame()
+        self.__setup_command_line_frame()
+        self.__setup_action_frame()
 
     def __fill_conversion_tab(self):
         """ Fill the Conversion tab """
@@ -607,7 +607,7 @@ class MainFrame(ttk.Frame):
         self.action_frame.columnconfigure(0, weight=1)
         self.action_frame.rowconfigure(self.action_frame_row_num, weight=1)
 
-    def setup_file_frame(self):
+    def __setup_file_frame(self):
         """Set up the file frame."""
         self.conversion_tab_left_part_line_num += 1
 
@@ -667,7 +667,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_device_frame(self):
+    def __setup_device_frame(self):
         """Set up the device frame."""
         self.conversion_tab_left_part_line_num += 1
 
@@ -814,7 +814,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_margin_and_cropboxes_frame(self):
+    def __setup_margin_and_cropboxes_frame(self):
         """Set up the cropbax and margin frame"""
         self.conversion_tab_left_part_line_num += 1
 
@@ -1472,7 +1472,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_parameters_frame(self):
+    def __setup_parameters_frame(self):
         """Draw the parameters frame and its widgets."""
         self.conversion_tab_left_part_line_num += 1
 
@@ -1956,7 +1956,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_action_frame(self):
+    def __setup_action_frame(self):
         """Set up the action frame and draw its widgets"""
         self.conversion_tab_right_part_line_num += 1
 
@@ -2117,7 +2117,7 @@ class MainFrame(ttk.Frame):
         self.stdout_text.grid(column=0, row=0, sticky=tk.N + tk.S + tk.E + tk.W)
 
         self.clear_button = ttk.Button(
-            self.stdout_frame, text="Clear", command=self.clear_logs
+            self.stdout_frame, text="Clear", command=self.__clear_logs
         )
         self.clear_button.grid(
             column=0,
@@ -2127,7 +2127,7 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def setup_command_line_frame(self):
+    def __setup_command_line_frame(self):
         """Set up the `command line` frame and draw its widgets"""
         self.conversion_tab_right_part_line_num += 1
 
@@ -2166,50 +2166,50 @@ class MainFrame(ttk.Frame):
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
         self.initialize()
-        self.update_command_argument_entry_strvar()
+        self.__update_command_argument_entry_strvar()
 
     # Command management methods
-    def remove_command_argument(self, arg_key):
+    def __remove_command_argument(self, arg_key):
         """Removing argument from k2pdfopt command line."""
-        self.k2pdfopt_cmd_args.pop(arg_key, None)
-        self.update_command_argument_entry_strvar()
+        self.k2pdfopt_command_args.pop(arg_key, None)
+        self.__update_command_argument_entry_strvar()
 
-    def add_or_update_command_argument(self, arg_key, arg_value):
+    def __radd_or_update_command_argument(self, arg_key, arg_value):
         """Add or update argument to k2pdfopt command line."""
-        self.k2pdfopt_cmd_args[arg_key] = arg_value
-        self.update_command_argument_entry_strvar()
+        self.k2pdfopt_command_args[arg_key] = arg_value
+        self.__update_command_argument_entry_strvar()
 
-    def update_command_argument_entry_strvar(self):
+    def __update_command_argument_entry_strvar(self):
         """Update command-line"""
         self.strvar_command_args.set(self.generate_command_argument_string())
 
     def generate_command_argument_string(self):
-        """Transforms the dictionary `k2pdfopt_cmd_args` into a command line arguments list.
+        """Transforms the dictionary `k2pdfopt_command_args` into a command line arguments list.
 
         Remarks: at the end, the chosen argument are completed by `mandatory` arguments
                 ('-a- -ui- -x').
         """
 
-        device_arg = self.k2pdfopt_cmd_args.pop(self.device_arg_name, None)
+        device_arg = self.k2pdfopt_command_args.pop(self.device_arg_name, None)
         if device_arg is None:
-            width_arg = self.k2pdfopt_cmd_args.pop(self.device_width_arg_name, None)
-            height_arg = self.k2pdfopt_cmd_args.pop(self.device_height_arg_name, None)
+            width_arg = self.k2pdfopt_command_args.pop(self.device_width_arg_name, None)
+            height_arg = self.k2pdfopt_command_args.pop(self.device_height_arg_name, None)
 
-        mode_arg = self.k2pdfopt_cmd_args.pop(self.conversion_mode_arg_name, None)
+        mode_arg = self.k2pdfopt_command_args.pop(self.conversion_mode_arg_name, None)
         if mode_arg is not None:
-            arg_list = [mode_arg] + list(self.k2pdfopt_cmd_args.values())
-            self.k2pdfopt_cmd_args[self.conversion_mode_arg_name] = mode_arg
+            arg_list = [mode_arg] + list(self.k2pdfopt_command_args.values())
+            self.k2pdfopt_command_args[self.conversion_mode_arg_name] = mode_arg
         else:
-            arg_list = list(self.k2pdfopt_cmd_args.values())
+            arg_list = list(self.k2pdfopt_command_args.values())
 
         if device_arg is not None:
             arg_list.append(device_arg)
-            self.k2pdfopt_cmd_args[self.device_arg_name] = device_arg
+            self.k2pdfopt_command_args[self.device_arg_name] = device_arg
         elif width_arg is not None and height_arg is not None:
             arg_list.append(width_arg)
             arg_list.append(height_arg)
-            self.k2pdfopt_cmd_args[self.device_width_arg_name] = width_arg
-            self.k2pdfopt_cmd_args[self.device_height_arg_name] = height_arg
+            self.k2pdfopt_command_args[self.device_width_arg_name] = width_arg
+            self.k2pdfopt_command_args[self.device_height_arg_name] = height_arg
 
         arg_list.append("-a- -ui- -x")
         self.log_string("Generate Argument List: " + str(arg_list))
@@ -2279,9 +2279,9 @@ class MainFrame(ttk.Frame):
         if self.device_combobox.current() != 23:  # non-other type
             device_type = self.device_argument_map[self.device_combobox.current()]
             arg = self.device_arg_name + " " + device_type
-            self.add_or_update_command_argument(self.device_arg_name, arg)
-            self.remove_command_argument(self.device_width_arg_name)
-            self.remove_command_argument(self.device_height_arg_name)
+            self.__radd_or_update_command_argument(self.device_arg_name, arg)
+            self.__remove_command_argument(self.device_width_arg_name)
+            self.__remove_command_argument(self.device_height_arg_name)
             self.strvar_device_screen_width.set(
                 self.device_width_height_dpi_info[self.device_combobox.current()][0]
             )
@@ -2299,34 +2299,34 @@ class MainFrame(ttk.Frame):
                 width, "int", self.device_width_min_value, self.device_width_max_value
             ):
                 width_arg = self.device_width_arg_name + " " + width + screen_unit
-                self.add_or_update_command_argument(
+                self.__radd_or_update_command_argument(
                     self.device_width_arg_name, width_arg
                 )
             else:
-                self.remove_command_argument(self.device_width_arg_name)
+                self.__remove_command_argument(self.device_width_arg_name)
 
             height = self.strvar_device_screen_height.get().strip()
             if tools.is_acceptable_number(
                 width, "int", self.device_height_min_value, self.device_height_max_value
             ):
                 height_arg = self.device_height_arg_name + " " + height + screen_unit
-                self.add_or_update_command_argument(
+                self.__radd_or_update_command_argument(
                     self.device_height_arg_name, height_arg
                 )
             else:
-                self.remove_command_argument(self.device_height_arg_name)
+                self.__remove_command_argument(self.device_height_arg_name)
 
-            self.remove_command_argument(self.device_arg_name)
+            self.__remove_command_argument(self.device_arg_name)
 
     def gui_mode_cbox(self, binded_event=None):   # pylint: disable=unused-argument
         """ Manage `Mode` options """
         conversion_mode = self.mode_argument_map[self.mode_combobox.current()]
         arg = self.conversion_mode_arg_name + " " + conversion_mode
-        self.add_or_update_command_argument(self.conversion_mode_arg_name, arg)
+        self.__radd_or_update_command_argument(self.conversion_mode_arg_name, arg)
 
     def gui_cmd_args(self, binded_event=None):  # pylint: disable=unused-argument
         """ update the k2pdfopt command-line """
-        self.update_command_argument_entry_strvar()
+        self.__update_command_argument_entry_strvar()
 
     def gui_column_num(self):
         """ Manage `Max Column` options """
@@ -2335,9 +2335,9 @@ class MainFrame(ttk.Frame):
             nb_column, "int", self.max_column_min_value, self.max_column_min_value
         ):
             arg = self.column_num_arg_name + " " + nb_column
-            self.add_or_update_command_argument(self.column_num_arg_name, arg)
+            self.__radd_or_update_command_argument(self.column_num_arg_name, arg)
         else:
-            self.remove_command_argument(self.column_num_arg_name)
+            self.__remove_command_argument(self.column_num_arg_name)
 
     def gui_document_resolution_multipler(self):
         """ Manage `Document Resolution Factor` options """
@@ -2349,11 +2349,11 @@ class MainFrame(ttk.Frame):
             self.document_resolution_factor_max_value,
         ):
             arg = self.resolution_multiplier_arg_name + " " + multiplier
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.resolution_multiplier_arg_name, arg
             )
         else:
-            self.remove_command_argument(self.resolution_multiplier_arg_name)
+            self.__remove_command_argument(self.resolution_multiplier_arg_name)
 
     def gui_crop_margin(self):
         """Manage `Crop Margin` option
@@ -2365,17 +2365,17 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropmargin_checked.get():
             self.is_autocrop_checked.set(False)
-            self.remove_command_argument(self.auto_crop_arg_name)
+            self.__remove_command_argument(self.auto_crop_arg_name)
             self.is_cropbox_1_checked.set(False)
-            self.remove_command_argument(self.cropbox_1_arg_name)
+            self.__remove_command_argument(self.cropbox_1_arg_name)
             self.is_cropbox_2_checked.set(False)
-            self.remove_command_argument(self.cropbox_2_arg_name)
+            self.__remove_command_argument(self.cropbox_2_arg_name)
             self.is_cropbox_3_checked.set(False)
-            self.remove_command_argument(self.cropbox_3_arg_name)
+            self.__remove_command_argument(self.cropbox_3_arg_name)
             self.is_cropbox_4_checked.set(False)
-            self.remove_command_argument(self.cropbox_4_arg_name)
+            self.__remove_command_argument(self.cropbox_4_arg_name)
             self.is_cropbox_5_checked.set(False)
-            self.remove_command_argument(self.cropbox_5_arg_name)
+            self.__remove_command_argument(self.cropbox_5_arg_name)
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2383,7 +2383,7 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_left_cropmargin.get().strip()
                 )
-                self.add_or_update_command_argument(self.crop_margin_left_arg_name, arg)
+                self.__radd_or_update_command_argument(self.crop_margin_left_arg_name, arg)
 
             if len(self.strvar_top_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2391,7 +2391,7 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_top_cropmargin.get().strip()
                 )
-                self.add_or_update_command_argument(self.crop_margin_top_arg_name, arg)
+                self.__radd_or_update_command_argument(self.crop_margin_top_arg_name, arg)
 
             if len(self.strvar_width_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2399,7 +2399,7 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_width_cropmargin.get().strip()
                 )
-                self.add_or_update_command_argument(
+                self.__radd_or_update_command_argument(
                     self.crop_margin_right_arg_name, arg
                 )
 
@@ -2409,20 +2409,20 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_height_cropmargin.get().strip()
                 )
-                self.add_or_update_command_argument(
+                self.__radd_or_update_command_argument(
                     self.crop_margin_bottom_arg_name, arg
                 )
         else:
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
     def gui_cropbox1_margin(self):
         """ Manage `Cropbox 1` options """
         page_range = self.strvar_page_range_cropbox_1.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            # self.remove_command_argument(self.cropbox_arg_name)
+            # self.__remove_command_argument(self.cropbox_arg_name)
             self.strvar_page_range_cropbox_1.set("")
             messagebox.showerror(
                 message="Invalide cropbox 1's page range. It should be like : 2-5e,3-7o,9-"
@@ -2431,10 +2431,10 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropbox_1_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2450,15 +2450,15 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.add_or_update_command_argument(self.cropbox_1_arg_name, arg)
+            self.__radd_or_update_command_argument(self.cropbox_1_arg_name, arg)
         else:
-            self.remove_command_argument(self.cropbox_1_arg_name)
+            self.__remove_command_argument(self.cropbox_1_arg_name)
 
     def gui_cropbox2_margin(self):
         """ Manage `Cropbox 2` options """
         page_range = self.strvar_page_range_cropbox_2.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            # self.remove_command_argument(self.cropbox_arg_name)
+            # self.__remove_command_argument(self.cropbox_arg_name)
             self.strvar_page_range_cropbox_2.set("")
             messagebox.showerror(
                 message="Invalide cropbox 2's page range. It should be like : 2-5e,3-7o,9-"
@@ -2467,10 +2467,10 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropbox_2_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2486,15 +2486,15 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.add_or_update_command_argument(self.cropbox_2_arg_name, arg)
+            self.__radd_or_update_command_argument(self.cropbox_2_arg_name, arg)
         else:
-            self.remove_command_argument(self.cropbox_2_arg_name)
+            self.__remove_command_argument(self.cropbox_2_arg_name)
 
     def gui_cropbox3_margin(self):
         """ Manage `Cropbox 3` options """
         page_range = self.strvar_page_range_cropbox_3.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            # self.remove_command_argument(self.cropbox_arg_name)
+            # self.__remove_command_argument(self.cropbox_arg_name)
             self.strvar_page_range_cropbox_3.set("")
             messagebox.showerror(
                 message="Invalide cropbox 3's page range. It should be like : 2-5e,3-7o,9-"
@@ -2503,10 +2503,10 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropbox_3_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2522,15 +2522,15 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.add_or_update_command_argument(self.cropbox_3_arg_name, arg)
+            self.__radd_or_update_command_argument(self.cropbox_3_arg_name, arg)
         else:
-            self.remove_command_argument(self.cropbox_3_arg_name)
+            self.__remove_command_argument(self.cropbox_3_arg_name)
 
     def gui_cropbox4_margin(self):
         """ Manage `Cropbox 4` options """
         page_range = self.strvar_page_range_cropbox_4.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            # self.remove_command_argument(self.cropbox_arg_name)
+            # self.__remove_command_argument(self.cropbox_arg_name)
             self.strvar_page_range_cropbox_4.set("")
             messagebox.showerror(
                 message="Invalide cropbox 4's page range. It should be like : 2-5e,3-7o,9-"
@@ -2539,10 +2539,10 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropbox_4_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2558,15 +2558,15 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.add_or_update_command_argument(self.cropbox_4_arg_name, arg)
+            self.__radd_or_update_command_argument(self.cropbox_4_arg_name, arg)
         else:
-            self.remove_command_argument(self.cropbox_4_arg_name)
+            self.__remove_command_argument(self.cropbox_4_arg_name)
 
     def gui_cropbox5_margin(self):
         """ Manage `Cropbox 5` options """
         page_range = self.strvar_page_range_cropbox_5.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            # self.remove_command_argument(self.cropbox_arg_name)
+            # self.__remove_command_argument(self.cropbox_arg_name)
             self.strvar_page_range_cropbox_5.set("")
             messagebox.showerror(
                 message="Invalide cropbox 5's page range. It should be like : 2-5e,3-7o,9-"
@@ -2575,10 +2575,10 @@ class MainFrame(ttk.Frame):
 
         if self.is_cropbox_5_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2594,9 +2594,9 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.add_or_update_command_argument(self.cropbox_5_arg_name, arg)
+            self.__radd_or_update_command_argument(self.cropbox_5_arg_name, arg)
         else:
-            self.remove_command_argument(self.cropbox_5_arg_name)
+            self.__remove_command_argument(self.cropbox_5_arg_name)
 
     def gui_dpi(self):
         """ Manage device's `DPI` option """
@@ -2605,9 +2605,9 @@ class MainFrame(ttk.Frame):
             dpi_value, "int", self.device_dpi_min_value, self.device_dpi_max_value
         ):
             arg = self.dpi_arg_name + " " + dpi_value
-            self.add_or_update_command_argument(self.dpi_arg_name, arg)
+            self.__radd_or_update_command_argument(self.dpi_arg_name, arg)
         else:
-            self.remove_command_argument(self.dpi_arg_name)
+            self.__remove_command_argument(self.dpi_arg_name)
 
     def validate_and_update_page_nums(self):
         """ Update the command-line with page range if it's a valid range """
@@ -2615,7 +2615,7 @@ class MainFrame(ttk.Frame):
             self.strvar_page_numbers.get().strip()
         ) > 0 and not tools.check_page_nums(self.strvar_page_numbers.get().strip()):
 
-            self.remove_command_argument(self.page_num_arg_name)
+            self.__remove_command_argument(self.page_num_arg_name)
             self.strvar_page_numbers.set("")
             messagebox.showerror(
                 message="Invalide Page Argument. It should be like: 2-5e,3-7o,9-"
@@ -2624,9 +2624,9 @@ class MainFrame(ttk.Frame):
 
         if len(self.strvar_page_numbers.get().strip()) > 0:
             arg = self.page_num_arg_name + " " + self.strvar_page_numbers.get().strip()
-            self.add_or_update_command_argument(self.page_num_arg_name, arg)
+            self.__radd_or_update_command_argument(self.page_num_arg_name, arg)
         else:
-            self.remove_command_argument(self.page_num_arg_name)
+            self.__remove_command_argument(self.page_num_arg_name)
 
         return True
 
@@ -2640,9 +2640,9 @@ class MainFrame(ttk.Frame):
             self.fixed_font_size_max_value,
         ):
             arg = self.fixed_font_size_arg_name + " " + font_size
-            self.add_or_update_command_argument(self.fixed_font_size_arg_name, arg)
+            self.__radd_or_update_command_argument(self.fixed_font_size_arg_name, arg)
         else:
-            self.remove_command_argument(self.fixed_font_size_arg_name)
+            self.__remove_command_argument(self.fixed_font_size_arg_name)
 
     def gui_ocr_and_cpu(self):
         """OCR CPU pourcentage management
@@ -2653,24 +2653,24 @@ class MainFrame(ttk.Frame):
         """
         if self.is_ocr_cpu_limitation_checked.get():
             self.is_native_pdf_checked.set(False)
-            self.remove_command_argument(self.native_pdf_arg_name)
-            self.add_or_update_command_argument(self.ocr_arg_name, self.ocr_arg_name)
+            self.__remove_command_argument(self.native_pdf_arg_name)
+            self.__radd_or_update_command_argument(self.ocr_arg_name, self.ocr_arg_name)
             ocr_cpu_arg = (
                 self.ocr_cpu_arg_name
                 + "-"
                 + self.strvar_ocr_cpu_percentage.get().strip()
             )
-            self.add_or_update_command_argument(self.ocr_cpu_arg_name, ocr_cpu_arg)
+            self.__radd_or_update_command_argument(self.ocr_cpu_arg_name, ocr_cpu_arg)
         else:
-            self.remove_command_argument(self.ocr_arg_name)
-            self.remove_command_argument(self.ocr_cpu_arg_name)
+            self.__remove_command_argument(self.ocr_arg_name)
+            self.__remove_command_argument(self.ocr_cpu_arg_name)
 
     def gui_validate_landscape(self):
         """ Update the command-line with landscape (page range if valid range) """
         page_range = self.strvar_landscape_pages.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
 
-            self.remove_command_argument(self.landscape_arg_name)
+            self.__remove_command_argument(self.landscape_arg_name)
             self.strvar_landscape_pages.set("")
             messagebox.showerror(
                 message="Invalide `Output in Landscape` Page Argument!"
@@ -2682,9 +2682,9 @@ class MainFrame(ttk.Frame):
             arg = self.landscape_arg_name
             if len(page_range) > 0:
                 arg += page_range  # no space between -ls and page numbers
-            self.add_or_update_command_argument(self.landscape_arg_name, arg)
+            self.__radd_or_update_command_argument(self.landscape_arg_name, arg)
         else:
-            self.remove_command_argument(self.landscape_arg_name)
+            self.__remove_command_argument(self.landscape_arg_name)
 
         return True
 
@@ -2698,18 +2698,18 @@ class MainFrame(ttk.Frame):
             self.smart_line_break_max_value,
         ):
             arg = self.linebreak_arg_name + " " + str(line_break)
-            self.add_or_update_command_argument(self.linebreak_arg_name, arg)
+            self.__radd_or_update_command_argument(self.linebreak_arg_name, arg)
         else:
-            self.remove_command_argument(self.linebreak_arg_name)
+            self.__remove_command_argument(self.linebreak_arg_name)
 
     def gui_auto_straighten(self):
         """ Manage `Auto Straighten` option """
         if self.is_autostraighten_checked.get():
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.auto_straignten_arg_name, self.auto_straignten_arg_name
             )
         else:
-            self.remove_command_argument(self.auto_straignten_arg_name)
+            self.__remove_command_argument(self.auto_straignten_arg_name)
 
     def gui_break_page(self):
         """Native PDF management
@@ -2718,22 +2718,22 @@ class MainFrame(ttk.Frame):
         """
         if self.is_break_page_checked.get():
             self.is_avoid_overlap_checked.set(False)
-            self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
-            self.add_or_update_command_argument(
+            self.__remove_command_argument(self.break_page_avoid_overlap_arg_name)
+            self.__radd_or_update_command_argument(
                 self.break_page_avoid_overlap_arg_name,
                 self.break_page_avoid_overlap_arg_name,
             )
         else:
-            self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
+            self.__remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def gui_color_output(self):
         """ Manage `Color Output` option """
         if self.is_coloroutput_checked.get():
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.color_output_arg_name, self.color_output_arg_name
             )
         else:
-            self.remove_command_argument(self.color_output_arg_name)
+            self.__remove_command_argument(self.color_output_arg_name)
 
     def gui_native_pdf(self):
         """Manage `Native PDF`option.
@@ -2743,41 +2743,41 @@ class MainFrame(ttk.Frame):
         if self.is_native_pdf_checked.get():
             self.is_reflow_text_checked.set(False)
             self.is_ocr_cpu_limitation_checked.set(False)
-            self.remove_command_argument(self.ocr_arg_name)
-            self.remove_command_argument(self.ocr_cpu_arg_name)
-            self.remove_command_argument(self.reflow_text_arg_name)
-            self.add_or_update_command_argument(
+            self.__remove_command_argument(self.ocr_arg_name)
+            self.__remove_command_argument(self.ocr_cpu_arg_name)
+            self.__remove_command_argument(self.reflow_text_arg_name)
+            self.__radd_or_update_command_argument(
                 self.native_pdf_arg_name, self.native_pdf_arg_name
             )
         else:
-            self.remove_command_argument(self.native_pdf_arg_name)
+            self.__remove_command_argument(self.native_pdf_arg_name)
 
     def gui_right_to_left(self):
         """ Manage `Right to left` option """
         if self.is_right_to_left_checked.get():
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.right_to_left_arg_name, self.right_to_left_arg_name
             )
         else:
-            self.remove_command_argument(self.right_to_left_arg_name)
+            self.__remove_command_argument(self.right_to_left_arg_name)
 
     def gui_post_gs(self):
         """ Manage `post precessing with GhostScript` option """
         if self.is_ghostscript_postprocessing_checked.get():
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.post_gs_arg_name, self.post_gs_arg_name
             )
         else:
-            self.remove_command_argument(self.post_gs_arg_name)
+            self.__remove_command_argument(self.post_gs_arg_name)
 
     def gui_marked_source(self):
         """ Manage `Show Markup Source` option """
         if self.is_markedup_source_checked.get():
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.marked_source_arg_name, self.marked_source_arg_name
             )
         else:
-            self.remove_command_argument(self.marked_source_arg_name)
+            self.__remove_command_argument(self.marked_source_arg_name)
 
     def gui_reflow_text(self):
         """
@@ -2786,27 +2786,27 @@ class MainFrame(ttk.Frame):
         """
         if self.is_reflow_text_checked.get():
             self.is_native_pdf_checked.set(False)
-            self.remove_command_argument(self.native_pdf_arg_name)
+            self.__remove_command_argument(self.native_pdf_arg_name)
             arg = self.reflow_text_arg_name + "+"
-            self.add_or_update_command_argument(self.reflow_text_arg_name, arg)
+            self.__radd_or_update_command_argument(self.reflow_text_arg_name, arg)
         else:
-            self.remove_command_argument(self.reflow_text_arg_name)
+            self.__remove_command_argument(self.reflow_text_arg_name)
 
     def gui_erase_vertical_line(self):
         """Manage `Erase vertical line` option"""
         if self.is_erase_vertical_line_checked.get():
             arg = self.erase_vertical_line_arg_name + " 1"
-            self.add_or_update_command_argument(self.erase_vertical_line_arg_name, arg)
+            self.__radd_or_update_command_argument(self.erase_vertical_line_arg_name, arg)
         else:
-            self.remove_command_argument(self.erase_vertical_line_arg_name)
+            self.__remove_command_argument(self.erase_vertical_line_arg_name)
 
     def gui_fast_preview(self):
         """Manage fast preview option."""
         if self.is_fast_preview_checked.get():
             arg = self.fast_preview_arg_name + " 0"
-            self.add_or_update_command_argument(self.fast_preview_arg_name, arg)
+            self.__radd_or_update_command_argument(self.fast_preview_arg_name, arg)
         else:
-            self.remove_command_argument(self.fast_preview_arg_name)
+            self.__remove_command_argument(self.fast_preview_arg_name)
 
     def gui_avoid_text_selection_overlap(self):
         """Manage `Avoid text selection overlap` option
@@ -2815,32 +2815,32 @@ class MainFrame(ttk.Frame):
         """
         if self.is_avoid_overlap_checked.get():
             self.is_break_page_checked.set(False)
-            self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
+            self.__remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
             arg = self.break_page_avoid_overlap_arg_name + " m"
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.break_page_avoid_overlap_arg_name, arg
             )
         else:
-            self.remove_command_argument(self.break_page_avoid_overlap_arg_name)
+            self.__remove_command_argument(self.break_page_avoid_overlap_arg_name)
 
     def gui_ignore_small_defect(self):
         """Manage `ignore small defect` option"""
         if self.is_ignore_small_defects_checked.get():
             arg = self.ign_small_defects_arg_name + " 1.5"
-            self.add_or_update_command_argument(self.ign_small_defects_arg_name, arg)
+            self.__radd_or_update_command_argument(self.ign_small_defects_arg_name, arg)
         else:
-            self.remove_command_argument(self.ign_small_defects_arg_name)
+            self.__remove_command_argument(self.ign_small_defects_arg_name)
 
     def gui_erase_horizontal_line(self):
         """Manage `Erase horizontal line` option"""
         if self.is_erase_horizontal_line_checked.get():
             arg = self.erase_horizontal_line_arg_name + " 1"
-            self.add_or_update_command_argument(
+            self.__radd_or_update_command_argument(
                 self.erase_horizontal_line_arg_name, arg
             )
         else:
-            self.remove_command_argument(self.erase_horizontal_line_arg_name)
+            self.__remove_command_argument(self.erase_horizontal_line_arg_name)
 
     def gui_auto_crop(self):
         """Manage `Auto-Crop` option.
@@ -2849,15 +2849,15 @@ class MainFrame(ttk.Frame):
         """
         if self.is_autocrop_checked.get():
             self.is_cropmargin_checked.set(False)
-            self.remove_command_argument(self.cropbox_arg_name)
-            self.remove_command_argument(self.crop_margin_left_arg_name)
-            self.remove_command_argument(self.crop_margin_top_arg_name)
-            self.remove_command_argument(self.crop_margin_right_arg_name)
-            self.remove_command_argument(self.crop_margin_bottom_arg_name)
+            self.__remove_command_argument(self.cropbox_arg_name)
+            self.__remove_command_argument(self.crop_margin_left_arg_name)
+            self.__remove_command_argument(self.crop_margin_top_arg_name)
+            self.__remove_command_argument(self.crop_margin_right_arg_name)
+            self.__remove_command_argument(self.crop_margin_bottom_arg_name)
             arg = self.auto_crop_arg_name
-            self.add_or_update_command_argument(self.auto_crop_arg_name, arg)
+            self.__radd_or_update_command_argument(self.auto_crop_arg_name, arg)
         else:
-            self.remove_command_argument(self.auto_crop_arg_name)
+            self.__remove_command_argument(self.auto_crop_arg_name)
 
     def remove_preview_image_and_clear_canvas(self):
         """ Remove the preview image and clear the preview canevas """
@@ -3045,7 +3045,7 @@ class MainFrame(ttk.Frame):
             self.stdout_text.insert(tk.END, log_content + "\n")
             self.stdout_text.config(state=tk.DISABLED)
 
-    def clear_logs(self):
+    def __clear_logs(self):
         """ Clear the logs textbox """
         self.stdout_text.config(state=tk.NORMAL)
         self.stdout_text.delete(1.0, tk.END)
@@ -3083,7 +3083,7 @@ class MainFrame(ttk.Frame):
             if isinstance(value, ttk.Combobox) and attribute.endswith("_combobox"):
                 value.current(0)
 
-        self.clear_logs()
+        self.__clear_logs()
         self.remove_preview_image_and_clear_canvas()
         self.initialize_vars(self.default_var_map)
 
@@ -3093,9 +3093,9 @@ class ReBook(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.configure_gui()
+        self.__configure_gui()
 
-    def configure_gui(self):
+    def __configure_gui(self):
         """ Configure the application's windows """
         self.title("Rebook v2.0ß")
         self.width = self.winfo_screenwidth()
