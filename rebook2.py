@@ -2411,7 +2411,7 @@ class MainFrame(ttk.Frame):
             messagebox.showerror(
                 message="Invalide cropbox 1's page range. It should be like : 2-5e,3-7o,9-"
             )
-            return False
+            return
 
         if self.is_cropbox_1_checked.get():
             self.is_cropmargin_checked.set(False)
@@ -2447,7 +2447,7 @@ class MainFrame(ttk.Frame):
             messagebox.showerror(
                 message="Invalide cropbox 2's page range. It should be like : 2-5e,3-7o,9-"
             )
-            return False
+            return
 
         if self.is_cropbox_2_checked.get():
             self.is_cropmargin_checked.set(False)
@@ -2483,7 +2483,7 @@ class MainFrame(ttk.Frame):
             messagebox.showerror(
                 message="Invalide cropbox 3's page range. It should be like : 2-5e,3-7o,9-"
             )
-            return False
+            return
 
         if self.is_cropbox_3_checked.get():
             self.is_cropmargin_checked.set(False)
@@ -2519,7 +2519,7 @@ class MainFrame(ttk.Frame):
             messagebox.showerror(
                 message="Invalide cropbox 4's page range. It should be like : 2-5e,3-7o,9-"
             )
-            return False
+            return
 
         if self.is_cropbox_4_checked.get():
             self.is_cropmargin_checked.set(False)
@@ -2555,7 +2555,7 @@ class MainFrame(ttk.Frame):
             messagebox.showerror(
                 message="Invalide cropbox 5's page range. It should be like : 2-5e,3-7o,9-"
             )
-            return False
+            return
 
         if self.is_cropbox_5_checked.get():
             self.is_cropmargin_checked.set(False)
