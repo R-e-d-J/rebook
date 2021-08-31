@@ -2367,10 +2367,15 @@ class MainFrame(ttk.Frame):
             self.is_autocrop_checked.set(False)
             self.remove_command_argument(self.auto_crop_arg_name)
             self.is_cropbox_1_checked.set(False)
+            self.remove_command_argument(self.cropbox_1_arg_name)
             self.is_cropbox_2_checked.set(False)
+            self.remove_command_argument(self.cropbox_2_arg_name)
             self.is_cropbox_3_checked.set(False)
+            self.remove_command_argument(self.cropbox_3_arg_name)
             self.is_cropbox_4_checked.set(False)
+            self.remove_command_argument(self.cropbox_4_arg_name)
             self.is_cropbox_5_checked.set(False)
+            self.remove_command_argument(self.cropbox_5_arg_name)
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
                 arg = (
