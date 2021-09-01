@@ -1,4 +1,4 @@
-""" This script define a GUI to chose options to build a k2pdfopt command-line """
+""" This script define a GUI to choose options to build a k2pdfopt command-line """
 
 from threading import Thread
 import tkinter as tk
@@ -320,22 +320,14 @@ class MainFrame(ttk.Frame):
             self.output_path_arg_name: [""],
             self.column_num_arg_name: [False, "2"],
             self.resolution_multiplier_arg_name: [False, "1.0"],
-            self.cropmargin_arg_name: [  ##########
+            self.cropmargin_arg_name: [
                 False,
                 "0.0",
                 "0.0",
                 "0.0",
                 "0.0",
             ],
-            self.cropbox_1_arg_name: [  ##########
-                False,
-                "0.0",
-                "0.0",
-                "0.0",
-                "0.0",
-                "",
-            ],
-            self.cropbox_2_arg_name: [  ##########
+            self.cropbox_1_arg_name: [
                 False,
                 "0.0",
                 "0.0",
@@ -343,7 +335,7 @@ class MainFrame(ttk.Frame):
                 "0.0",
                 "",
             ],
-            self.cropbox_3_arg_name: [  ##########
+            self.cropbox_2_arg_name: [
                 False,
                 "0.0",
                 "0.0",
@@ -351,7 +343,7 @@ class MainFrame(ttk.Frame):
                 "0.0",
                 "",
             ],
-            self.cropbox_4_arg_name: [  ##########
+            self.cropbox_3_arg_name: [
                 False,
                 "0.0",
                 "0.0",
@@ -359,7 +351,15 @@ class MainFrame(ttk.Frame):
                 "0.0",
                 "",
             ],
-            self.cropbox_5_arg_name: [  ##########
+            self.cropbox_4_arg_name: [
+                False,
+                "0.0",
+                "0.0",
+                "0.0",
+                "0.0",
+                "",
+            ],
+            self.cropbox_5_arg_name: [
                 False,
                 "0.0",
                 "0.0",
@@ -380,10 +380,10 @@ class MainFrame(ttk.Frame):
             self.native_pdf_arg_name: [False],
             self.right_to_left_arg_name: [False],
             self.post_gs_arg_name: [False],
-            self.marked_source_arg_name: [True],  ######
+            self.marked_source_arg_name: [True],
             self.reflow_text_arg_name: [True],
-            self.erase_vertical_line_arg_name: [True],  ######
-            self.erase_horizontal_line_arg_name: [True],  ######
+            self.erase_vertical_line_arg_name: [True],
+            self.erase_horizontal_line_arg_name: [True],
             self.fast_preview_arg_name: [True],
             self.ign_small_defects_arg_name: [False],
             self.auto_crop_arg_name: [False],
@@ -405,14 +405,14 @@ class MainFrame(ttk.Frame):
                 self.is_resolution_multipler_checked,
                 self.strvar_resolution_multiplier,
             ],
-            self.cropmargin_arg_name: [  #########
+            self.cropmargin_arg_name: [
                 self.is_cropmargin_checked,
                 self.strvar_left_cropmargin,
                 self.strvar_top_cropmargin,
                 self.strvar_width_cropmargin,
                 self.strvar_height_cropmargin,
             ],
-            self.cropbox_1_arg_name: [  ##########
+            self.cropbox_1_arg_name: [
                 self.is_cropbox_1_checked,
                 self.strvar_left_cropbox_1,
                 self.strvar_top_cropbox_1,
@@ -420,7 +420,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_height_cropbox_1,
                 self.strvar_page_range_cropbox_1,
             ],
-            self.cropbox_2_arg_name: [  ##########
+            self.cropbox_2_arg_name: [
                 self.is_cropbox_2_checked,
                 self.strvar_left_cropbox_2,
                 self.strvar_top_cropbox_2,
@@ -428,7 +428,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_height_cropbox_2,
                 self.strvar_page_range_cropbox_2,
             ],
-            self.cropbox_3_arg_name: [  ##########
+            self.cropbox_3_arg_name: [
                 self.is_cropbox_3_checked,
                 self.strvar_left_cropbox_3,
                 self.strvar_top_cropbox_3,
@@ -436,7 +436,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_height_cropbox_3,
                 self.strvar_page_range_cropbox_3,
             ],
-            self.cropbox_4_arg_name: [  ##########
+            self.cropbox_4_arg_name: [
                 self.is_cropbox_4_checked,
                 self.strvar_left_cropbox_4,
                 self.strvar_top_cropbox_4,
@@ -444,7 +444,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_height_cropbox_4,
                 self.strvar_page_range_cropbox_4,
             ],
-            self.cropbox_5_arg_name: [  ##########
+            self.cropbox_5_arg_name: [
                 self.is_cropbox_5_checked,
                 self.strvar_left_cropbox_5,
                 self.strvar_top_cropbox_5,
@@ -523,17 +523,24 @@ class MainFrame(ttk.Frame):
     def create_tabs(self):
         """Create 'Conversion' and 'Logs' ReBook's tabs"""
         self.notebook = ttk.Notebook(self.root)
+
         self.conversion_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.conversion_tab, text="Conversion")
+
+        # self.advanced_tab = ttk.Frame(self.notebook)
+        # self.notebook.add(self.advanced_tab, text="Advanced")
+
         self.logs_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.logs_tab, text="Logs")
+
         self.notebook.pack(expand=1, fill="both")
 
         self.__fill_conversion_tab()
+        # self.__fill_advanced_tab()
         self.__fill_logs_tab()
 
     def create_menus(self):
-        """Create the menus for ReBook."""
+        """Create the menus for ReBook """
         menu_bar = tk.Menu(self.root)
         self.root["menu"] = menu_bar
 
@@ -607,8 +614,258 @@ class MainFrame(ttk.Frame):
         self.action_frame.columnconfigure(0, weight=1)
         self.action_frame.rowconfigure(self.action_frame_row_num, weight=1)
 
+    def __fill_advanced_tab(self):
+        """ Fill the advanced option tab """
+        self.advanced_tab_left_part_line_num = 0
+
+        # device_frame_line_number += 1
+
+        self.advanced_option_frame = ttk.Labelframe(
+            self.advanced_tab,
+            text="Advanced options",
+        )
+        self.advanced_option_frame.grid(
+            column=0,
+            row=self.advanced_tab_left_part_line_num,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line = 0
+
+        self.min_column_gap_width_label = ttk.Label(self.advanced_option_frame, text="Minimum column gap width (-cg)")
+        self.min_column_gap_width_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.min_column_gap_width = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.min_column_gap_width.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.max_gap_between_column_label = ttk.Label(self.advanced_option_frame, text="Max allowed gap between columns (-cgmax)")
+        self.max_gap_between_column_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.max_gap_between_column = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.max_gap_between_column.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.column_gap_range_label = ttk.Label(self.advanced_option_frame, text="Column-gap range (-cgr)")
+        self.column_gap_range_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.column_gap_range = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.column_gap_range.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.minimum_column_height_label = ttk.Label(self.advanced_option_frame, text="Minimum column height (-ch)")
+        self.minimum_column_height_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.minimum_column_height = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.minimum_column_height.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.minimum_column_height_label = ttk.Label(self.advanced_option_frame, text="Column Offset Maximum (-comax)")
+        self.minimum_column_height_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.minimum_column_height = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.minimum_column_height.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.minimum_column_height_label = ttk.Label(self.advanced_option_frame, text="min height of the blank area (-crgh)")
+        self.minimum_column_height_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.minimum_column_height = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.minimum_column_height.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        line += 1
+
+        self.minimum_column_height_label = ttk.Label(self.advanced_option_frame, text="Insert Breack page (-bpl)")
+        self.minimum_column_height_label.grid(
+            column=0,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.minimum_column_height = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=self.device_width_min_value,
+            to=self.device_width_max_value,
+            increment=0.1,
+            textvariable=self.strvar_device_screen_width,
+            command=self.gui_width_height,
+            width=6,
+        )
+        self.minimum_column_height.grid(
+            column=1,
+            row=line,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+
+
+
+        # self.cropmargin_label = ttk.Label(
+        #     self.margin_and_cropboxes_frame,
+        #     text="Crop Margins (in)",
+        # )
+        # self.cropmargin_label.grid(
+        #     column=0,
+        #     row=margin_and_cropboxes_frame_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=self.default_pady,
+        #     padx=self.default_padx,
+        # )
+        # self.cropmargin_check_button = ttk.Checkbutton(
+        #     self.margin_and_cropboxes_frame,
+        #     variable=self.is_cropmargin_checked,
+        #     command=self.gui_crop_margin,
+        # )
+        # self.cropmargin_check_button.grid(
+        #     column=1,
+        #     row=margin_and_cropboxes_frame_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=self.default_pady,
+        #     padx=self.default_padx,
+        # )
+        # self.left_cropmargin_spinbox = ttk.Spinbox(
+        #     self.margin_and_cropboxes_frame,
+        #     from_=self.margin_and_crop_areas_min_value,
+        #     to=self.margin_and_crop_areas_max_value,
+        #     increment=0.1,
+        #     textvariable=self.strvar_left_cropmargin,
+        #     command=self.gui_crop_margin,
+        #     width=4,
+        # )
+
     def __setup_file_frame(self):
-        """Set up the file frame."""
+        """Set up the file frame """
         self.conversion_tab_left_part_line_num += 1
 
         self.file_frame = ttk.Labelframe(
@@ -668,7 +925,7 @@ class MainFrame(ttk.Frame):
         )
 
     def __setup_device_frame(self):
-        """Set up the device frame."""
+        """Set up the device frame """
         self.conversion_tab_left_part_line_num += 1
 
         self.device_frame = ttk.Labelframe(
@@ -1473,7 +1730,7 @@ class MainFrame(ttk.Frame):
         )
 
     def __setup_parameters_frame(self):
-        """Draw the parameters frame and its widgets."""
+        """Draw the parameters frame and its widgets """
         self.conversion_tab_left_part_line_num += 1
 
         self.parameters_frame = ttk.Labelframe(
@@ -1973,7 +2230,7 @@ class MainFrame(ttk.Frame):
         self.action_frame_row_num = 0
 
         self.preview_button = ttk.Button(
-            self.action_frame, text="Preview", command=self.action_ten_page_up
+            self.action_frame, text="Preview", command=self.action_preview_current_page
         )
         self.preview_button.grid(
             column=0,
@@ -1989,31 +2246,31 @@ class MainFrame(ttk.Frame):
         self.convert_button.grid(
             column=1,
             row=self.action_frame_row_num,
-            sticky=tk.N + tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
+            # sticky=tk.N + tk.W,
+            # pady=self.default_pady,
+            # padx=self.default_padx,
         )
 
-        self.cancel_button = ttk.Button(
+        self.abort_button = ttk.Button(
             self.action_frame, text="Abort", command=self.action_abort_conversion
         )
-        self.cancel_button.grid(
+        self.abort_button.grid(
             column=2,
             row=self.action_frame_row_num,
-            sticky=tk.N + tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
+            # sticky=tk.N + tk.W,
+            # pady=self.default_pady,
+            # padx=self.default_padx,
         )
 
         self.action_frame_row_num += 1
 
         self.current_preview_page_number_entry = ttk.Entry(
-            self.action_frame, textvariable=self.strvar_current_preview_page_num
+            self.action_frame, textvariable=self.strvar_current_preview_page_num, width=100
         )
         self.current_preview_page_number_entry.grid(
             column=0,
             row=self.action_frame_row_num,
-            columnspan=2,
+            columnspan=3,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -2075,8 +2332,8 @@ class MainFrame(ttk.Frame):
         self.preview_canvas = tk.Canvas(self.action_frame, bd=0)
         self.preview_canvas.grid(
             column=0,
-            row=self.action_frame_row_num,
             columnspan=self.action_frame_column_num,
+            row=self.action_frame_row_num,
             sticky=tk.N + tk.S + tk.E + tk.W,
         )
 
@@ -2155,13 +2412,13 @@ class MainFrame(ttk.Frame):
         )
 
     def initialize(self):
-        """Simulate a click on every field : execute all the binded method."""
+        """Simulate a click on every field : execute all the binded method """
         for method_name in [x for x in dir(self.__class__) if x.startswith("gui_")]:
             getattr(self, method_name)()
         self.validate_and_update_page_nums()
 
-    def initialize_vars(self, dict_vars):
-        """Initialize variables from a dictionnary and build the associated command line."""
+    def __initialize_vars(self, dict_vars):
+        """Initialize variables from a dictionnary and build the associated command line """
         for key, value in dict_vars.items():
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
@@ -2170,12 +2427,12 @@ class MainFrame(ttk.Frame):
 
     # Command management methods
     def __remove_command_argument(self, arg_key):
-        """Removing argument from k2pdfopt command line."""
+        """Removing argument from k2pdfopt command line """
         self.k2pdfopt_command_args.pop(arg_key, None)
         self.__update_command_argument_entry_strvar()
 
     def __radd_or_update_command_argument(self, arg_key, arg_value):
-        """Add or update argument to k2pdfopt command line."""
+        """Add or update argument to k2pdfopt command line """
         self.k2pdfopt_command_args[arg_key] = arg_value
         self.__update_command_argument_entry_strvar()
 
@@ -2243,7 +2500,7 @@ class MainFrame(ttk.Frame):
             self.strvar_output_file_path.set(base_path + self.output_file_suffix) #  + file_ext
 
     def __menu_save_preset(self):
-        """Save the current present into a json file for next use."""
+        """Save the current present into a json file for next use """
         filename = filedialog.asksaveasfilename()
         if filename is not None and len(filename.strip()) > 0:
             filename += ".json"
@@ -2801,7 +3058,7 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(self.erase_vertical_line_arg_name)
 
     def gui_fast_preview(self):
-        """Manage fast preview option."""
+        """Manage fast preview option """
         if self.is_fast_preview_checked.get():
             arg = self.fast_preview_arg_name + " 0"
             self.__radd_or_update_command_argument(self.fast_preview_arg_name, arg)
@@ -2859,7 +3116,7 @@ class MainFrame(ttk.Frame):
         else:
             self.__remove_command_argument(self.auto_crop_arg_name)
 
-    def remove_preview_image_and_clear_canvas(self):
+    def __remove_preview_image_and_clear_canvas(self):
         """ Remove the preview image and clear the preview canevas """
         if os.path.exists(self.preview_image_path):
             os.remove(self.preview_image_path)
@@ -2895,9 +3152,9 @@ class MainFrame(ttk.Frame):
                 "No Page: " + str(preview_page_index)
             )
 
-    def generate_one_preview_image(self, preview_page_index):
-        """Generate the images previews."""
-        if not self.pdf_conversion_is_done():
+    def __generate_one_preview_image(self, preview_page_index):
+        """Generate the images previews """
+        if not self.__pdf_conversion_is_done():
             return
 
         if not os.path.exists(self.strvar_input_file_path.get().strip()):
@@ -2909,7 +3166,7 @@ class MainFrame(ttk.Frame):
             )
             return
 
-        self.remove_preview_image_and_clear_canvas()
+        self.__remove_preview_image_and_clear_canvas()
         output_arg = " ".join([self.preview_output_arg_name, str(preview_page_index)])
         self.background_future = self.convert_pdf_file(output_arg)
         self.strvar_current_preview_page_num.set("Preview Generating...")
@@ -2923,7 +3180,7 @@ class MainFrame(ttk.Frame):
         self.background_future.add_done_callback(preview_image_future)
 
     def action_abort_conversion(self):
-        """Abord the process of the preview/conversion."""
+        """Abord the process of the preview/conversion """
         if self.background_future is not None:
             self.background_future.cancel()
         if (
@@ -2934,33 +3191,38 @@ class MainFrame(ttk.Frame):
 
     def action_convert_pdf(self):
         """ Convert the input PDF/DJVU file """
-        if not self.pdf_conversion_is_done():
+        if not self.__pdf_conversion_is_done():
             return
         # pdf_output_arg = self.output_path_arg_name + self.output_file_suffix + ".pdf"
         # pdf_output_arg = self.output_path_arg_name + "_k2opt_.pdf"
         pdf_output_arg = self.output_path_arg_name + " %s" + self.output_file_suffix # + ".pdf"
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
+    def action_preview_current_page(self):
+        """ (Re)Generate preview for the current page index """
+        self.current_preview_page_index = max(self.current_preview_page_index, 1)
+        self.__generate_one_preview_image(self.current_preview_page_index)
+
     def action_ten_page_up(self):
         """ Generate preview of the 10th previous page """
-        self.current_preview_page_index = max(self.current_preview_page_index, 1)
-        self.generate_one_preview_image(self.current_preview_page_index)
+        self.current_preview_page_index = max(self.current_preview_page_index - 10, 1)
+        self.__generate_one_preview_image(self.current_preview_page_index)
 
     def action_page_up(self):
         """ Generate preview of the previous page """
         if self.current_preview_page_index > 1:
             self.current_preview_page_index -= 1
-        self.generate_one_preview_image(self.current_preview_page_index)
+        self.__generate_one_preview_image(self.current_preview_page_index)
 
     def action_page_down(self):
         """ Generate preview of the next page """
         self.current_preview_page_index += 1
-        self.generate_one_preview_image(self.current_preview_page_index)
+        self.__generate_one_preview_image(self.current_preview_page_index)
 
     def action_ten_page_down(self):
         """ Generate preview of the 10th next page """
         self.current_preview_page_index += 10
-        self.generate_one_preview_image(self.current_preview_page_index)
+        self.__generate_one_preview_image(self.current_preview_page_index)
 
     def yscroll_canvas(self, event):
         """ Y Scrollbar for the preview canevas """
@@ -2970,8 +3232,8 @@ class MainFrame(ttk.Frame):
         """ X Scrollbar for the preview canevas """
         self.preview_canvas.xview_scroll(-1 * event.delta, "units")
 
-    def pdf_conversion_is_done(self):
-        """Check if the PDF conversion is already done or not."""
+    def __pdf_conversion_is_done(self):
+        """Check if the PDF conversion is already done or not """
         if (self.background_future is None) or (self.background_future.done()):
             if (self.background_process is None) or (
                 self.background_process.returncode is not None
@@ -2989,7 +3251,7 @@ class MainFrame(ttk.Frame):
         loop.run_forever()
 
     def convert_pdf_file(self, output_arg):
-        """Convertion of the selected PDF file with chosen options."""
+        """Conversion of the selected PDF file with chosen options """
 
         async def async_run_cmd_and_log(exec_cmd):
             executed = exec_cmd.strip()
@@ -3060,7 +3322,7 @@ class MainFrame(ttk.Frame):
                 dict_to_load = json.load(preset_file)
 
                 if dict_to_load:
-                    self.initialize_vars(dict_to_load)
+                    self.__initialize_vars(dict_to_load)
                     return True
 
         return False
@@ -3084,8 +3346,8 @@ class MainFrame(ttk.Frame):
                 value.current(0)
 
         self.__clear_logs()
-        self.remove_preview_image_and_clear_canvas()
-        self.initialize_vars(self.default_var_map)
+        self.__remove_preview_image_and_clear_canvas()
+        self.__initialize_vars(self.default_var_map)
 
 
 class ReBook(tk.Tk):
