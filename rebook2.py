@@ -818,7 +818,6 @@ class MainFrame(ttk.Frame):
         # File menu
         menu_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=menu_file, label="File")
-        menu_file.add_command(label="Open file…", command=self.menu_open_pdf_file)
         menu_file.add_command(label="About", command=self.__menu_about_box)
         menu_file.add_command(label="Quit", command=self.root.quit)
 
@@ -1133,7 +1132,7 @@ class MainFrame(ttk.Frame):
         file_frame_line_number = 0
 
         open_button = ttk.Button(
-            self.file_frame, text="Input file", command=self.menu_open_pdf_file
+            self.file_frame, text="Input file", command=self.action_open_pdf_file
         )
         open_button.grid(
             column=0,
@@ -1156,7 +1155,7 @@ class MainFrame(ttk.Frame):
         file_frame_line_number += 1
 
         output_folder_label = ttk.Button(
-            self.file_frame, text="Output folder", command=self.choose_output_folder
+            self.file_frame, text="Output folder", command=self.action_choose_output_folder
         )
         output_folder_label.grid(
             column=0,
@@ -2831,7 +2830,7 @@ class MainFrame(ttk.Frame):
 
         messagebox.showinfo(message=about_message)
 
-    def menu_open_pdf_file(self):
+    def action_open_pdf_file(self):
         """Select a PDF/DJVU file and generate output path"""
         supported_formats = [("PDF files", "*.pdf"), ("DJVU files", "*.djvu")]
         filename = filedialog.askopenfilename(
@@ -2847,7 +2846,7 @@ class MainFrame(ttk.Frame):
                     base_path[0 : end + 1]
                 )  #  + self.output_file_suffix + file_ext
 
-    def choose_output_folder(self):
+    def action_choose_output_folder(self):
         """Choose the output folder (path)"""
         folder_path = filedialog.askdirectory(title="Select the output folder")
         if folder_path is not None and len(folder_path) > 0:
@@ -3291,10 +3290,11 @@ class MainFrame(ttk.Frame):
 
     def gui_tesseract_fast(self):
         """Manage `Fast` option for Tesseract"""
-        if self.is_tesseract_checked.get() and self.is_tesseract_fast_checked.get():
-            self.__add_or_update_command_argument(self.tesseract_fast_arg_name, self.tesseract_fast_arg_name)
+        if self.is_tesseract_fast_checked.get():
+            self.gui_tesseract_language_cbox()
         else:
-            self.__remove_command_argument(self.tesseract_fast_arg_name)
+            self.__remove_command_argument(self.tesseract_language_arg_name)
+            self.gui_tesseract_language_cbox()
 
     def gui_tesseract_language_cbox(
         self, binded_event=None
@@ -3303,6 +3303,8 @@ class MainFrame(ttk.Frame):
         if self.is_tesseract_checked.get():
             language_arg = self.language_argument_map[self.tesseract_language.current()]
             arg = self.tesseract_language_arg_name + " " + language_arg
+            if self.is_tesseract_fast_checked.get():
+                arg += " " + self.tesseract_fast_arg_name
             self.__add_or_update_command_argument(self.tesseract_language_arg_name, arg)
         else:
             self.__remove_command_argument(self.tesseract_language_arg_name)
