@@ -387,6 +387,20 @@ class MainFrame(ttk.Frame):
         118: "Yoruba",
     }
 
+    ocrd_argument_map = {
+        0: "w",
+        1: "l",
+        2: "c",
+        3: "p",
+    }
+
+    ocrd_map = {
+        0: "word",
+        1: "line",
+        2: "column",
+        3: "page",
+    }
+
     def __init__(self, app, k2pdfopt_path):
         super().__init__(app)
         self.root = app  # root of tkinter
@@ -427,6 +441,7 @@ class MainFrame(ttk.Frame):
         self.strvar_device_screen_width = tk.StringVar()
         self.strvar_device_screen_height = tk.StringVar()
         self.strvar_current_preview_page_num = tk.StringVar()
+        self.strvar_tesseract_detection = tk.StringVar()
 
         self.device_arg_name = "-dev"  # -dev <name>
         self.device_width_arg_name = "-w"  # -w <width>[in|cm|s|t|p]
@@ -455,6 +470,8 @@ class MainFrame(ttk.Frame):
         self.fixed_font_size_arg_name = "-fs"  # -fs 0/-fs <font size>[+]
         self.ocr_arg_name = "-ocr"  # -ocr-/-ocr t
         self.tesseract_language_arg_name = "-ocrlang"  # -ocrlang <lang>
+        self.tesseract_fast_arg_name = "-fast"
+        self.tesseract_detection_arg_name = "-ocrd" # -ocrd w|l|c|p
         self.ocr_cpu_arg_name = "-nt"  # -nt -50/-nt <percentage>
         self.landscape_arg_name = "-ls"  # -ls[-][pagelist]
         self.linebreak_arg_name = "-ws"  # -ws <spacing>
@@ -515,6 +532,7 @@ class MainFrame(ttk.Frame):
         self.is_smart_linebreak_checked = tk.BooleanVar()  # -ws 0.01~10
         self.is_fixed_font_size_checked = tk.BooleanVar()
         self.is_tesseract_checked = tk.BooleanVar()
+        self.is_tesseract_fast_checked = tk.BooleanVar()
         self.is_resolution_multipler_checked = tk.BooleanVar()
 
         self.strvar_column_num = tk.StringVar()
@@ -617,9 +635,6 @@ class MainFrame(ttk.Frame):
             self.dpi_arg_name: [False, "167"],
             self.page_num_arg_name: [""],
             self.fixed_font_size_arg_name: [False, "12"],
-            self.ocr_arg_name: [False, "50"],
-            self.ocr_cpu_arg_name: [False, "50"],
-            self.tesseract_language_arg_name: ["English"],
             self.landscape_arg_name: [False, ""],
             self.linebreak_arg_name: [True, "0.200"],
             self.auto_straignten_arg_name: [False],
@@ -635,6 +650,11 @@ class MainFrame(ttk.Frame):
             self.fast_preview_arg_name: [True],
             self.ign_small_defects_arg_name: [False],
             self.auto_crop_arg_name: [False],
+            self.ocr_arg_name: [False, "50"],
+            self.ocr_cpu_arg_name: [False, "50"],
+            self.tesseract_language_arg_name: ["English"],
+            self.tesseract_fast_arg_name: [False],
+            self.tesseract_detection_arg_name: ["line"],
             self.preview_output_arg_name: [],
         }
 
@@ -718,6 +738,8 @@ class MainFrame(ttk.Frame):
                 self.strvar_ocr_cpu_percentage,
             ],
             self.tesseract_language_arg_name: [self.strvar_tesseract_language],
+            self.tesseract_fast_arg_name: [self.is_tesseract_fast_checked],
+            self.tesseract_detection_arg_name: [self.strvar_tesseract_detection],
             self.landscape_arg_name: [
                 self.is_landscape_checked,
                 self.strvar_landscape_pages,
@@ -839,6 +861,7 @@ class MainFrame(ttk.Frame):
         self.__setup_device_frame()
         self.__setup_margin_and_cropboxes_frame()
         self.__setup_parameters_frame()
+        self.__setup_tesseract_frame()
 
     def __fill_right_side_of_conversion_tab(self):
         """Fill the right side of Conversion tab"""
@@ -1090,39 +1113,6 @@ class MainFrame(ttk.Frame):
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
-        # self.cropmargin_label = ttk.Label(
-        #     self.margin_and_cropboxes_frame,
-        #     text="Crop Margins (in)",
-        # )
-        # self.cropmargin_label.grid(
-        #     column=0,
-        #     row=margin_and_cropboxes_frame_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=self.default_pady,
-        #     padx=self.default_padx,
-        # )
-        # self.cropmargin_check_button = ttk.Checkbutton(
-        #     self.margin_and_cropboxes_frame,
-        #     variable=self.is_cropmargin_checked,
-        #     command=self.gui_crop_margin,
-        # )
-        # self.cropmargin_check_button.grid(
-        #     column=1,
-        #     row=margin_and_cropboxes_frame_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=self.default_pady,
-        #     padx=self.default_padx,
-        # )
-        # self.left_cropmargin_spinbox = ttk.Spinbox(
-        #     self.margin_and_cropboxes_frame,
-        #     from_=self.margin_and_crop_areas_min_value,
-        #     to=self.margin_and_crop_areas_max_value,
-        #     increment=0.1,
-        #     textvariable=self.strvar_left_cropmargin,
-        #     command=self.gui_crop_margin,
-        #     width=4,
-        # )
 
     def __setup_file_frame(self):
         """Set up the file frame"""
@@ -1999,7 +1989,7 @@ class MainFrame(ttk.Frame):
             self.conversion_tab,
             text="Parameters & options",
             width=self.half_width_screen,
-            height=315,
+            height=290,
         )
         self.parameters_frame.grid(
             column=self.conversion_tab_left_part_column_num,
@@ -2214,55 +2204,6 @@ class MainFrame(ttk.Frame):
         self.smart_line_break_spinbox.grid(
             column=1,
             row=parameters_frame_line_number,
-            sticky=tk.N + tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-
-        parameters_frame_line_number += 1
-
-        self.ocr_check_button = ttk.Checkbutton(
-            self.parameters_frame,
-            text="OCR (Tesseract)",
-            variable=self.is_tesseract_checked,
-            command=self.gui_ocr_and_cpu,
-        )
-        self.ocr_check_button.grid(
-            column=0,
-            row=parameters_frame_line_number,
-            sticky=tk.N + tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-        self.ocr_cpu_spinbox = ttk.Spinbox(
-            self.parameters_frame,
-            from_=self.ocr_cpu_min_value,
-            to=self.ocr_cpu_max_value,
-            increment=1,
-            # text='CPU %',
-            textvariable=self.strvar_ocr_cpu_percentage,
-            command=self.gui_ocr_and_cpu,
-            width=4,
-        )
-        self.ocr_cpu_spinbox.grid(
-            column=1,
-            row=parameters_frame_line_number,
-            sticky=tk.N + tk.W,
-            pady=self.default_pady,
-            padx=self.default_padx,
-        )
-        self.tesseract_language = ttk.Combobox(
-            self.parameters_frame, textvariable=self.strvar_tesseract_language, width=22
-        )
-        self.tesseract_language["values"] = list(self.language_map.values())
-        self.tesseract_language.current(24)
-        self.tesseract_language.bind(
-            "<<ComboboxSelected>>", self.gui_tesseract_language_cbox
-        )
-        self.tesseract_language.grid(
-            column=2,
-            row=parameters_frame_line_number,
-            columnspan=2,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -2486,6 +2427,129 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
+    def __setup_tesseract_frame(self):
+        """Set up the tesseract options frame and draw its widgets"""
+        self.conversion_tab_left_part_line_num += 1
+
+        self.tesseract_frame = ttk.Labelframe(
+            self.conversion_tab,
+            text="Tesseract",
+            width=self.half_width_screen,
+            height=20,
+        )
+        self.tesseract_frame.grid(
+            column=0,
+            row=self.conversion_tab_left_part_line_num,
+            # rowspan=3,
+            sticky=tk.N + tk.S + tk.E + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.tesseract_frame.grid_propagate(False)
+
+        tesseract_frame_line_number = 1
+
+        self.ocr_check_button = ttk.Checkbutton(
+            self.tesseract_frame,
+            text="Tesseract (OCR)",
+            variable=self.is_tesseract_checked,
+            command=self.gui_ocr_and_cpu,
+        )
+        self.ocr_check_button.grid(
+            column=0,
+            row=tesseract_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.ocr_cpu_spinbox = ttk.Spinbox(
+            self.tesseract_frame,
+            from_=self.ocr_cpu_min_value,
+            to=self.ocr_cpu_max_value,
+            increment=1,
+            # text='CPU %',
+            textvariable=self.strvar_ocr_cpu_percentage,
+            command=self.gui_ocr_and_cpu,
+            width=4,
+        )
+        self.ocr_cpu_spinbox.grid(
+            column=1,
+            row=tesseract_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.tesseract_fast_check_button = ttk.Checkbutton(
+            self.tesseract_frame,
+            text="Fast",
+            variable=self.is_tesseract_fast_checked,
+            command=self.gui_tesseract_fast,
+        )
+        self.tesseract_fast_check_button.grid(
+            column=2,
+            row=tesseract_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        tesseract_frame_line_number += 1
+
+        self.tesseract_language_label = ttk.Label(
+            self.tesseract_frame, text="Language"
+        )
+        self.tesseract_language_label.grid(
+            column=0,
+            row=tesseract_frame_line_number,
+            rowspan=2,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        self.tesseract_language = ttk.Combobox(
+            self.tesseract_frame, textvariable=self.strvar_tesseract_language, width=22
+        )
+        self.tesseract_language["values"] = list(self.language_map.values())
+        self.tesseract_language.current(24)
+        self.tesseract_language.bind(
+            "<<ComboboxSelected>>", self.gui_tesseract_language_cbox
+        )
+        self.tesseract_language.grid(
+            column=1,
+            row=tesseract_frame_line_number,
+            columnspan=2,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+        tesseract_frame_line_number += 1
+
+        ocr_detection_label = ttk.Label(self.tesseract_frame, text="OCR Detection")
+        ocr_detection_label.grid(
+            column=0,
+            row=tesseract_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+        self.ocr_detection_combobox = ttk.Combobox(
+            self.tesseract_frame, textvariable=self.strvar_tesseract_detection, width=25
+        )
+        self.ocr_detection_combobox["values"] = list(self.ocrd_map.values())
+        self.ocr_detection_combobox.current(0)
+        self.ocr_detection_combobox.bind("<<ComboboxSelected>>", self.gui_tesseract_detection_cbox)
+        self.ocr_detection_combobox.grid(
+            column=1,
+            columnspan=3,
+            row=tesseract_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=self.default_pady,
+            padx=self.default_padx,
+        )
+
+
     def __setup_action_frame(self):
         """Set up the action frame and draw its widgets"""
         self.conversion_tab_right_part_line_num += 1
@@ -2675,7 +2739,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.command_arguments_entry = ttk.Entry(
-            self.information_frame, textvariable=self.strvar_command_args, width=100
+            self.information_frame, textvariable=self.strvar_command_args, width=80
         )
         self.command_arguments_entry.bind("<Button-1>", self.gui_cmd_args)
         self.command_arguments_entry.grid(
@@ -2686,8 +2750,11 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-    def initialize(self):
-        """Simulate a click on every field : execute all the binded method"""
+    def __initialize(self):
+        """Simulate a click on every field : execute all the binded method
+
+            TODO: rename `validate_and_update_page_nums` to `gui_validate_and_update_page_nums`
+        """
         for method_name in [x for x in dir(self.__class__) if x.startswith("gui_")]:
             getattr(self, method_name)()
         self.validate_and_update_page_nums()
@@ -2697,7 +2764,7 @@ class MainFrame(ttk.Frame):
         for key, value in dict_vars.items():
             for i in range(len(value)):
                 self.arg_var_map[key][i].set(value[i])
-        self.initialize()
+        self.__initialize()
         self.__update_command_argument_entry_strvar()
 
     # Command management methods
@@ -3213,11 +3280,21 @@ class MainFrame(ttk.Frame):
                 + self.strvar_ocr_cpu_percentage.get().strip()
             )
             self.__add_or_update_command_argument(self.ocr_cpu_arg_name, ocr_cpu_arg)
+            self.gui_tesseract_fast()
             self.gui_tesseract_language_cbox()
         else:
             self.__remove_command_argument(self.ocr_arg_name)
             self.__remove_command_argument(self.ocr_cpu_arg_name)
             self.__remove_command_argument(self.tesseract_language_arg_name)
+            self.__remove_command_argument(self.tesseract_fast_arg_name)
+            self.__remove_command_argument(self.tesseract_detection_arg_name)
+
+    def gui_tesseract_fast(self):
+        """Manage `Fast` option for Tesseract"""
+        if self.is_tesseract_checked.get() and self.is_tesseract_fast_checked.get():
+            self.__add_or_update_command_argument(self.tesseract_fast_arg_name, self.tesseract_fast_arg_name)
+        else:
+            self.__remove_command_argument(self.tesseract_fast_arg_name)
 
     def gui_tesseract_language_cbox(
         self, binded_event=None
@@ -3229,6 +3306,16 @@ class MainFrame(ttk.Frame):
             self.__add_or_update_command_argument(self.tesseract_language_arg_name, arg)
         else:
             self.__remove_command_argument(self.tesseract_language_arg_name)
+
+    def gui_tesseract_detection_cbox(self, binded_event=None):
+        """Manage `OCR Detection` option for Tesseract"""
+        if self.is_tesseract_checked.get():
+            detection_type = self.tesseract_detection_arg_name + ' ' + self.ocrd_argument_map[self.ocr_detection_combobox.current()]
+            self.__add_or_update_command_argument(
+                self.tesseract_detection_arg_name, detection_type
+            )
+        else:
+            self.__remove_command_argument(self.tesseract_detection_arg_name)
 
     def gui_validate_landscape(self):
         """Update the command-line with landscape (page range if valid range)"""
@@ -3626,7 +3713,10 @@ class MainFrame(ttk.Frame):
         self.stdout_text.config(state=tk.DISABLED)
 
     def load_custom_preset(self, json_path_file=None):
-        """Load a JSON file with user custom preset"""
+        """Load a JSON file with user custom preset
+
+            Remarks: there is more than ONE custom preset si the second IF must be refactored.
+        """
         if json_path_file is None:
             json_path_file = self.custom_preset_file_path
         if os.path.exists(json_path_file):
@@ -3640,11 +3730,7 @@ class MainFrame(ttk.Frame):
         return False
 
     def restore_default_values(self):
-        """Clear logs, preview and reset all the default values
-
-        Remarks :
-            - Why erase input and output file path ?
-        """
+        """Clear logs, preview and reset all the default values"""
         for attribute, value in self.__dict__.items():
             if isinstance(value, tk.StringVar) and attribute.startswith("strvar_"):
                 value.set("")
