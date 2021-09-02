@@ -426,6 +426,10 @@ class MainFrame(ttk.Frame):
         self.smart_line_break_max_value = 2.00
         self.margin_and_crop_areas_min_value = 0
         self.margin_and_crop_areas_max_value = 10
+        self.strvar_min_column_gap_width_min_value = 0.00
+        self.strvar_min_column_gap_width_max_value = 5.00
+        self.column_gap_range_min_value = 0
+        self.column_gap_range_max_value = 1
         self.default_padx = 5
         self.default_pady = 0
         self.k2pdfopt_path = k2pdfopt_path
@@ -544,34 +548,57 @@ class MainFrame(ttk.Frame):
         self.strvar_ocr_cpu_percentage = tk.StringVar()
         self.strvar_resolution_multiplier = tk.StringVar()
 
-        self.auto_straignten_arg_name = "-as"  # -as-/-as
-        self.break_page_avoid_overlap_arg_name = "-bp"  # -bp-/-bp
-        self.color_output_arg_name = "-c"  # -c-/-c
-        self.native_pdf_arg_name = "-n"  # -n-/-n
-        self.right_to_left_arg_name = "-r"  # -r-/-r
-        self.post_gs_arg_name = "-ppgs"  # -ppgs-/-ppgs
-        self.marked_source_arg_name = "-sm"  # -sm-/-sm
-        self.reflow_text_arg_name = "-wrap"  # -wrap+/-wrap-
-        self.erase_vertical_line_arg_name = "-evl"  # -evl 0/-evl 1
-        self.erase_horizontal_line_arg_name = "-ehl"  # -ehl 0/-ehl 1
-        self.fast_preview_arg_name = "-rt"  # -rt /-rt 0
-        self.ign_small_defects_arg_name = "-de"  # -de 1.0/-de 1.5
         self.auto_crop_arg_name = "-ac"  # -ac-/-ac
-
         self.is_autocrop_checked = tk.BooleanVar()
+
+        self.break_page_avoid_overlap_arg_name = "-bp"  # -bp-/-bp
         self.is_break_page_checked = tk.BooleanVar()
+
+        self.native_pdf_arg_name = "-n"  # -n-/-n
         self.is_native_pdf_checked = tk.BooleanVar()
+
+        self.color_output_arg_name = "-c"  # -c-/-c
         self.is_coloroutput_checked = tk.BooleanVar()
+
+        self.reflow_text_arg_name = "-wrap"  # -wrap+/-wrap-
         self.is_reflow_text_checked = tk.BooleanVar()
+
+        self.fast_preview_arg_name = "-rt"  # -rt /-rt 0
         self.is_fast_preview_checked = tk.BooleanVar()
         self.is_avoid_overlap_checked = tk.BooleanVar()
+
+        self.right_to_left_arg_name = "-r"  # -r-/-r
         self.is_right_to_left_checked = tk.BooleanVar()
+
+        self.auto_straignten_arg_name = "-as"  # -as-/-as
         self.is_autostraighten_checked = tk.BooleanVar()
+
+        self.marked_source_arg_name = "-sm"  # -sm-/-sm
         self.is_markedup_source_checked = tk.BooleanVar()
+
+        self.erase_vertical_line_arg_name = "-evl"  # -evl 0/-evl 1
         self.is_erase_vertical_line_checked = tk.BooleanVar()
+
+        self.ign_small_defects_arg_name = "-de"  # -de 1.0/-de 1.5
         self.is_ignore_small_defects_checked = tk.BooleanVar()
+
+        self.erase_horizontal_line_arg_name = "-ehl"  # -ehl 0/-ehl 1
         self.is_erase_horizontal_line_checked = tk.BooleanVar()
+
+        self.post_gs_arg_name = "-ppgs"  # -ppgs-/-ppgs
         self.is_ghostscript_postprocessing_checked = tk.BooleanVar()
+
+        self.min_column_gap_width_arg_name = "-cg"  # -cg <inches>
+        self.is_minimum_column_gap_checked = tk.BooleanVar()
+        self.strvar_min_column_gap_width = tk.StringVar()
+
+        self.max_gap_between_column_arg_name = "-cgmax"
+        self.is_max_gap_between_column_checked = tk.BooleanVar()
+        self.strvar_max_gap_between_column = tk.StringVar()
+
+        self.column_gap_range_arg_name = "-cgr"
+        self.is_column_gap_range_checked = tk.BooleanVar()
+        self.strvar_column_gap_range = tk.StringVar()
 
         self.preview_output_arg_name = "-bmp"
         self.preview_image_path = "./k2pdfopt_out.png"
@@ -655,6 +682,9 @@ class MainFrame(ttk.Frame):
             self.tesseract_language_arg_name: ["English"],
             self.tesseract_fast_arg_name: [False],
             self.tesseract_detection_arg_name: ["line"],
+            self.min_column_gap_width_arg_name: ["0.1"],
+            self.max_gap_between_column_arg_name: ["1.5"],
+            self.column_gap_range_arg_name: ["0.33"],
             self.preview_output_arg_name: [],
         }
 
@@ -766,6 +796,9 @@ class MainFrame(ttk.Frame):
             self.fast_preview_arg_name: [self.is_fast_preview_checked],
             self.ign_small_defects_arg_name: [self.is_ignore_small_defects_checked],
             self.auto_crop_arg_name: [self.is_autocrop_checked],
+            self.min_column_gap_width_arg_name: [self.strvar_min_column_gap_width],
+            self.max_gap_between_column_arg_name: [self.strvar_max_gap_between_column],
+            self.column_gap_range_arg_name: [self.strvar_column_gap_range],
             self.preview_output_arg_name: [],
         }
 
@@ -798,8 +831,8 @@ class MainFrame(ttk.Frame):
         self.conversion_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.conversion_tab, text="Conversion")
 
-        # self.advanced_tab = ttk.Frame(self.notebook)
-        # self.notebook.add(self.advanced_tab, text="Advanced")
+        self.advanced_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.advanced_tab, text="Advanced")
 
         self.logs_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.logs_tab, text="Logs")
@@ -807,7 +840,7 @@ class MainFrame(ttk.Frame):
         self.notebook.pack(expand=1, fill="both")
 
         self.__fill_conversion_tab()
-        # self.__fill_advanced_tab()
+        self.__fill_advanced_tab()
         self.__fill_logs_tab()
 
     def create_menus(self):
@@ -889,8 +922,6 @@ class MainFrame(ttk.Frame):
         """Fill the advanced option tab"""
         self.advanced_tab_left_part_line_num = 0
 
-        # device_frame_line_number += 1
-
         self.advanced_option_frame = ttk.Labelframe(
             self.advanced_tab,
             text="Advanced options",
@@ -903,104 +934,111 @@ class MainFrame(ttk.Frame):
             padx=self.default_padx,
         )
 
-        line = 0
+        advanced_option_line_number = 0
 
-        self.min_column_gap_width_label = ttk.Label(
-            self.advanced_option_frame, text="Minimum column gap width (-cg)"
+        self.min_column_gap_width_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Minimum column gap width (-cg)",
+            variable=self.is_minimum_column_gap_checked,
+            command=self.gui_minimum_column_gap,
         )
         self.min_column_gap_width_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
         self.min_column_gap_width = ttk.Spinbox(
             self.advanced_option_frame,
-            from_=self.device_width_min_value,
-            to=self.device_width_max_value,
+            from_=self.strvar_min_column_gap_width_min_value,
+            to=self.strvar_min_column_gap_width_max_value,
             increment=0.1,
-            textvariable=self.strvar_device_screen_width,
+            textvariable=self.strvar_min_column_gap_width,
             command=self.gui_width_height,
             width=6,
         )
         self.min_column_gap_width.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
-        self.max_gap_between_column_label = ttk.Label(
-            self.advanced_option_frame, text="Max allowed gap between columns (-cgmax)"
+        self.max_gap_between_column_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Max allowed gap between columns (-cgmax)",
+            variable=self.is_max_gap_between_column_checked,
+            command=self.gui_max_gap_between_column,
         )
         self.max_gap_between_column_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
         self.max_gap_between_column = ttk.Spinbox(
             self.advanced_option_frame,
             from_=self.device_width_min_value,
             to=self.device_width_max_value,
             increment=0.1,
-            textvariable=self.strvar_device_screen_width,
+            textvariable=self.strvar_max_gap_between_column,
             command=self.gui_width_height,
             width=6,
         )
         self.max_gap_between_column.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
-        self.column_gap_range_label = ttk.Label(
-            self.advanced_option_frame, text="Column-gap range (-cgr)"
+        self.column_gap_range_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Column-gap range (-cgr)",
+            variable=self.is_column_gap_range_checked,
+            command=self.gui_column_gap_range,
         )
         self.column_gap_range_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
-
         self.column_gap_range = ttk.Spinbox(
             self.advanced_option_frame,
-            from_=self.device_width_min_value,
-            to=self.device_width_max_value,
+            from_=self.column_gap_range_min_value,
+            to=self.column_gap_range_max_value,
             increment=0.1,
-            textvariable=self.strvar_device_screen_width,
-            command=self.gui_width_height,
+            textvariable=self.strvar_column_gap_range,
+            command=self.gui_column_gap_range,
             width=6,
         )
         self.column_gap_range.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
         self.minimum_column_height_label = ttk.Label(
-            self.advanced_option_frame, text="Minimum column height (-ch)"
+            self.advanced_option_frame,
+            text="Minimum column height (-ch)"
         )
         self.minimum_column_height_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -1017,20 +1055,20 @@ class MainFrame(ttk.Frame):
         )
         self.minimum_column_height.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
         self.minimum_column_height_label = ttk.Label(
             self.advanced_option_frame, text="Column Offset Maximum (-comax)"
         )
         self.minimum_column_height_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -1047,20 +1085,20 @@ class MainFrame(ttk.Frame):
         )
         self.minimum_column_height.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
         self.minimum_column_height_label = ttk.Label(
             self.advanced_option_frame, text="min height of the blank area (-crgh)"
         )
         self.minimum_column_height_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -1077,20 +1115,20 @@ class MainFrame(ttk.Frame):
         )
         self.minimum_column_height.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
         )
 
-        line += 1
+        advanced_option_line_number += 1
 
         self.minimum_column_height_label = ttk.Label(
             self.advanced_option_frame, text="Insert Breack page (-bpl)"
         )
         self.minimum_column_height_label.grid(
             column=0,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -1107,7 +1145,7 @@ class MainFrame(ttk.Frame):
         )
         self.minimum_column_height.grid(
             column=1,
-            row=line,
+            row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=self.default_pady,
             padx=self.default_padx,
@@ -3514,6 +3552,15 @@ class MainFrame(ttk.Frame):
             self.__add_or_update_command_argument(self.auto_crop_arg_name, arg)
         else:
             self.__remove_command_argument(self.auto_crop_arg_name)
+
+    def gui_minimum_column_gap(self):
+        pass
+
+    def gui_max_gap_between_column(self):
+        pass
+
+    def gui_column_gap_range(self):
+        pass
 
     def __remove_preview_image_and_clear_canvas(self):
         """Remove the preview image and clear the preview canevas"""
