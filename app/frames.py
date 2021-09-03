@@ -1,3 +1,5 @@
+"""Frame module for ReBook application"""
+
 from threading import Thread
 import tkinter as tk
 from tkinter import ttk
@@ -40,8 +42,6 @@ class MainFrame(ttk.Frame):
         self.strvar_device_screen_width = tk.StringVar()
         self.strvar_device_screen_height = tk.StringVar()
         self.strvar_current_preview_page_num = tk.StringVar()
-        self.strvar_tesseract_detection = tk.StringVar()
-        self.strvar_tesseract_language = tk.StringVar()
 
         # Crop Maring
         self.is_cropmargin_checked = tk.BooleanVar()
@@ -92,50 +92,48 @@ class MainFrame(ttk.Frame):
         self.strvar_page_range_cropbox_5 = tk.StringVar()
 
         self.is_dpi_checked = tk.BooleanVar()
-        self.is_landscape_checked = tk.BooleanVar()
-        self.is_column_num_checked = tk.BooleanVar()
-        self.is_smart_linebreak_checked = tk.BooleanVar()  # -ws 0.01~10
-        self.is_fixed_font_size_checked = tk.BooleanVar()
-        self.is_tesseract_checked = tk.BooleanVar()
-        self.is_tesseract_fast_checked = tk.BooleanVar()
-        self.is_resolution_multipler_checked = tk.BooleanVar()
-
-        self.strvar_column_num = tk.StringVar()
-        self.strvar_page_numbers = tk.StringVar()
-        self.strvar_fixed_font_size = tk.StringVar()
-        self.strvar_landscape_pages = tk.StringVar()  # 1,3,5-10
-        self.strvar_linebreak_space = tk.StringVar()
         self.strvar_device_screen_dpi = tk.StringVar()
-        self.strvar_ocr_cpu_percentage = tk.StringVar()
+
+        self.is_landscape_checked = tk.BooleanVar()
+        self.strvar_landscape_pages = tk.StringVar()  # 1,3,5-10
+
+        self.is_column_num_checked = tk.BooleanVar()
+        self.strvar_column_num = tk.StringVar()
+
+        self.is_smart_linebreak_checked = tk.BooleanVar()  # -ws 0.01~10
+        self.strvar_linebreak_space = tk.StringVar()
+
+        self.is_fixed_font_size_checked = tk.BooleanVar()
+        self.strvar_fixed_font_size = tk.StringVar()
+
+        self.strvar_page_numbers = tk.StringVar()
+
+        self.is_resolution_multipler_checked = tk.BooleanVar()
         self.strvar_resolution_multiplier = tk.StringVar()
 
         self.is_autocrop_checked = tk.BooleanVar()
-
         self.is_break_page_checked = tk.BooleanVar()
-
         self.is_native_pdf_checked = tk.BooleanVar()
-
         self.is_coloroutput_checked = tk.BooleanVar()
-
         self.is_reflow_text_checked = tk.BooleanVar()
-
         self.is_fast_preview_checked = tk.BooleanVar()
         self.is_avoid_overlap_checked = tk.BooleanVar()
-
         self.is_right_to_left_checked = tk.BooleanVar()
-
         self.is_autostraighten_checked = tk.BooleanVar()
-
         self.is_markedup_source_checked = tk.BooleanVar()
-
         self.is_erase_vertical_line_checked = tk.BooleanVar()
-
         self.is_ignore_small_defects_checked = tk.BooleanVar()
-
         self.is_erase_horizontal_line_checked = tk.BooleanVar()
-
         self.is_ghostscript_postprocessing_checked = tk.BooleanVar()
 
+        # Tesseract
+        self.is_tesseract_checked = tk.BooleanVar()
+        self.strvar_tesseract_cpu_percentage = tk.StringVar()
+        self.is_tesseract_fast_checked = tk.BooleanVar()
+        self.strvar_tesseract_detection = tk.StringVar()
+        self.strvar_tesseract_language = tk.StringVar()
+
+        # Advanced options
         self.is_minimum_column_gap_checked = tk.BooleanVar()
         self.strvar_min_column_gap_width = tk.StringVar()
 
@@ -150,6 +148,9 @@ class MainFrame(ttk.Frame):
 
         self.is_column_offset_maximum_checked = tk.BooleanVar()
         self.strvar_column_offset_maximum = tk.StringVar()
+
+        self.is_min_height_blank_between_regions_checked = tk.BooleanVar()
+        self.strvar_min_height_blank_between_regions = tk.StringVar()
 
         self.default_var_map = {
             cst.DEVICE_ARG_NAME: ["Kindle Paperwhite 3"],
@@ -234,6 +235,7 @@ class MainFrame(ttk.Frame):
             cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: ["1.5"],
             cst.COLUMN_GAP_RANGE_ARG_NAME: ["0.33"],
             cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: ["1.5"],
+            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: ["0.3"],
             cst.PREVIEW_OUTPUT_ARG_NAME: [],
         }
 
@@ -310,11 +312,11 @@ class MainFrame(ttk.Frame):
             ],
             cst.OCR_ARG_NAME: [
                 self.is_tesseract_checked,
-                self.strvar_ocr_cpu_percentage,
+                self.strvar_tesseract_cpu_percentage,
             ],
             cst.OCR_CPU_ARG_NAME: [
                 self.is_tesseract_checked,
-                self.strvar_ocr_cpu_percentage,
+                self.strvar_tesseract_cpu_percentage,
             ],
             cst.TESSERACT_LANGUAGE_ARG_NAME: [self.strvar_tesseract_language],
             cst.TESSERACT_FAST_ARG_NAME: [self.is_tesseract_fast_checked],
@@ -347,6 +349,7 @@ class MainFrame(ttk.Frame):
             cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: [self.strvar_max_gap_between_column],
             cst.COLUMN_GAP_RANGE_ARG_NAME: [self.strvar_column_gap_range],
             cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: [self.strvar_minimum_column_height],
+            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: [self.strvar_column_offset_maximum],
             cst.PREVIEW_OUTPUT_ARG_NAME: [],
         }
 
@@ -473,6 +476,8 @@ class MainFrame(ttk.Frame):
         self.advanced_option_frame = ttk.Labelframe(
             self.advanced_tab,
             text="Advanced options",
+            width=self.half_width_screen,
+            height=158,
         )
         self.advanced_option_frame.grid(
             column=0,
@@ -481,6 +486,7 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
+        self.advanced_option_frame.grid_propagate(False)
 
         advanced_option_line_number = 0
 
@@ -499,11 +505,11 @@ class MainFrame(ttk.Frame):
         )
         self.min_column_gap_width = ttk.Spinbox(
             self.advanced_option_frame,
-            from_=cst.STRVAR_MIN_COLUMN_GAP_WIDTH_MIN_VALUE,
-            to=cst.STRVAR_MIN_COLUMN_GAP_WIDTH_MAX_VALUE,
+            from_=cst.MIN_COLUMN_GAP_WIDTH_MIN_VALUE,
+            to=cst.MIN_COLUMN_GAP_WIDTH_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_min_column_gap_width,
-            command=self.gui_width_height,
+            command=self.gui_minimum_column_gap,
             width=6,
         )
         self.min_column_gap_width.grid(
@@ -531,11 +537,11 @@ class MainFrame(ttk.Frame):
         )
         self.max_gap_between_column = ttk.Spinbox(
             self.advanced_option_frame,
-            from_=cst.DEVICE_WIDTH_MIN_VALUE,
-            to=cst.DEVICE_WIDTH_MAX_VALUE,
+            from_=cst.MAX_GAP_BETWEEN_COLUMN_MIN_VALUE,
+            to=cst.MAX_GAP_BETWEEN_COLUMN_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_max_gap_between_column,
-            command=self.gui_width_height,
+            command=self.gui_max_gap_between_column,
             width=6,
         )
         self.max_gap_between_column.grid(
@@ -565,7 +571,7 @@ class MainFrame(ttk.Frame):
             self.advanced_option_frame,
             from_=cst.COLUMN_GAP_RANGE_MIN_VALUE,
             to=cst.COLUMN_GAP_RANGE_MAX_VALUE,
-            increment=0.1,
+            increment=0.01,
             textvariable=self.strvar_column_gap_range,
             command=self.gui_column_gap_range,
             width=6,
@@ -593,14 +599,13 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         self.minimum_column_height = ttk.Spinbox(
             self.advanced_option_frame,
             from_=cst.MINIMUM_COLUMN_HEIGHT_MIN_VALUE,
             to=cst.MINIMUM_COLUMN_HEIGHT_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_minimum_column_height,
-            command=self.gui_width_height,
+            command=self.gui_minimum_column_height,
             width=6,
         )
         self.minimum_column_height.grid(
@@ -626,14 +631,13 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         self.minimum_column_height = ttk.Spinbox(
             self.advanced_option_frame,
             from_=cst.COLUMN_OFFSET_MAXIMUM_MIN_VALUE,
             to=cst.COLUMN_OFFSET_MAXIMUM_MAX_VALUE,
             increment=0.1,
-            textvariable=self.strvar_device_screen_width,
-            command=self.gui_width_height,
+            textvariable=self.strvar_column_offset_maximum,
+            command=self.gui_column_offset_maximum,
             width=6,
         )
         self.minimum_column_height.grid(
@@ -644,65 +648,68 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-        advanced_option_line_number += 1
+        # advanced_option_line_number += 1
 
-        self.minimum_column_height_label = ttk.Label(
-            self.advanced_option_frame, text="min height of the blank area (-crgh)"
-        )
-        self.minimum_column_height_label.grid(
-            column=0,
-            row=advanced_option_line_number,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
+        # self.min_height_blank_between_regions_label = ttk.Checkbutton(
+        #     self.advanced_option_frame,
+        #     text="Min height of the blank area (-crgh)",
+        #     variable=self.is_min_height_blank_between_regions_checked,
+        #     command=self.gui_min_height_blank_between_regions,
+        # )
+        # self.min_height_blank_between_regions_label.grid(
+        #     column=0,
+        #     row=advanced_option_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=cst.DEFAULT_PADY,
+        #     padx=cst.DEFAULT_PADX,
+        # )
 
-        self.minimum_column_height = ttk.Spinbox(
-            self.advanced_option_frame,
-            from_=cst.DEVICE_WIDTH_MIN_VALUE,
-            to=cst.DEVICE_WIDTH_MAX_VALUE,
-            increment=0.1,
-            textvariable=self.strvar_device_screen_width,
-            command=self.gui_width_height,
-            width=6,
-        )
-        self.minimum_column_height.grid(
-            column=1,
-            row=advanced_option_line_number,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
+        # self.min_height_blank_between_regions = ttk.Spinbox(
+        #     self.advanced_option_frame,
+        #     from_=cst.DEVICE_WIDTH_MIN_VALUE,
+        #     to=cst.DEVICE_WIDTH_MAX_VALUE,
+        #     increment=0.1,
+        #     textvariable=self.strvar_min_height_blank_between_regions,
+        #     command=self.gui_min_height_blank_between_regions,
+        #     width=6,
+        # )
+        # self.min_height_blank_between_regions.grid(
+        #     column=1,
+        #     row=advanced_option_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=cst.DEFAULT_PADY,
+        #     padx=cst.DEFAULT_PADX,
+        # )
 
-        advanced_option_line_number += 1
+        # advanced_option_line_number += 1
 
-        self.minimum_column_height_label = ttk.Label(
-            self.advanced_option_frame, text="Insert Breack page (-bpl)"
-        )
-        self.minimum_column_height_label.grid(
-            column=0,
-            row=advanced_option_line_number,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
+        # self.minimum_column_height_label = ttk.Label(
+        #     self.advanced_option_frame, text="Insert Breack page (-bpl)"
+        # )
+        # self.minimum_column_height_label.grid(
+        #     column=0,
+        #     row=advanced_option_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=cst.DEFAULT_PADY,
+        #     padx=cst.DEFAULT_PADX,
+        # )
 
-        self.minimum_column_height = ttk.Spinbox(
-            self.advanced_option_frame,
-            from_=cst.DEVICE_WIDTH_MIN_VALUE,
-            to=cst.DEVICE_WIDTH_MAX_VALUE,
-            increment=0.1,
-            textvariable=self.strvar_device_screen_width,
-            command=self.gui_width_height,
-            width=6,
-        )
-        self.minimum_column_height.grid(
-            column=1,
-            row=advanced_option_line_number,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
+        # self.minimum_column_height = ttk.Spinbox(
+        #     self.advanced_option_frame,
+        #     from_=cst.DEVICE_WIDTH_MIN_VALUE,
+        #     to=cst.DEVICE_WIDTH_MAX_VALUE,
+        #     increment=0.1,
+        #     textvariable=self.strvar_device_screen_width,
+        #     command=self.gui_width_height,
+        #     width=6,
+        # )
+        # self.minimum_column_height.grid(
+        #     column=1,
+        #     row=advanced_option_line_number,
+        #     sticky=tk.N + tk.W,
+        #     pady=cst.DEFAULT_PADY,
+        #     padx=cst.DEFAULT_PADX,
+        # )
 
     def __setup_file_frame(self):
         """Set up the file frame"""
@@ -2060,7 +2067,7 @@ class MainFrame(ttk.Frame):
             to=cst.OCR_CPU_MAX_VALUE,
             increment=1,
             # text='CPU %',
-            textvariable=self.strvar_ocr_cpu_percentage,
+            textvariable=self.strvar_tesseract_cpu_percentage,
             command=self.gui_ocr_and_cpu,
             width=4,
         )
@@ -2383,7 +2390,9 @@ class MainFrame(ttk.Frame):
         device_arg = self.k2pdfopt_command_args.pop(cst.DEVICE_ARG_NAME, None)
         if device_arg is None:
             width_arg = self.k2pdfopt_command_args.pop(cst.DEVICE_WIDTH_ARG_NAME, None)
-            height_arg = self.k2pdfopt_command_args.pop(cst.DEVICE_HEIGHT_ARG_NAME, None)
+            height_arg = self.k2pdfopt_command_args.pop(
+                cst.DEVICE_HEIGHT_ARG_NAME, None
+            )
 
         mode_arg = self.k2pdfopt_command_args.pop(cst.CONVERSION_MODE_ARG_NAME, None)
         if mode_arg is not None:
@@ -2503,7 +2512,9 @@ class MainFrame(ttk.Frame):
                 width, "int", cst.DEVICE_WIDTH_MIN_VALUE, cst.DEVICE_WIDTH_MAX_VALUE
             ):
                 width_arg = cst.DEVICE_WIDTH_ARG_NAME + " " + width + screen_unit
-                self.__add_or_update_command_argument(cst.DEVICE_WIDTH_ARG_NAME, width_arg)
+                self.__add_or_update_command_argument(
+                    cst.DEVICE_WIDTH_ARG_NAME, width_arg
+                )
             else:
                 self.__remove_command_argument(cst.DEVICE_WIDTH_ARG_NAME)
 
@@ -2551,7 +2562,9 @@ class MainFrame(ttk.Frame):
             cst.DOCUMENT_RESOLUTION_FACTOR_MAX_VALUE,
         ):
             arg = cst.RESOLUTION_MULTIPLIER_ARG_NAME + " " + multiplier
-            self.__add_or_update_command_argument(cst.RESOLUTION_MULTIPLIER_ARG_NAME, arg)
+            self.__add_or_update_command_argument(
+                cst.RESOLUTION_MULTIPLIER_ARG_NAME, arg
+            )
         else:
             self.__remove_command_argument(cst.RESOLUTION_MULTIPLIER_ARG_NAME)
 
@@ -2583,7 +2596,9 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_left_cropmargin.get().strip()
                 )
-                self.__add_or_update_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME, arg)
+                self.__add_or_update_command_argument(
+                    cst.CROP_MARGIN_LEFT_ARG_NAME, arg
+                )
 
             if len(self.strvar_top_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2599,7 +2614,9 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_width_cropmargin.get().strip()
                 )
-                self.__add_or_update_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME, arg)
+                self.__add_or_update_command_argument(
+                    cst.CROP_MARGIN_RIGHT_ARG_NAME, arg
+                )
 
             if len(self.strvar_height_cropmargin.get().strip()) > 0:
                 arg = (
@@ -2607,7 +2624,9 @@ class MainFrame(ttk.Frame):
                     + " "
                     + self.strvar_height_cropmargin.get().strip()
                 )
-                self.__add_or_update_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME, arg)
+                self.__add_or_update_command_argument(
+                    cst.CROP_MARGIN_BOTTOM_ARG_NAME, arg
+                )
         else:
             self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
@@ -2840,7 +2859,9 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.NATIVE_PDF_ARG_NAME)
             self.__add_or_update_command_argument(cst.OCR_ARG_NAME, cst.OCR_ARG_NAME)
             ocr_cpu_arg = (
-                cst.OCR_CPU_ARG_NAME + " -" + self.strvar_ocr_cpu_percentage.get().strip()
+                cst.OCR_CPU_ARG_NAME
+                + " -"
+                + self.strvar_tesseract_cpu_percentage.get().strip()
             )
             self.__add_or_update_command_argument(cst.OCR_CPU_ARG_NAME, ocr_cpu_arg)
             self.gui_tesseract_fast()
@@ -2988,7 +3009,9 @@ class MainFrame(ttk.Frame):
     def gui_post_gs(self):
         """Manage `post precessing with GhostScript` option"""
         if self.is_ghostscript_postprocessing_checked.get():
-            self.__add_or_update_command_argument(cst.POST_GS_ARG_NAME, cst.POST_GS_ARG_NAME)
+            self.__add_or_update_command_argument(
+                cst.POST_GS_ARG_NAME, cst.POST_GS_ARG_NAME
+            )
         else:
             self.__remove_command_argument(cst.POST_GS_ARG_NAME)
 
@@ -3058,7 +3081,9 @@ class MainFrame(ttk.Frame):
         """Manage `Erase horizontal line` option"""
         if self.is_erase_horizontal_line_checked.get():
             arg = cst.ERASE_HORIZONTAL_LINE_ARG_NAME + " 1"
-            self.__add_or_update_command_argument(cst.ERASE_HORIZONTAL_LINE_ARG_NAME, arg)
+            self.__add_or_update_command_argument(
+                cst.ERASE_HORIZONTAL_LINE_ARG_NAME, arg
+            )
         else:
             self.__remove_command_argument(cst.ERASE_HORIZONTAL_LINE_ARG_NAME)
 
@@ -3081,18 +3106,84 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
     def gui_minimum_column_gap(self):
-        pass
+        """Manage `Minimum column gap` advanced option"""
+        min_column_gap = self.strvar_min_column_gap_width.get().strip()
+        if self.is_minimum_column_gap_checked.get() and tools.is_acceptable_number(
+            min_column_gap,
+            "float",
+            cst.MIN_COLUMN_GAP_WIDTH_MIN_VALUE,
+            cst.MIN_COLUMN_GAP_WIDTH_MAX_VALUE,
+        ):
+            arg = cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME + " " + min_column_gap
+            self.__add_or_update_command_argument(
+                cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME)
 
     def gui_max_gap_between_column(self):
-        pass
+        """Manage `Max allowed gap between columns` advanced option"""
+        max_column_gap = self.strvar_max_gap_between_column.get().strip()
+        if self.is_max_gap_between_column_checked.get() and tools.is_acceptable_number(
+            max_column_gap,
+            "float",
+            cst.MAX_GAP_BETWEEN_COLUMN_MIN_VALUE,
+            cst.MAX_GAP_BETWEEN_COLUMN_MAX_VALUE,
+        ):
+            arg = cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME + " " + max_column_gap
+            self.__add_or_update_command_argument(
+                cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME)
 
     def gui_column_gap_range(self):
-        pass
+        """Manage `column gap range` advanced option"""
+        column_gap_range = self.strvar_column_gap_range.get().strip()
+        if self.is_column_gap_range_checked.get() and tools.is_acceptable_number(
+            column_gap_range,
+            "float",
+            cst.COLUMN_GAP_RANGE_MIN_VALUE,
+            cst.COLUMN_GAP_RANGE_MAX_VALUE,
+        ):
+            arg = cst.COLUMN_GAP_RANGE_ARG_NAME + " " + column_gap_range
+            self.__add_or_update_command_argument(cst.COLUMN_GAP_RANGE_ARG_NAME, arg)
+        else:
+            self.__remove_command_argument(cst.COLUMN_GAP_RANGE_ARG_NAME)
 
     def gui_minimum_column_height(self):
-        pass
+        """Manage `minimum column height` advanced option"""
+        min_column_height = self.strvar_minimum_column_height.get().strip()
+        if self.is_minimum_column_height_checked.get() and tools.is_acceptable_number(
+            min_column_height,
+            "float",
+            cst.MINIMUM_COLUMN_HEIGHT_MIN_VALUE,
+            cst.MINIMUM_COLUMN_HEIGHT_MAX_VALUE,
+        ):
+            arg = cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME + " " + min_column_height
+            self.__add_or_update_command_argument(
+                cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME)
 
     def gui_column_offset_maximum(self):
+        """Manage `column offset maximum` advanced option"""
+        column_offset_max = self.strvar_column_offset_maximum.get().strip()
+        if self.is_column_offset_maximum_checked.get() and tools.is_acceptable_number(
+            column_offset_max,
+            "float",
+            cst.COLUMN_OFFSET_MAXIMUM_MIN_VALUE,
+            cst.COLUMN_OFFSET_MAXIMUM_MAX_VALUE,
+        ):
+            arg = cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME + " " + column_offset_max
+            self.__add_or_update_command_argument(
+                cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME)
+
+    def gui_min_height_blank_between_regions(self):
         pass
 
     def __remove_preview_image_and_clear_canvas(self):
@@ -3172,7 +3263,9 @@ class MainFrame(ttk.Frame):
         """Convert the input PDF/DJVU file"""
         if not self.__pdf_conversion_is_done():
             return
-        pdf_output_arg = cst.OUTPUT_PATH_ARG_NAME + " %s" + cst.OUTPUT_FILE_SUFFIX  # + ".pdf"
+        pdf_output_arg = (
+            cst.OUTPUT_PATH_ARG_NAME + " %s" + cst.OUTPUT_FILE_SUFFIX
+        )  # + ".pdf"
         self.background_future = self.convert_pdf_file(pdf_output_arg)
 
     def action_preview_current_page(self):
