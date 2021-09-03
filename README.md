@@ -3,7 +3,7 @@
 ReBook2 is a OOP rewriting of rebook whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
 ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 
-#### Advantage of ReBook2
+#### Advantages of ReBook2
 
 - rebook totally rewritten in the *Object Oriented Programming* paradigm (and other code improvement)
 - GUI rethought
@@ -14,6 +14,7 @@ ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 - support more devices
 - support DJVU file
 - better Tesseract support (i.e. more options)
+- advanced options availables
 - …
 
 Rebook2 depends on python3 and Tcl/Tk 8.6 (Tck/Tk with version lower than 8.6 doesn't work).

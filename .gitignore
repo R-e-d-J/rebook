@@ -1,6 +1,8 @@
 __pycache__/*
+app/__pycache__/*
 .vscode/*
 *.png
 *.json
 *.pdf
+*.pyc
 k2pdfopt
