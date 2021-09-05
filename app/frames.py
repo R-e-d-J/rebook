@@ -11,9 +11,9 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
-import app.constant as cst
 
 import tools
+import app.constant as cst
 
 
 class MainFrame(ttk.Frame):
@@ -152,6 +152,17 @@ class MainFrame(ttk.Frame):
         self.is_min_height_blank_between_regions_checked = tk.BooleanVar()
         self.strvar_min_height_blank_between_regions = tk.StringVar()
 
+        self.is_threshold_detecting_gaps_between_column_checked = tk.BooleanVar()
+        self.strvar_threshold_detecting_gaps_between_column = tk.StringVar()
+
+        self.is_threshold_detecting_gaps_between_rows_checked = tk.BooleanVar()
+        self.strvar_threshold_detecting_gaps_between_rows = tk.StringVar()
+
+        self.is_threshold_detecting_gaps_between_words_checked = tk.BooleanVar()
+        self.strvar_threshold_detecting_gaps_between_words = tk.StringVar()
+
+        self.is_text_only_checked = tk.BooleanVar()
+
         self.default_var_map = {
             cst.DEVICE_ARG_NAME: ["Kindle Paperwhite 3"],
             cst.SCREEN_UNIT_PREFIX: ["Pixels"],
@@ -231,11 +242,16 @@ class MainFrame(ttk.Frame):
             cst.TESSERACT_LANGUAGE_ARG_NAME: ["English"],
             cst.TESSERACT_FAST_ARG_NAME: [False],
             cst.TESSERACT_DETECTION_ARG_NAME: ["line"],
-            cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME: ["0.1"],
-            cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: ["1.5"],
-            cst.COLUMN_GAP_RANGE_ARG_NAME: ["0.33"],
-            cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: ["1.5"],
-            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: ["0.3"],
+            cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME: [False, "0.1"],
+            cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: [False, "1.5"],
+            cst.COLUMN_GAP_RANGE_ARG_NAME: [False, "0.33"],
+            cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: [False, "1.5"],
+            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: [False, "0.3"],
+            cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_ARG_NAME: [False, "0.014"],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_ARG_NAME: [False, "0.005"],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_ARG_NAME: [False, "0.006"],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_ARG_NAME: [False, "0.0015"],
+            cst.TEXT_ONLY_OUTPUT_ARG_NAME: [False],
             cst.PREVIEW_OUTPUT_ARG_NAME: [],
         }
 
@@ -345,11 +361,43 @@ class MainFrame(ttk.Frame):
             cst.FAST_PREVIEW_ARG_NAME: [self.is_fast_preview_checked],
             cst.IGN_SMALL_DEFECTS_ARG_NAME: [self.is_ignore_small_defects_checked],
             cst.AUTO_CROP_ARG_NAME: [self.is_autocrop_checked],
-            cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME: [self.strvar_min_column_gap_width],
-            cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: [self.strvar_max_gap_between_column],
-            cst.COLUMN_GAP_RANGE_ARG_NAME: [self.strvar_column_gap_range],
-            cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: [self.strvar_minimum_column_height],
-            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: [self.strvar_column_offset_maximum],
+            cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME: [
+                self.is_minimum_column_gap_checked,
+                self.strvar_min_column_gap_width,
+            ],
+            cst.MAX_GAP_BETWEEN_COLUMN_ARG_NAME: [
+                self.is_max_gap_between_column_checked,
+                self.strvar_max_gap_between_column,
+            ],
+            cst.COLUMN_GAP_RANGE_ARG_NAME: [
+                self.is_column_gap_range_checked,
+                self.strvar_column_gap_range,
+            ],
+            cst.MINIMUM_COLUMN_HEIGHT_ARG_NAME: [
+                self.is_minimum_column_height_checked,
+                self.strvar_minimum_column_height,
+            ],
+            cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME: [
+                self.is_column_offset_maximum_checked,
+                self.strvar_column_offset_maximum,
+            ],
+            cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_ARG_NAME: [
+                self.is_min_height_blank_between_regions_checked,
+                self.strvar_min_height_blank_between_regions,
+            ],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_ARG_NAME: [
+                self.is_threshold_detecting_gaps_between_column_checked,
+                self.strvar_threshold_detecting_gaps_between_column,
+            ],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_ARG_NAME: [
+                self.is_threshold_detecting_gaps_between_rows_checked,
+                self.strvar_threshold_detecting_gaps_between_rows,
+            ],
+            cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_ARG_NAME: [
+                self.is_threshold_detecting_gaps_between_words_checked,
+                self.strvar_threshold_detecting_gaps_between_words,
+            ],
+            cst.TEXT_ONLY_OUTPUT_ARG_NAME: [self.is_text_only_checked],
             cst.PREVIEW_OUTPUT_ARG_NAME: [],
         }
 
@@ -477,7 +525,7 @@ class MainFrame(ttk.Frame):
             self.advanced_tab,
             text="Advanced options",
             width=self.half_width_screen,
-            height=158,
+            height=300,
         )
         self.advanced_option_frame.grid(
             column=0,
@@ -618,20 +666,20 @@ class MainFrame(ttk.Frame):
 
         advanced_option_line_number += 1
 
-        self.minimum_column_height_label = ttk.Checkbutton(
+        self.column_offset_maximum_label = ttk.Checkbutton(
             self.advanced_option_frame,
             text="Column Offset Maximum (-comax)",
             variable=self.is_column_offset_maximum_checked,
             command=self.gui_column_offset_maximum,
         )
-        self.minimum_column_height_label.grid(
+        self.column_offset_maximum_label.grid(
             column=0,
             row=advanced_option_line_number,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        self.minimum_column_height = ttk.Spinbox(
+        self.column_offset_maximum = ttk.Spinbox(
             self.advanced_option_frame,
             from_=cst.COLUMN_OFFSET_MAXIMUM_MIN_VALUE,
             to=cst.COLUMN_OFFSET_MAXIMUM_MAX_VALUE,
@@ -640,7 +688,7 @@ class MainFrame(ttk.Frame):
             command=self.gui_column_offset_maximum,
             width=6,
         )
-        self.minimum_column_height.grid(
+        self.column_offset_maximum.grid(
             column=1,
             row=advanced_option_line_number,
             sticky=tk.N + tk.W,
@@ -648,68 +696,149 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-        # advanced_option_line_number += 1
+        advanced_option_line_number += 1
 
-        # self.min_height_blank_between_regions_label = ttk.Checkbutton(
-        #     self.advanced_option_frame,
-        #     text="Min height of the blank area (-crgh)",
-        #     variable=self.is_min_height_blank_between_regions_checked,
-        #     command=self.gui_min_height_blank_between_regions,
-        # )
-        # self.min_height_blank_between_regions_label.grid(
-        #     column=0,
-        #     row=advanced_option_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=cst.DEFAULT_PADY,
-        #     padx=cst.DEFAULT_PADX,
-        # )
+        self.min_height_blank_between_regions_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Min height of the blank area that separates regions (-crgh)",
+            variable=self.is_min_height_blank_between_regions_checked,
+            command=self.gui_min_height_blank_between_regions,
+        )
+        self.min_height_blank_between_regions_label.grid(
+            column=0,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+        self.min_height_blank_between_regions = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MIN_VALUE,
+            to=cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MAX_VALUE,
+            increment=0.001,
+            textvariable=self.strvar_min_height_blank_between_regions,
+            command=self.gui_min_height_blank_between_regions,
+            width=6,
+        )
+        self.min_height_blank_between_regions.grid(
+            column=1,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
 
-        # self.min_height_blank_between_regions = ttk.Spinbox(
-        #     self.advanced_option_frame,
-        #     from_=cst.DEVICE_WIDTH_MIN_VALUE,
-        #     to=cst.DEVICE_WIDTH_MAX_VALUE,
-        #     increment=0.1,
-        #     textvariable=self.strvar_min_height_blank_between_regions,
-        #     command=self.gui_min_height_blank_between_regions,
-        #     width=6,
-        # )
-        # self.min_height_blank_between_regions.grid(
-        #     column=1,
-        #     row=advanced_option_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=cst.DEFAULT_PADY,
-        #     padx=cst.DEFAULT_PADX,
-        # )
+        advanced_option_line_number += 1
 
-        # advanced_option_line_number += 1
+        self.threshold_detecting_gaps_between_column_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Threshold value for detecting column gaps (-gtc)",
+            variable=self.is_threshold_detecting_gaps_between_column_checked,
+            command=self.gui_threshold_detecting_gaps_between_column,
+        )
+        self.threshold_detecting_gaps_between_column_label.grid(
+            column=0,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+        self.threshold_detecting_gaps_between_column = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MIN_VALUE,
+            to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MAX_VALUE,
+            increment=0.001,
+            textvariable=self.strvar_threshold_detecting_gaps_between_column,
+            command=self.gui_threshold_detecting_gaps_between_column,
+            width=6,
+        )
+        self.threshold_detecting_gaps_between_column.grid(
+            column=1,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
 
-        # self.minimum_column_height_label = ttk.Label(
-        #     self.advanced_option_frame, text="Insert Breack page (-bpl)"
-        # )
-        # self.minimum_column_height_label.grid(
-        #     column=0,
-        #     row=advanced_option_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=cst.DEFAULT_PADY,
-        #     padx=cst.DEFAULT_PADX,
-        # )
+        advanced_option_line_number += 1
 
-        # self.minimum_column_height = ttk.Spinbox(
-        #     self.advanced_option_frame,
-        #     from_=cst.DEVICE_WIDTH_MIN_VALUE,
-        #     to=cst.DEVICE_WIDTH_MAX_VALUE,
-        #     increment=0.1,
-        #     textvariable=self.strvar_device_screen_width,
-        #     command=self.gui_width_height,
-        #     width=6,
-        # )
-        # self.minimum_column_height.grid(
-        #     column=1,
-        #     row=advanced_option_line_number,
-        #     sticky=tk.N + tk.W,
-        #     pady=cst.DEFAULT_PADY,
-        #     padx=cst.DEFAULT_PADX,
-        # )
+        self.threshold_detecting_gaps_between_rows_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Threshold value for detecting rows gaps (-gtr)",
+            variable=self.is_threshold_detecting_gaps_between_rows_checked,
+            command=self.gui_threshold_detecting_gaps_between_rows,
+        )
+        self.threshold_detecting_gaps_between_rows_label.grid(
+            column=0,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+        self.threshold_detecting_gaps_between_rows = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MIN_VALUE,
+            to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MAX_VALUE,
+            increment=0.001,
+            textvariable=self.strvar_threshold_detecting_gaps_between_rows,
+            command=self.gui_threshold_detecting_gaps_between_rows,
+            width=6,
+        )
+        self.threshold_detecting_gaps_between_rows.grid(
+            column=1,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+
+        advanced_option_line_number += 1
+
+        self.threshold_detecting_gaps_between_words_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Threshold value for detecting rows gaps (-gtw)",
+            variable=self.is_threshold_detecting_gaps_between_words_checked,
+            command=self.gui_threshold_detecting_gaps_between_words,
+        )
+        self.threshold_detecting_gaps_between_words_label.grid(
+            column=0,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+        self.threshold_detecting_gaps_between_words = ttk.Spinbox(
+            self.advanced_option_frame,
+            from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MIN_VALUE,
+            to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MAX_VALUE,
+            increment=0.001,
+            textvariable=self.strvar_threshold_detecting_gaps_between_words,
+            command=self.gui_threshold_detecting_gaps_between_words,
+            width=6,
+        )
+        self.threshold_detecting_gaps_between_words.grid(
+            column=1,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+
+        advanced_option_line_number += 1
+
+        self.text_only_label = ttk.Checkbutton(
+            self.advanced_option_frame,
+            text="Text only (-to)",
+            variable=self.is_text_only_checked,
+            command=self.gui_text_only,
+        )
+        self.text_only_label.grid(
+            column=0,
+            row=advanced_option_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
 
     def __setup_file_frame(self):
         """Set up the file frame"""
@@ -3184,7 +3313,103 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.COLUMN_OFFSET_MAXIMUM_ARG_NAME)
 
     def gui_min_height_blank_between_regions(self):
-        pass
+        """ Manage the `min height of the blank area that separates regions` advanced option """
+        min_height_blank_between_regions = (
+            self.strvar_min_height_blank_between_regions.get().strip()
+        )
+        if (
+            self.is_min_height_blank_between_regions_checked.get()
+            and tools.is_acceptable_number(
+                min_height_blank_between_regions,
+                "float",
+                cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MIN_VALUE,
+                cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MAX_VALUE,
+            )
+        ):
+            arg = (
+                cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_ARG_NAME
+                + " "
+                + min_height_blank_between_regions
+            )
+            self.__add_or_update_command_argument(
+                cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(
+                cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_ARG_NAME
+            )
+
+    def gui_threshold_detecting_gaps_between_column(self):
+        """Manage `Threshold value for detecting column gaps` advanced option """
+        threshold = self.strvar_threshold_detecting_gaps_between_column.get().strip()
+        if (
+            self.is_threshold_detecting_gaps_between_column_checked.get()
+            and tools.is_acceptable_number(
+                threshold,
+                "float",
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MIN_VALUE,
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MAX_VALUE,
+            )
+        ):
+            arg = cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_ARG_NAME + " " + threshold
+            self.__add_or_update_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_ARG_NAME
+            )
+
+    def gui_threshold_detecting_gaps_between_rows(self):
+        """Manage the `threshold value for detecting gaps between rows` advanced option """
+        threshold = self.strvar_threshold_detecting_gaps_between_rows.get().strip()
+        if (
+            self.is_threshold_detecting_gaps_between_rows_checked.get()
+            and tools.is_acceptable_number(
+                threshold,
+                "float",
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MIN_VALUE,
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MAX_VALUE,
+            )
+        ):
+            arg = cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_ARG_NAME + " " + threshold
+            self.__add_or_update_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_ARG_NAME
+            )
+
+    def gui_threshold_detecting_gaps_between_words(self):
+        """Manage the `threshold for detecting word gaps` advanced option """
+        threshold = self.strvar_threshold_detecting_gaps_between_words.get().strip()
+        if (
+            self.is_threshold_detecting_gaps_between_words_checked.get()
+            and tools.is_acceptable_number(
+                threshold,
+                "float",
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MIN_VALUE,
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MAX_VALUE,
+            )
+        ):
+            arg = cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_ARG_NAME + " " + threshold
+            self.__add_or_update_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_ARG_NAME, arg
+            )
+        else:
+            self.__remove_command_argument(
+                cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_ARG_NAME
+            )
+
+    def gui_text_only(self):
+        """Manage the `text only` advanced option"""
+        if self.is_text_only_checked.get():
+            self.__add_or_update_command_argument(
+                cst.TEXT_ONLY_OUTPUT_ARG_NAME, cst.TEXT_ONLY_OUTPUT_ARG_NAME
+            )
+        else:
+            self.__remove_command_argument(cst.TEXT_ONLY_OUTPUT_ARG_NAME)
 
     def __remove_preview_image_and_clear_canvas(self):
         """Remove the preview image and clear the preview canevas"""

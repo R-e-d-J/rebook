@@ -1,6 +1,7 @@
 """Main Application class for ReBook2"""
 import tkinter as tk
 
+
 class ReBook(tk.Tk):
     """Application class"""
 
