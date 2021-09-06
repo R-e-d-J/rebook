@@ -3,6 +3,8 @@
 ReBook2 is a OOP rewriting of rebook whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
 ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 
+![./](./ReBook_2.png)
+
 #### Advantages of ReBook2
 
 - rebook totally rewritten in the *Object Oriented Programming* paradigm (and other code improvement)

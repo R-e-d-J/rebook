@@ -514,7 +514,7 @@ class MainFrame(ttk.Frame):
             self.conversion_tab_left_part_line_num,
             weight=1,
         )
-        self.action_frame.columnconfigure(0, weight=1)
+        self.action_frame.columnconfigure(1, weight=1)
         self.action_frame.rowconfigure(self.action_frame_row_num, weight=1)
 
     def __fill_advanced_tab(self):
@@ -2466,7 +2466,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.command_arguments_entry = ttk.Entry(
-            self.information_frame, textvariable=self.strvar_command_args, width=80
+            self.information_frame, textvariable=self.strvar_command_args, width=76
         )
         self.command_arguments_entry.bind("<Button-1>", self.gui_cmd_args)
         self.command_arguments_entry.grid(
