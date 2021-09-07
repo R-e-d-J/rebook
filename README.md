@@ -50,3 +50,9 @@ python3 -m tkinter
 To run rebook, put k2pdfopt binary and rebook.py into the same directory and run `python3 rebook2.py`
 
 ReBook2 is still under development so, please report any issue.
+
+
+
+#### Informations
+
+ReBook 2 was developed and tested on a Mid 2014 MacBook Pro - macOS Big Sur 11.5.2

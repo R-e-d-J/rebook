@@ -9,6 +9,7 @@ from tkinter import scrolledtext
 import asyncio
 import json
 import os
+from tkinter.constants import ANCHOR
 import webbrowser
 from PIL import Image, ImageTk
 
@@ -540,7 +541,7 @@ class MainFrame(ttk.Frame):
 
         self.min_column_gap_width_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Minimum column gap width (-cg)",
+            text="Minimum column gap width",
             variable=self.is_minimum_column_gap_checked,
             command=self.gui_minimum_column_gap,
         )
@@ -572,7 +573,7 @@ class MainFrame(ttk.Frame):
 
         self.max_gap_between_column_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Max allowed gap between columns (-cgmax)",
+            text="Max allowed gap between columns",
             variable=self.is_max_gap_between_column_checked,
             command=self.gui_max_gap_between_column,
         )
@@ -604,7 +605,7 @@ class MainFrame(ttk.Frame):
 
         self.column_gap_range_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Column-gap range (-cgr)",
+            text="Column-gap range",
             variable=self.is_column_gap_range_checked,
             command=self.gui_column_gap_range,
         )
@@ -636,7 +637,7 @@ class MainFrame(ttk.Frame):
 
         self.minimum_column_height_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Minimum column height (-ch)",
+            text="Minimum column height",
             variable=self.is_minimum_column_height_checked,
             command=self.gui_minimum_column_height,
         )
@@ -668,7 +669,7 @@ class MainFrame(ttk.Frame):
 
         self.column_offset_maximum_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Column Offset Maximum (-comax)",
+            text="Column Offset Maximum",
             variable=self.is_column_offset_maximum_checked,
             command=self.gui_column_offset_maximum,
         )
@@ -700,7 +701,7 @@ class MainFrame(ttk.Frame):
 
         self.min_height_blank_between_regions_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Min height of the blank area that separates regions (-crgh)",
+            text="Min height of the blank area that separates regions",
             variable=self.is_min_height_blank_between_regions_checked,
             command=self.gui_min_height_blank_between_regions,
         )
@@ -732,7 +733,7 @@ class MainFrame(ttk.Frame):
 
         self.threshold_detecting_gaps_between_column_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Threshold value for detecting column gaps (-gtc)",
+            text="Threshold value for detecting column gaps",
             variable=self.is_threshold_detecting_gaps_between_column_checked,
             command=self.gui_threshold_detecting_gaps_between_column,
         )
@@ -764,7 +765,7 @@ class MainFrame(ttk.Frame):
 
         self.threshold_detecting_gaps_between_rows_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Threshold value for detecting rows gaps (-gtr)",
+            text="Threshold value for detecting rows gaps",
             variable=self.is_threshold_detecting_gaps_between_rows_checked,
             command=self.gui_threshold_detecting_gaps_between_rows,
         )
@@ -796,7 +797,7 @@ class MainFrame(ttk.Frame):
 
         self.threshold_detecting_gaps_between_words_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Threshold value for detecting rows gaps (-gtw)",
+            text="Threshold value for detecting rows gaps",
             variable=self.is_threshold_detecting_gaps_between_words_checked,
             command=self.gui_threshold_detecting_gaps_between_words,
         )
@@ -828,7 +829,7 @@ class MainFrame(ttk.Frame):
 
         self.text_only_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Text only (-to)",
+            text="Text only",
             variable=self.is_text_only_checked,
             command=self.gui_text_only,
         )
@@ -2285,7 +2286,7 @@ class MainFrame(ttk.Frame):
         self.action_frame.grid(
             column=self.conversion_tab_right_part_column_num,
             row=self.conversion_tab_right_part_line_num,
-            rowspan=3,
+            rowspan=4,
             sticky=tk.N + tk.S + tk.E + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
@@ -2299,7 +2300,8 @@ class MainFrame(ttk.Frame):
         self.preview_button.grid(
             column=0,
             row=self.action_frame_row_num,
-            sticky=tk.N + tk.W,
+            # columnspan=2,
+            sticky=tk.NW,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
@@ -2310,17 +2312,22 @@ class MainFrame(ttk.Frame):
         self.convert_button.grid(
             column=1,
             row=self.action_frame_row_num,
-            # sticky=tk.N + tk.W,
+            columnspan=2,
+            # sticky=tk.EW,
             # pady=cst.DEFAULT_PADY,
             # padx=cst.DEFAULT_PADX,
         )
 
         self.abort_button = ttk.Button(
-            self.action_frame, text="Abort", command=self.action_abort_conversion
+            self.action_frame,
+            text="Abort",
+            command=self.action_abort_conversion,
+            # anchor="w"
         )
         self.abort_button.grid(
-            column=2,
+            column=3,
             row=self.action_frame_row_num,
+            # columnspan=2,
             # sticky=tk.N + tk.W,
             # pady=cst.DEFAULT_PADY,
             # padx=cst.DEFAULT_PADX,
