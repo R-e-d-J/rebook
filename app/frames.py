@@ -111,7 +111,9 @@ class MainFrame(ttk.Frame):
         self.is_resolution_multipler_checked = tk.BooleanVar()
         self.strvar_resolution_multiplier = tk.StringVar()
 
-        self.is_autocrop_checked = tk.BooleanVar()
+        self.is_auto_crop_checked = tk.BooleanVar()
+        self.strvar_auto_crop = tk.StringVar()
+
         self.is_break_page_checked = tk.BooleanVar()
         self.is_native_pdf_checked = tk.BooleanVar()
         self.is_coloroutput_checked = tk.BooleanVar()
@@ -236,7 +238,7 @@ class MainFrame(ttk.Frame):
             cst.ERASE_HORIZONTAL_LINE_ARG_NAME: [True],
             cst.FAST_PREVIEW_ARG_NAME: [True],
             cst.IGN_SMALL_DEFECTS_ARG_NAME: [False],
-            cst.AUTO_CROP_ARG_NAME: [False],
+            cst.AUTO_CROP_ARG_NAME: [False, "0.1"],
             cst.OCR_ARG_NAME: [False, "50"],
             cst.OCR_CPU_ARG_NAME: [False, "50"],
             cst.TESSERACT_LANGUAGE_ARG_NAME: ["English"],
@@ -360,7 +362,10 @@ class MainFrame(ttk.Frame):
             cst.ERASE_HORIZONTAL_LINE_ARG_NAME: [self.is_erase_horizontal_line_checked],
             cst.FAST_PREVIEW_ARG_NAME: [self.is_fast_preview_checked],
             cst.IGN_SMALL_DEFECTS_ARG_NAME: [self.is_ignore_small_defects_checked],
-            cst.AUTO_CROP_ARG_NAME: [self.is_autocrop_checked],
+            cst.AUTO_CROP_ARG_NAME: [
+                self.is_auto_crop_checked,
+                self.strvar_auto_crop,
+            ],
             cst.MIN_COLUMN_GAP_WIDTH_ARG_NAME: [
                 self.is_minimum_column_gap_checked,
                 self.strvar_min_column_gap_width,
@@ -796,7 +801,7 @@ class MainFrame(ttk.Frame):
 
         self.threshold_detecting_gaps_between_words_label = ttk.Checkbutton(
             self.advanced_option_frame,
-            text="Threshold value for detecting rows gaps",
+            text="Threshold value for detecting words gaps",
             variable=self.is_threshold_detecting_gaps_between_words_checked,
             command=self.gui_threshold_detecting_gaps_between_words,
         )
@@ -1937,6 +1942,36 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
+        self.autocrop_check_button = ttk.Checkbutton(
+            self.parameters_frame,
+            text="Auto-Crop",
+            variable=self.is_auto_crop_checked,
+            command=self.gui_auto_crop,
+        )
+        self.autocrop_check_button.grid(
+            column=2,
+            row=parameters_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+        self.autocrop_spinbox = ttk.Spinbox(
+            self.parameters_frame,
+            from_=cst.AUTO_CROP_MIN_VALUE,
+            to=cst.AUTO_CROP_MAX_VALUE,
+            increment=0.1,
+            textvariable=self.strvar_auto_crop,
+            command=self.gui_auto_crop,
+            width=5,
+        )
+        self.autocrop_spinbox.grid(
+            column=3,
+            row=parameters_frame_line_number,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+
         option_frame_left_part_col_num = 0
         parameters_frame_line_number += 1
         save_parameters_frame_line_number = parameters_frame_line_number
@@ -1954,8 +1989,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.break_after_source_page_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Break after each source page",
@@ -1969,8 +2004,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.color_output_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Color Output",
@@ -1984,8 +2019,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.native_pdf_output_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Native PDF output",
@@ -1999,8 +2034,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.avoid_text_overlap_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Avoid text selection overlap",
@@ -2016,7 +2051,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.post_process_ghostscript_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Post process w/GhostScript",
@@ -2032,7 +2066,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.generate_markup_source_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Generate marked-up source",
@@ -2063,8 +2096,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.erase_vline_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Erase vertical lines",
@@ -2078,8 +2111,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.erase_hline_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Erase horizontal lines",
@@ -2093,8 +2126,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.fast_preview_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Fast preview",
@@ -2108,8 +2141,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        parameters_frame_line_number += 1
 
+        parameters_frame_line_number += 1
         self.right_to_left_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Right-to-left text",
@@ -2125,7 +2158,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.ignore_defect_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Ignore small defects",
@@ -2133,21 +2165,6 @@ class MainFrame(ttk.Frame):
             command=self.gui_ignore_small_defect,
         )
         self.ignore_defect_check_button.grid(
-            column=option_frame_right_part_col_num,
-            row=parameters_frame_line_number,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
-        parameters_frame_line_number += 1
-
-        self.autocrop_check_button = ttk.Checkbutton(
-            self.parameters_frame,
-            text="Auto-Crop",
-            variable=self.is_autocrop_checked,
-            command=self.gui_auto_crop,
-        )
-        self.autocrop_check_button.grid(
             column=option_frame_right_part_col_num,
             row=parameters_frame_line_number,
             sticky=tk.N + tk.W,
@@ -2711,7 +2728,7 @@ class MainFrame(ttk.Frame):
         """
 
         if self.is_cropmargin_checked.get():
-            self.is_autocrop_checked.set(False)
+            self.is_auto_crop_checked.set(False)
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
             self.is_cropbox_1_checked.set(False)
             self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
@@ -3226,16 +3243,16 @@ class MainFrame(ttk.Frame):
 
         Remarks: conflict with `crop margin`
         """
-        if self.is_autocrop_checked.get():
+        auto_crop_value = self.strvar_auto_crop.get().strip()
+        if self.is_auto_crop_checked.get() and tools.is_acceptable_number(auto_crop_value, "float", cst.AUTO_CROP_MIN_VALUE, cst.AUTO_CROP_MAX_VALUE):
             self.is_cropmargin_checked.set(False)
             self.__remove_command_argument(cst.CROPBOX_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
-            self.__add_or_update_command_argument(
-                cst.AUTO_CROP_ARG_NAME, cst.AUTO_CROP_ARG_NAME
-            )
+            arg = cst.AUTO_CROP_ARG_NAME + ' ' + auto_crop_value
+            self.__add_or_update_command_argument(cst.AUTO_CROP_ARG_NAME, arg)
         else:
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
