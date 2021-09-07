@@ -9,7 +9,6 @@ from tkinter import scrolledtext
 import asyncio
 import json
 import os
-from tkinter.constants import ANCHOR
 import webbrowser
 from PIL import Image, ImageTk
 
@@ -2300,19 +2299,19 @@ class MainFrame(ttk.Frame):
         self.preview_button.grid(
             column=0,
             row=self.action_frame_row_num,
-            # columnspan=2,
-            sticky=tk.NW,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
+            columnspan=2,
+            # sticky=tk.NW,
+            # pady=cst.DEFAULT_PADY,
+            # padx=cst.DEFAULT_PADX,
         )
 
         self.convert_button = ttk.Button(
             self.action_frame, text="Convert", command=self.action_convert_pdf
         )
         self.convert_button.grid(
-            column=1,
+            column=2,
             row=self.action_frame_row_num,
-            columnspan=2,
+            # columnspan=2,
             # sticky=tk.EW,
             # pady=cst.DEFAULT_PADY,
             # padx=cst.DEFAULT_PADX,
@@ -2322,31 +2321,14 @@ class MainFrame(ttk.Frame):
             self.action_frame,
             text="Abort",
             command=self.action_abort_conversion,
-            # anchor="w"
         )
         self.abort_button.grid(
             column=3,
             row=self.action_frame_row_num,
-            # columnspan=2,
+            columnspan=2,
             # sticky=tk.N + tk.W,
             # pady=cst.DEFAULT_PADY,
             # padx=cst.DEFAULT_PADX,
-        )
-
-        self.action_frame_row_num += 1
-
-        self.current_preview_page_number_entry = ttk.Entry(
-            self.action_frame,
-            textvariable=self.strvar_current_preview_page_num,
-            width=100,
-        )
-        self.current_preview_page_number_entry.grid(
-            column=0,
-            row=self.action_frame_row_num,
-            columnspan=3,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
         )
 
         self.action_frame_column_num = 0
@@ -2374,8 +2356,24 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        self.action_frame_column_num += 1
 
+        self.action_frame_column_num += 1
+        self.current_preview_page_number_entry = ttk.Entry(
+            self.action_frame,
+            textvariable=self.strvar_current_preview_page_num,
+            width=30,
+            justify='center',
+        )
+        self.current_preview_page_number_entry.grid(
+            column=self.action_frame_column_num,
+            row=self.action_frame_row_num,
+            # columnspan=3,
+            sticky=tk.N + tk.W,
+            pady=cst.DEFAULT_PADY,
+            padx=cst.DEFAULT_PADX,
+        )
+
+        self.action_frame_column_num += 1
         self.next_button = ttk.Button(
             self.action_frame, text=">", command=self.action_page_down
         )
