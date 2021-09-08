@@ -1,13 +1,11 @@
 # tools_function
 import re
 
-def check_page_nums(input_pages):
-    page_num_list = re.split(',|-|o|e', input_pages)
+def check_page_nums(page_range):
+    page_num_list = re.split(',', page_range)
+    pattern = re.compile("^([0-9]*)(\-[0-9]*)?[o|e]?$")
+    return all(pattern.match(page_num) for page_num in page_num_list)
 
-    for page_num in page_num_list:
-        if len(page_num) > 0 and not page_num.isdigit():
-            return False
-    return True
 
 def is_acceptable_number(number, type, minval, maxval):
     ''' Check if a number is float or int '''
@@ -23,5 +21,5 @@ def is_acceptable_number(number, type, minval, maxval):
             return False
         if number >= minval and number <= maxval:
             return True
-    
+
     return False
