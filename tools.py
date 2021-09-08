@@ -3,11 +3,7 @@ import re
 
 def check_page_nums(input_pages):
     page_num_list = re.split(',|-|o|e', input_pages)
-
-    for page_num in page_num_list:
-        if len(page_num) > 0 and not page_num.isdigit():
-            return False
-    return True
+    return all((len(page_num) and page_num.isdigit() for page_num in page_num_list))
 
 def is_acceptable_number(number, type, minval, maxval):
     ''' Check if a number is float or int '''
