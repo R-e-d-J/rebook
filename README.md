@@ -1,6 +1,6 @@
 # Rebook 2
 
-ReBook2 is a OOP rewriting of rebook whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
+ReBook2 is a OOP rewriting of *rebook* whitch is a Tcl/Tk based GUI for the PDF conversion tool, k2pdfopt.
 ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 
 ![./](./ReBook_2.png)
@@ -10,13 +10,14 @@ ReBook2 is ***largely*** inspired by ***Pu Wang's rebook***.
 - rebook totally rewritten in the *Object Oriented Programming* paradigm (and other code improvement)
 - GUI rethought
 - run in a virtual environnement
-- cropboxes bug fixed
+- cropboxes and OCR CPU bugs (from rebook) fixed
 - support crop-margin and cropboxes
 - support multiple saved settings files
 - support more devices
 - support DJVU file
 - better Tesseract support (i.e. more options)
 - advanced options availables
+- more options and more precise tuning possibilities
 - …
 
 Rebook2 depends on python3 and Tcl/Tk 8.6 (Tck/Tk with version lower than 8.6 doesn't work).

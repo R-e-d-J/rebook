@@ -1076,7 +1076,6 @@ class MainFrame(ttk.Frame):
         self.margin_and_cropboxes_frame.grid_propagate(False)
 
         margin_and_cropboxes_frame_line_number = 0
-
         self.cropmargin_label = ttk.Label(
             self.margin_and_cropboxes_frame,
             text="Crop Margins (in)",
@@ -1250,7 +1249,6 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-
         self.cropbox1_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
             variable=self.is_cropbox_1_checked,
@@ -1343,7 +1341,6 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-
         self.cropbox2_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
             variable=self.is_cropbox_2_checked,
@@ -1436,7 +1433,6 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-
         self.cropbox3_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
             variable=self.is_cropbox_3_checked,
@@ -1529,7 +1525,6 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-
         self.cropbox4_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
             variable=self.is_cropbox_4_checked,
@@ -1622,7 +1617,6 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-
         self.cropbox5_check_button = ttk.Checkbutton(
             self.margin_and_cropboxes_frame,
             variable=self.is_cropbox_5_checked,
@@ -1734,7 +1728,6 @@ class MainFrame(ttk.Frame):
         self.parameters_frame.grid_propagate(False)
 
         parameters_frame_line_number = 0
-
         conversion_mode_label = ttk.Label(self.parameters_frame, text="Conversion Mode")
         conversion_mode_label.grid(
             column=0,
@@ -1785,7 +1778,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.max_column_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Maximum Columns",
@@ -1815,7 +1807,6 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         self.landscape_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Output in Landscape",
@@ -1845,7 +1836,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.resolution_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Document Resolution Factor",
@@ -1859,7 +1849,6 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         self.resolution_spinbox = ttk.Spinbox(
             self.parameters_frame,
             from_=cst.DOCUMENT_RESOLUTION_FACTOR_MIN_VALUE,
@@ -1911,7 +1900,6 @@ class MainFrame(ttk.Frame):
         )
 
         parameters_frame_line_number += 1
-
         self.smart_line_break_check_button = ttk.Checkbutton(
             self.parameters_frame,
             text="Smart Line Breaks",
@@ -2193,7 +2181,6 @@ class MainFrame(ttk.Frame):
         self.tesseract_frame.grid_propagate(False)
 
         tesseract_frame_line_number = 1
-
         self.ocr_check_button = ttk.Checkbutton(
             self.tesseract_frame,
             text="Tesseract (OCR)",
@@ -2239,7 +2226,6 @@ class MainFrame(ttk.Frame):
         )
 
         tesseract_frame_line_number += 1
-
         self.tesseract_language_label = ttk.Label(self.tesseract_frame, text="Language")
         self.tesseract_language_label.grid(
             column=0,
@@ -2268,7 +2254,6 @@ class MainFrame(ttk.Frame):
         )
 
         tesseract_frame_line_number += 1
-
         ocr_detection_label = ttk.Label(self.tesseract_frame, text="OCR Detection")
         ocr_detection_label.grid(
             column=0,
@@ -2317,23 +2302,14 @@ class MainFrame(ttk.Frame):
             column=0,
             row=self.action_frame_row_num,
             columnspan=2,
-            # sticky=tk.NW,
-            # pady=cst.DEFAULT_PADY,
-            # padx=cst.DEFAULT_PADX,
         )
-
         self.convert_button = ttk.Button(
             self.action_frame, text="Convert", command=self.action_convert_pdf
         )
         self.convert_button.grid(
             column=2,
             row=self.action_frame_row_num,
-            # columnspan=2,
-            # sticky=tk.EW,
-            # pady=cst.DEFAULT_PADY,
-            # padx=cst.DEFAULT_PADX,
         )
-
         self.abort_button = ttk.Button(
             self.action_frame,
             text="Abort",
@@ -2343,9 +2319,6 @@ class MainFrame(ttk.Frame):
             column=3,
             row=self.action_frame_row_num,
             columnspan=2,
-            # sticky=tk.N + tk.W,
-            # pady=cst.DEFAULT_PADY,
-            # padx=cst.DEFAULT_PADX,
         )
 
         self.action_frame_column_num = 0
@@ -2389,7 +2362,6 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         self.action_frame_column_num += 1
         self.next_button = ttk.Button(
             self.action_frame, text=">", command=self.action_page_down

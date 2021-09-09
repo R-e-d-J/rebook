@@ -35,5 +35,5 @@ def test_check_page_nums():
     assert check_page_nums(page_range) == True
     page_range = 'o,e'          # Page range find on the k2pdfopt official website
     assert check_page_nums(page_range) == True
-    page_range = '2-5e,3-7o,9-'
+    page_range = '2-5e,3-7o,9-' # Page range find on the k2pdfopt official website
     assert check_page_nums(page_range) == True
