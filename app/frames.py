@@ -2772,6 +2772,8 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_auto_crop_checked.set(False)
+            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             # page_range_arg = self.strvar_crop_page_range.get().strip()
             cropbox_value = [
@@ -2807,6 +2809,8 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_auto_crop_checked.set(False)
+            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             cropbox_value = [
                 self.strvar_left_cropbox_2.get(),
@@ -2841,6 +2845,8 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_auto_crop_checked.set(False)
+            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             cropbox_value = [
                 self.strvar_left_cropbox_3.get(),
@@ -2874,6 +2880,8 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_auto_crop_checked.set(False)
+            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             cropbox_value = [
                 self.strvar_left_cropbox_4.get(),
@@ -2907,6 +2915,8 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_auto_crop_checked.set(False)
+            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             cropbox_value = [
                 self.strvar_left_cropbox_5.get(),
@@ -3223,6 +3233,16 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
             self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.is_cropbox_1_checked.set(False)
+            self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
+            self.is_cropbox_2_checked.set(False)
+            self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
+            self.is_cropbox_3_checked.set(False)
+            self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
+            self.is_cropbox_4_checked.set(False)
+            self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
+            self.is_cropbox_5_checked.set(False)
+            self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
             arg = cst.AUTO_CROP_ARG_NAME + ' ' + auto_crop_value
             self.__add_or_update_command_argument(cst.AUTO_CROP_ARG_NAME, arg)
         else:
