@@ -1913,7 +1913,7 @@ class MainFrame(ttk.Frame):
         self.cropbox1_check_button = ttk.Checkbutton(
             margin_and_cropboxes_frame,
             variable=self.is_cropbox_1_checked,
-            command=self.gui_cropbox1_margin,
+            command=lambda : self.ui_cropbox_margin(1),
         )
         self.cropbox1_check_button.grid(
             column=1,
@@ -1928,7 +1928,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_left_cropbox_1,
-            command=self.gui_cropbox1_margin,
+            command=lambda : self.ui_cropbox_margin(1),
             width=4,
         )
         self.left_cropbox1_spinbox.grid(
@@ -1944,7 +1944,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_top_cropbox_1,
-            command=self.gui_cropbox1_margin,
+            command=lambda : self.ui_cropbox_margin(1),
             width=4,
         )
         self.top_cropbox1_spinbox.grid(
@@ -1960,7 +1960,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_width_cropbox_1,
-            command=self.gui_cropbox1_margin,
+            command=lambda : self.ui_cropbox_margin(1),
             width=4,
         )
         self.width_cropbox1_spinbox.grid(
@@ -1976,7 +1976,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_height_cropbox_1,
-            command=self.gui_cropbox1_margin,
+            command=lambda : self.ui_cropbox_margin(1),
             width=4,
         )
         self.height_cropbox1_spinbox.grid(
@@ -1990,7 +1990,7 @@ class MainFrame(ttk.Frame):
             margin_and_cropboxes_frame,
             textvariable=self.strvar_page_range_cropbox_1,
             validate="focusout",
-            validatecommand=self.gui_cropbox1_margin,
+            validatecommand=lambda : self.ui_cropbox_margin(1),
             width=13,
         )
         self.cropbox1_page_range_entry.grid(
@@ -2005,7 +2005,7 @@ class MainFrame(ttk.Frame):
         self.cropbox2_check_button = ttk.Checkbutton(
             margin_and_cropboxes_frame,
             variable=self.is_cropbox_2_checked,
-            command=self.gui_cropbox2_margin,
+            command=lambda : self.ui_cropbox_margin(2),
         )
         self.cropbox2_check_button.grid(
             column=1,
@@ -2020,7 +2020,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_left_cropbox_2,
-            command=self.gui_cropbox2_margin,
+            command=lambda : self.ui_cropbox_margin(2),
             width=4,
         )
         self.left_cropbox2_spinbox.grid(
@@ -2036,7 +2036,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_top_cropbox_2,
-            command=self.gui_cropbox2_margin,
+            command=lambda : self.ui_cropbox_margin(2),
             width=4,
         )
         self.top_cropbox2_spinbox.grid(
@@ -2052,7 +2052,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_width_cropbox_2,
-            command=self.gui_cropbox2_margin,
+            command=lambda : self.ui_cropbox_margin(2),
             width=4,
         )
         self.width_cropbox2_spinbox.grid(
@@ -2068,7 +2068,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_height_cropbox_2,
-            command=self.gui_cropbox2_margin,
+            command=lambda : self.ui_cropbox_margin(2),
             width=4,
         )
         self.height_cropbox2_spinbox.grid(
@@ -2082,7 +2082,7 @@ class MainFrame(ttk.Frame):
             margin_and_cropboxes_frame,
             textvariable=self.strvar_page_range_cropbox_2,
             validate="focusout",
-            validatecommand=self.gui_cropbox2_margin,
+            validatecommand=lambda : self.ui_cropbox_margin(2),
             width=13,
         )
         self.cropbox2_page_range_entry.grid(
@@ -2097,7 +2097,7 @@ class MainFrame(ttk.Frame):
         self.cropbox3_check_button = ttk.Checkbutton(
             margin_and_cropboxes_frame,
             variable=self.is_cropbox_3_checked,
-            command=self.gui_cropbox3_margin,
+            command=lambda : self.ui_cropbox_margin(3),
         )
         self.cropbox3_check_button.grid(
             column=1,
@@ -2112,7 +2112,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_left_cropbox_3,
-            command=self.gui_cropbox3_margin,
+            command=lambda : self.ui_cropbox_margin(3),
             width=4,
         )
         self.left_cropbox3_spinbox.grid(
@@ -2128,7 +2128,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_top_cropbox_3,
-            command=self.gui_cropbox3_margin,
+            command=lambda : self.ui_cropbox_margin(3),
             width=4,
         )
         self.top_cropbox3_spinbox.grid(
@@ -2144,7 +2144,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_width_cropbox_3,
-            command=self.gui_cropbox3_margin,
+            command=lambda : self.ui_cropbox_margin(3),
             width=4,
         )
         self.width_cropbox3_spinbox.grid(
@@ -2160,7 +2160,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_height_cropbox_3,
-            command=self.gui_cropbox3_margin,
+            command=lambda : self.ui_cropbox_margin(3),
             width=4,
         )
         self.height_cropbox3_spinbox.grid(
@@ -2174,7 +2174,7 @@ class MainFrame(ttk.Frame):
             margin_and_cropboxes_frame,
             textvariable=self.strvar_page_range_cropbox_3,
             validate="focusout",
-            validatecommand=self.gui_cropbox3_margin,
+            validatecommand=lambda : self.ui_cropbox_margin(3),
             width=13,
         )
         self.cropbox3_page_range_entry.grid(
@@ -2189,7 +2189,7 @@ class MainFrame(ttk.Frame):
         self.cropbox4_check_button = ttk.Checkbutton(
             margin_and_cropboxes_frame,
             variable=self.is_cropbox_4_checked,
-            command=self.gui_cropbox4_margin,
+            command=lambda : self.ui_cropbox_margin(4),
         )
         self.cropbox4_check_button.grid(
             column=1,
@@ -2204,7 +2204,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_left_cropbox_4,
-            command=self.gui_cropbox4_margin,
+            command=lambda : self.ui_cropbox_margin(4),
             width=4,
         )
         self.left_cropbox4_spinbox.grid(
@@ -2220,7 +2220,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_top_cropbox_4,
-            command=self.gui_cropbox4_margin,
+            command=lambda : self.ui_cropbox_margin(4),
             width=4,
         )
         self.top_cropbox4_spinbox.grid(
@@ -2236,7 +2236,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_width_cropbox_4,
-            command=self.gui_cropbox4_margin,
+            command=lambda : self.ui_cropbox_margin(4),
             width=4,
         )
         self.width_cropbox4_spinbox.grid(
@@ -2252,7 +2252,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_height_cropbox_4,
-            command=self.gui_cropbox4_margin,
+            command=lambda : self.ui_cropbox_margin(4),
             width=4,
         )
         self.height_cropbox4_spinbox.grid(
@@ -2266,7 +2266,7 @@ class MainFrame(ttk.Frame):
             margin_and_cropboxes_frame,
             textvariable=self.strvar_page_range_cropbox_4,
             validate="focusout",
-            validatecommand=self.gui_cropbox4_margin,
+            validatecommand=lambda : self.ui_cropbox_margin(4),
             width=13,
         )
         self.cropbox4_page_range_entry.grid(
@@ -2281,7 +2281,7 @@ class MainFrame(ttk.Frame):
         self.cropbox5_check_button = ttk.Checkbutton(
             margin_and_cropboxes_frame,
             variable=self.is_cropbox_5_checked,
-            command=self.gui_cropbox5_margin,
+            command=lambda : self.ui_cropbox_margin(5),
         )
         self.cropbox5_check_button.grid(
             column=1,
@@ -2296,7 +2296,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_left_cropbox_5,
-            command=self.gui_cropbox5_margin,
+            command=lambda : self.ui_cropbox_margin(5),
             width=4,
         )
         self.left_cropbox5_spinbox.grid(
@@ -2312,7 +2312,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_top_cropbox_5,
-            command=self.gui_cropbox5_margin,
+            command=lambda : self.ui_cropbox_margin(5),
             width=4,
         )
         self.top_cropbox5_spinbox.grid(
@@ -2328,7 +2328,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_width_cropbox_5,
-            command=self.gui_cropbox5_margin,
+            command=lambda : self.ui_cropbox_margin(5),
             width=4,
         )
         self.width_cropbox5_spinbox.grid(
@@ -2344,7 +2344,7 @@ class MainFrame(ttk.Frame):
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
             textvariable=self.strvar_height_cropbox_5,
-            command=self.gui_cropbox5_margin,
+            command=lambda : self.ui_cropbox_margin(5),
             width=4,
         )
         self.height_cropbox5_spinbox.grid(
@@ -2358,7 +2358,7 @@ class MainFrame(ttk.Frame):
             margin_and_cropboxes_frame,
             textvariable=self.strvar_page_range_cropbox_5,
             validate="focusout",
-            validatecommand=self.gui_cropbox5_margin,
+            validatecommand=lambda : self.ui_cropbox_margin(5),
             width=13,
         )
         self.cropbox5_page_range_entry.grid(
@@ -3163,7 +3163,9 @@ class MainFrame(ttk.Frame):
     def __initialize(self):
         """Simulate a click on every field : execute all the binded method
 
-        TODO: rename `validate_and_update_page_nums` to `gui_validate_and_update_page_nums`
+        TODO:
+            - rename `validate_and_update_page_nums` to `gui_validate_and_update_page_nums`
+            - for i in range (1,10) self.ui_cropbox_margin(i)
         """
         for method_name in [x for x in dir(self.__class__) if x.startswith("gui_")]:
             getattr(self, method_name)()
@@ -3440,108 +3442,35 @@ class MainFrame(ttk.Frame):
                     cst.CROP_MARGIN_BOTTOM_ARG_NAME, arg
                 )
         else:
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.__remove_crop_margin_argument()
 
-    def gui_cropbox1_margin(self):
-        """Manage `Cropbox 1` options"""
-        page_range = self.strvar_page_range_cropbox_1.get().strip()
+    def __remove_crop_margin_argument(self):
+        self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
+        self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
+        self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
+        self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+
+    def ui_cropbox_margin(self, number):
+        """Manage `Cropbox x` options"""
+        page_range = getattr(self, "strvar_page_range_cropbox_" + str(number)).get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            self.strvar_page_range_cropbox_1.set("")
+            getattr(self, "strvar_page_range_cropbox_" + str(number)).set("")
             messagebox.showerror(
                 message="Invalide cropbox 1's page range. It should be like : 2-5e,3-7o,9-"
             )
             return
 
-        if self.is_cropbox_1_checked.get():
+        if getattr(self, "is_cropbox_" + str(number) + "_checked").get():
             self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
-            self.is_auto_crop_checked.set(False)
-            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-
-            # page_range_arg = self.strvar_crop_page_range.get().strip()
-            cropbox_value = [
-                self.strvar_left_cropbox_1.get(),
-                self.strvar_top_cropbox_1.get(),
-                self.strvar_width_cropbox_1.get(),
-                self.strvar_height_cropbox_1.get(),
-            ]
-            arg = (
-                # no space between -cbox and page range
-                cst.CROPBOX_ARG_NAME
-                + page_range
-                + " "
-                + ",".join(map(str.strip, cropbox_value))
-            )
-            self.__add_or_update_command_argument(cst.CROPBOX_1_ARG_NAME, arg)
-        else:
-            self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
-
-    def gui_cropbox2_margin(self):
-        """Manage `Cropbox 2` options"""
-        page_range = self.strvar_page_range_cropbox_2.get().strip()
-        if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            self.strvar_page_range_cropbox_2.set("")
-            messagebox.showerror(
-                message="Invalide cropbox 2's page range. It should be like : 2-5e,3-7o,9-"
-            )
-            return
-
-        if self.is_cropbox_2_checked.get():
-            self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.__remove_crop_margin_argument()
             self.is_auto_crop_checked.set(False)
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
 
             cropbox_value = [
-                self.strvar_left_cropbox_2.get(),
-                self.strvar_top_cropbox_2.get(),
-                self.strvar_width_cropbox_2.get(),
-                self.strvar_height_cropbox_2.get(),
-            ]
-            arg = (
-                # no space between -cbox and page range
-                cst.CROPBOX_ARG_NAME
-                + page_range
-                + " "
-                + ",".join(map(str.strip, cropbox_value))
-            )
-            self.__add_or_update_command_argument(cst.CROPBOX_2_ARG_NAME, arg)
-        else:
-            self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
-
-    def gui_cropbox3_margin(self):
-        """Manage `Cropbox 3` options"""
-        page_range = self.strvar_page_range_cropbox_3.get().strip()
-        if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            self.strvar_page_range_cropbox_3.set("")
-            messagebox.showerror(
-                message="Invalide cropbox 3's page range. It should be like : 2-5e,3-7o,9-"
-            )
-            return
-
-        if self.is_cropbox_3_checked.get():
-            self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
-            self.is_auto_crop_checked.set(False)
-            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-
-            cropbox_value = [
-                self.strvar_left_cropbox_3.get(),
-                self.strvar_top_cropbox_3.get(),
-                self.strvar_width_cropbox_3.get(),
-                self.strvar_height_cropbox_3.get(),
+                getattr(self, "strvar_left_cropbox_" + str(number)).get(),
+                getattr(self, "strvar_top_cropbox_" + str(number)).get(),
+                getattr(self, "strvar_width_cropbox_" + str(number)).get(),
+                getattr(self, "strvar_height_cropbox_" + str(number)).get(),
             ]
             arg = (
                 cst.CROPBOX_ARG_NAME
@@ -3549,79 +3478,9 @@ class MainFrame(ttk.Frame):
                 + " "
                 + ",".join(map(str.strip, cropbox_value))
             )
-            self.__add_or_update_command_argument(cst.CROPBOX_3_ARG_NAME, arg)
+            self.__add_or_update_command_argument(getattr(cst, "CROPBOX_" + str(number) + "_ARG_NAME"), arg)
         else:
-            self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
-
-    def gui_cropbox4_margin(self):
-        """Manage `Cropbox 4` options"""
-        page_range = self.strvar_page_range_cropbox_4.get().strip()
-        if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            self.strvar_page_range_cropbox_4.set("")
-            messagebox.showerror(
-                message="Invalide cropbox 4's page range. It should be like : 2-5e,3-7o,9-"
-            )
-            return
-
-        if self.is_cropbox_4_checked.get():
-            self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
-            self.is_auto_crop_checked.set(False)
-            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-
-            cropbox_value = [
-                self.strvar_left_cropbox_4.get(),
-                self.strvar_top_cropbox_4.get(),
-                self.strvar_width_cropbox_4.get(),
-                self.strvar_height_cropbox_4.get(),
-            ]
-            arg = (
-                cst.CROPBOX_ARG_NAME
-                + page_range
-                + " "
-                + ",".join(map(str.strip, cropbox_value))
-            )
-            self.__add_or_update_command_argument(cst.CROPBOX_4_ARG_NAME, arg)
-        else:
-            self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
-
-    def gui_cropbox5_margin(self):
-        """Manage `Cropbox 5` options"""
-        page_range = self.strvar_page_range_cropbox_5.get().strip()
-        if len(page_range) > 0 and not tools.check_page_nums(page_range):
-            self.strvar_page_range_cropbox_5.set("")
-            messagebox.showerror(
-                message="Invalide cropbox 5's page range. It should be like : 2-5e,3-7o,9-"
-            )
-            return
-
-        if self.is_cropbox_5_checked.get():
-            self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
-            self.is_auto_crop_checked.set(False)
-            self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-
-            cropbox_value = [
-                self.strvar_left_cropbox_5.get(),
-                self.strvar_top_cropbox_5.get(),
-                self.strvar_width_cropbox_5.get(),
-                self.strvar_height_cropbox_5.get(),
-            ]
-            arg = (
-                cst.CROPBOX_ARG_NAME
-                + page_range
-                + " "
-                + ",".join(map(str.strip, cropbox_value))
-            )
-            self.__add_or_update_command_argument(cst.CROPBOX_5_ARG_NAME, arg)
-        else:
-            self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
+            self.__remove_command_argument(getattr(cst, "CROPBOX_" + str(number) + "_ARG_NAME"))
 
     def gui_dpi(self):
         """Manage device's `DPI` option"""
@@ -3918,10 +3777,7 @@ class MainFrame(ttk.Frame):
         if self.is_auto_crop_checked.get() and tools.is_acceptable_number(auto_crop_value, "float", cst.AUTO_CROP_MIN_VALUE, cst.AUTO_CROP_MAX_VALUE):
             self.is_cropmargin_checked.set(False)
             self.__remove_command_argument(cst.CROPBOX_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
-            self.__remove_command_argument(cst.CROP_MARGIN_BOTTOM_ARG_NAME)
+            self.__remove_crop_margin_argument()
             self.is_cropbox_1_checked.set(False)
             self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
             self.is_cropbox_2_checked.set(False)
