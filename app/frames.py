@@ -52,7 +52,7 @@ class MainFrame(ttk.Frame):
         self.strvar_crop_page_range = tk.StringVar()
 
         # cropbox 1
-        self.is_cropbox_1_checked = tk.BooleanVar()
+        self.is_cropbox_checked_1 = tk.BooleanVar()
         self.strvar_left_cropbox_1 = tk.StringVar()
         self.strvar_top_cropbox_1 = tk.StringVar()
         self.strvar_width_cropbox_1 = tk.StringVar()
@@ -60,7 +60,7 @@ class MainFrame(ttk.Frame):
         self.strvar_page_range_cropbox_1 = tk.StringVar()
 
         # cropbox 2
-        self.is_cropbox_2_checked = tk.BooleanVar()
+        self.is_cropbox_checked_2 = tk.BooleanVar()
         self.strvar_left_cropbox_2 = tk.StringVar()
         self.strvar_top_cropbox_2 = tk.StringVar()
         self.strvar_width_cropbox_2 = tk.StringVar()
@@ -68,7 +68,7 @@ class MainFrame(ttk.Frame):
         self.strvar_page_range_cropbox_2 = tk.StringVar()
 
         # cropbox 3
-        self.is_cropbox_3_checked = tk.BooleanVar()
+        self.is_cropbox_checked_3 = tk.BooleanVar()
         self.strvar_left_cropbox_3 = tk.StringVar()
         self.strvar_top_cropbox_3 = tk.StringVar()
         self.strvar_width_cropbox_3 = tk.StringVar()
@@ -76,7 +76,7 @@ class MainFrame(ttk.Frame):
         self.strvar_page_range_cropbox_3 = tk.StringVar()
 
         # cropbox 4
-        self.is_cropbox_4_checked = tk.BooleanVar()
+        self.is_cropbox_checked_4 = tk.BooleanVar()
         self.strvar_left_cropbox_4 = tk.StringVar()
         self.strvar_top_cropbox_4 = tk.StringVar()
         self.strvar_width_cropbox_4 = tk.StringVar()
@@ -84,7 +84,7 @@ class MainFrame(ttk.Frame):
         self.strvar_page_range_cropbox_4 = tk.StringVar()
 
         # cropbox 5
-        self.is_cropbox_5_checked = tk.BooleanVar()
+        self.is_cropbox_checked_5 = tk.BooleanVar()
         self.strvar_left_cropbox_5 = tk.StringVar()
         self.strvar_top_cropbox_5 = tk.StringVar()
         self.strvar_width_cropbox_5 = tk.StringVar()
@@ -280,7 +280,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_height_cropmargin,
             ],
             cst.CROPBOX_1_ARG_NAME: [
-                self.is_cropbox_1_checked,
+                self.is_cropbox_checked_1,
                 self.strvar_left_cropbox_1,
                 self.strvar_top_cropbox_1,
                 self.strvar_width_cropbox_1,
@@ -288,7 +288,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_page_range_cropbox_1,
             ],
             cst.CROPBOX_2_ARG_NAME: [
-                self.is_cropbox_2_checked,
+                self.is_cropbox_checked_2,
                 self.strvar_left_cropbox_2,
                 self.strvar_top_cropbox_2,
                 self.strvar_width_cropbox_2,
@@ -296,7 +296,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_page_range_cropbox_2,
             ],
             cst.CROPBOX_3_ARG_NAME: [
-                self.is_cropbox_3_checked,
+                self.is_cropbox_checked_3,
                 self.strvar_left_cropbox_3,
                 self.strvar_top_cropbox_3,
                 self.strvar_width_cropbox_3,
@@ -304,7 +304,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_page_range_cropbox_3,
             ],
             cst.CROPBOX_4_ARG_NAME: [
-                self.is_cropbox_4_checked,
+                self.is_cropbox_checked_4,
                 self.strvar_left_cropbox_4,
                 self.strvar_top_cropbox_4,
                 self.strvar_width_cropbox_4,
@@ -312,7 +312,7 @@ class MainFrame(ttk.Frame):
                 self.strvar_page_range_cropbox_4,
             ],
             cst.CROPBOX_5_ARG_NAME: [
-                self.is_cropbox_5_checked,
+                self.is_cropbox_checked_5,
                 self.strvar_left_cropbox_5,
                 self.strvar_top_cropbox_5,
                 self.strvar_width_cropbox_5,
@@ -503,7 +503,8 @@ class MainFrame(ttk.Frame):
         """Fill the right side of Conversion tab"""
         self.conversion_tab_right_part_column_num = 1
         self.conversion_tab_right_part_line_num = -1
-        self.__draw_command_line_frame_on_conversion_tab()
+        self.conversion_tab_right_part_line_num = self.__draw_command_line_frame_on_tab(self.conversion_tab, 1, self.conversion_tab_right_part_line_num)
+
         self.__draw_action_frame_on_conversion_tab()
 
     def __fill_conversion_tab(self):
@@ -943,12 +944,12 @@ class MainFrame(ttk.Frame):
     #     )
 
     #     more_cropboxes_line_number += 1
-    #     self.cropbox1_check_button = ttk.Checkbutton(
+    #     self.cropbox_check_button_1 = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_1_checked,
+    #         variable=self.is_cropbox_checked_1,
     #         command=self.gui_cropbox1_margin,
     #     )
-    #     self.cropbox1_check_button.grid(
+    #     self.cropbox_check_button_1.grid(
     #         column=1,
     #         row=more_cropboxes_line_number,
     #         sticky=tk.N + tk.W,
@@ -1035,12 +1036,12 @@ class MainFrame(ttk.Frame):
     #     )
 
     #     more_cropboxes_line_number += 1
-    #     self.cropbox2_check_button = ttk.Checkbutton(
+    #     self.cropbox_check_button_2 = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_2_checked,
+    #         variable=self.is_cropbox_checked_2,
     #         command=self.gui_cropbox2_margin,
     #     )
-    #     self.cropbox2_check_button.grid(
+    #     self.cropbox_check_button_2.grid(
     #         column=1,
     #         row=more_cropboxes_line_number,
     #         sticky=tk.N + tk.W,
@@ -1127,12 +1128,12 @@ class MainFrame(ttk.Frame):
     #     )
 
     #     more_cropboxes_line_number += 1
-    #     self.cropbox3_check_button = ttk.Checkbutton(
+    #     self.cropbox_check_button_3 = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_3_checked,
+    #         variable=self.is_cropbox_checked_3,
     #         command=self.gui_cropbox3_margin,
     #     )
-    #     self.cropbox3_check_button.grid(
+    #     self.cropbox_check_button_3.grid(
     #         column=1,
     #         row=more_cropboxes_line_number,
     #         sticky=tk.N + tk.W,
@@ -1219,12 +1220,12 @@ class MainFrame(ttk.Frame):
     #     )
 
     #     more_cropboxes_line_number += 1
-    #     self.cropbox4_check_button = ttk.Checkbutton(
+    #     self.cropbox_check_button_4 = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_4_checked,
+    #         variable=self.is_cropbox_checked_4,
     #         command=self.gui_cropbox4_margin,
     #     )
-    #     self.cropbox4_check_button.grid(
+    #     self.cropbox_check_button_4.grid(
     #         column=1,
     #         row=more_cropboxes_line_number,
     #         sticky=tk.N + tk.W,
@@ -1311,12 +1312,12 @@ class MainFrame(ttk.Frame):
     #     )
 
     #     more_cropboxes_line_number += 1
-    #     self.cropbox5_check_button = ttk.Checkbutton(
+    #     self.cropbox_check_button_5 = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_5_checked,
+    #         variable=self.is_cropbox_checked_5,
     #         command=self.gui_cropbox5_margin,
     #     )
-    #     self.cropbox5_check_button.grid(
+    #     self.cropbox_check_button_5.grid(
     #         column=1,
     #         row=more_cropboxes_line_number,
     #         sticky=tk.N + tk.W,
@@ -1413,7 +1414,7 @@ class MainFrame(ttk.Frame):
     #     )
     #     self.cropboxe_u_check_button = ttk.Checkbutton(
     #         self.more_cropboxes_frame,
-    #         variable=self.is_cropbox_5_checked,
+    #         variable=self.is_cropbox_checked_5,
     #         command=self.gui_cropbox5_margin,
     #     )
     #     self.cropboxe_u_check_button.grid(
@@ -1504,7 +1505,8 @@ class MainFrame(ttk.Frame):
 
     def __fill_right_side_of_advanced_tab(self):
         self.advanced_tab_right_part_line_num = -1
-        self.__draw_command_line_frame_on_advanced_tab()
+        self.advanced_tab_right_part_line_num = self.__draw_command_line_frame_on_tab(self.advanced_tab, 1, self.advanced_tab_right_part_line_num)
+
 
     def __setup_file_frame(self):
         """Set up the file frame"""
@@ -1910,12 +1912,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        self.cropbox1_check_button = ttk.Checkbutton(
+        self.cropbox_check_button_1 = ttk.Checkbutton(
             margin_and_cropboxes_frame,
-            variable=self.is_cropbox_1_checked,
+            variable=self.is_cropbox_checked_1,
             command=lambda : self.ui_cropbox_margin(1),
         )
-        self.cropbox1_check_button.grid(
+        self.cropbox_check_button_1.grid(
             column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N + tk.W,
@@ -2002,12 +2004,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        self.cropbox2_check_button = ttk.Checkbutton(
+        self.cropbox_check_button_2 = ttk.Checkbutton(
             margin_and_cropboxes_frame,
-            variable=self.is_cropbox_2_checked,
+            variable=self.is_cropbox_checked_2,
             command=lambda : self.ui_cropbox_margin(2),
         )
-        self.cropbox2_check_button.grid(
+        self.cropbox_check_button_2.grid(
             column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N + tk.W,
@@ -2094,12 +2096,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        self.cropbox3_check_button = ttk.Checkbutton(
+        self.cropbox_check_button_3 = ttk.Checkbutton(
             margin_and_cropboxes_frame,
-            variable=self.is_cropbox_3_checked,
+            variable=self.is_cropbox_checked_3,
             command=lambda : self.ui_cropbox_margin(3),
         )
-        self.cropbox3_check_button.grid(
+        self.cropbox_check_button_3.grid(
             column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N + tk.W,
@@ -2186,12 +2188,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        self.cropbox4_check_button = ttk.Checkbutton(
+        self.cropbox_check_button_4 = ttk.Checkbutton(
             margin_and_cropboxes_frame,
-            variable=self.is_cropbox_4_checked,
+            variable=self.is_cropbox_checked_4,
             command=lambda : self.ui_cropbox_margin(4),
         )
-        self.cropbox4_check_button.grid(
+        self.cropbox_check_button_4.grid(
             column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N + tk.W,
@@ -2278,12 +2280,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        self.cropbox5_check_button = ttk.Checkbutton(
+        self.cropbox_check_button_5 = ttk.Checkbutton(
             margin_and_cropboxes_frame,
-            variable=self.is_cropbox_5_checked,
+            variable=self.is_cropbox_checked_5,
             command=lambda : self.ui_cropbox_margin(5),
         )
-        self.cropbox5_check_button.grid(
+        self.cropbox_check_button_5.grid(
             column=1,
             row=margin_and_cropboxes_frame_line_number,
             sticky=tk.N + tk.W,
@@ -3106,16 +3108,16 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-    def __draw_command_line_frame_on_advanced_tab(self):
+    def __draw_command_line_frame_on_tab(self, tab, column, line):
         """Set up the `command line` frame and draw its widgets"""
-        self.advanced_tab_right_part_line_num += 1
+        line += 1
 
         information_frame = ttk.Labelframe(
-            self.advanced_tab, text="Command-line Options"
+            tab, text="Command-line Options"
         )
         information_frame.grid(
-            column=self.conversion_tab_right_part_column_num,
-            row=self.advanced_tab_right_part_line_num,
+            column=column,
+            row=line,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
@@ -3133,32 +3135,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-    def __draw_command_line_frame_on_conversion_tab(self):
-        """Set up the `command line` frame and draw its widgets"""
-        self.conversion_tab_right_part_line_num += 1
-
-        information_frame = ttk.Labelframe(
-            self.conversion_tab, text="Command-line Options"
-        )
-        information_frame.grid(
-            column=self.conversion_tab_right_part_column_num,
-            row=self.conversion_tab_right_part_line_num,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
-
-        command_arguments_entry = ttk.Entry(
-            information_frame, textvariable=self.strvar_command_args, width=76
-        )
-        command_arguments_entry.bind("<Button-1>", self.gui_cmd_args)
-        command_arguments_entry.grid(
-            column=0,
-            row=0,
-            sticky=tk.N + tk.W,
-            pady=cst.DEFAULT_PADY,
-            padx=cst.DEFAULT_PADX,
-        )
+        return line
 
     def __initialize(self):
         """Simulate a click on every field : execute all the binded method
@@ -3393,15 +3370,15 @@ class MainFrame(ttk.Frame):
         if self.is_cropmargin_checked.get():
             self.is_auto_crop_checked.set(False)
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-            self.is_cropbox_1_checked.set(False)
+            self.is_cropbox_checked_1.set(False)
             self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
-            self.is_cropbox_2_checked.set(False)
+            self.is_cropbox_checked_2.set(False)
             self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
-            self.is_cropbox_3_checked.set(False)
+            self.is_cropbox_checked_3.set(False)
             self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
-            self.is_cropbox_4_checked.set(False)
+            self.is_cropbox_checked_4.set(False)
             self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
-            self.is_cropbox_5_checked.set(False)
+            self.is_cropbox_checked_5.set(False)
             self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
@@ -3460,7 +3437,7 @@ class MainFrame(ttk.Frame):
             )
             return
 
-        if getattr(self, "is_cropbox_" + str(number) + "_checked").get():
+        if getattr(self, "is_cropbox_checked_" + str(number)).get():
             self.is_cropmargin_checked.set(False)
             self.__remove_crop_margin_argument()
             self.is_auto_crop_checked.set(False)
@@ -3528,6 +3505,13 @@ class MainFrame(ttk.Frame):
         else:
             self.__remove_command_argument(cst.FIXED_FONT_SIZE_ARG_NAME)
 
+    def __remove_tesseract_argument(self):
+        self.__remove_command_argument(cst.OCR_ARG_NAME)
+        self.__remove_command_argument(cst.OCR_CPU_ARG_NAME)
+        self.__remove_command_argument(cst.TESSERACT_LANGUAGE_ARG_NAME)
+        self.__remove_command_argument(cst.TESSERACT_FAST_ARG_NAME)
+        self.__remove_command_argument(cst.TESSERACT_DETECTION_ARG_NAME)
+
     def gui_ocr_and_cpu(self):
         """OCR CPU pourcentage management
 
@@ -3548,11 +3532,7 @@ class MainFrame(ttk.Frame):
             self.gui_tesseract_fast()
             self.gui_tesseract_language_cbox()
         else:
-            self.__remove_command_argument(cst.OCR_ARG_NAME)
-            self.__remove_command_argument(cst.OCR_CPU_ARG_NAME)
-            self.__remove_command_argument(cst.TESSERACT_LANGUAGE_ARG_NAME)
-            self.__remove_command_argument(cst.TESSERACT_FAST_ARG_NAME)
-            self.__remove_command_argument(cst.TESSERACT_DETECTION_ARG_NAME)
+            self.__remove_tesseract_argument()
 
     def gui_tesseract_fast(self):
         """Manage `Fast` option for Tesseract"""
@@ -3667,10 +3647,9 @@ class MainFrame(ttk.Frame):
         Remarks: `native pdf` conflicts with 'ocr' and 'reflow text'
         """
         if self.is_native_pdf_checked.get():
-            self.is_reflow_text_checked.set(False)
             self.is_tesseract_checked.set(False)
-            self.__remove_command_argument(cst.OCR_ARG_NAME)
-            self.__remove_command_argument(cst.OCR_CPU_ARG_NAME)
+            self.__remove_tesseract_argument()
+            self.is_reflow_text_checked.set(False)
             self.__remove_command_argument(cst.REFLOW_TEXT_ARG_NAME)
             self.__add_or_update_command_argument(
                 cst.NATIVE_PDF_ARG_NAME, cst.NATIVE_PDF_ARG_NAME
@@ -3706,7 +3685,7 @@ class MainFrame(ttk.Frame):
             self.__remove_command_argument(cst.MARKED_SOURCE_ARG_NAME)
 
     def gui_reflow_text(self):
-        """
+        """Manage `Re-Flow text` option
 
         Remarks: `reflow text` conflicts with `native pdf`
         """
@@ -3778,15 +3757,15 @@ class MainFrame(ttk.Frame):
             self.is_cropmargin_checked.set(False)
             self.__remove_command_argument(cst.CROPBOX_ARG_NAME)
             self.__remove_crop_margin_argument()
-            self.is_cropbox_1_checked.set(False)
+            self.is_cropbox_checked_1.set(False)
             self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
-            self.is_cropbox_2_checked.set(False)
+            self.is_cropbox_checked_2.set(False)
             self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
-            self.is_cropbox_3_checked.set(False)
+            self.is_cropbox_checked_3.set(False)
             self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
-            self.is_cropbox_4_checked.set(False)
+            self.is_cropbox_checked_4.set(False)
             self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
-            self.is_cropbox_5_checked.set(False)
+            self.is_cropbox_checked_5.set(False)
             self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
             arg = cst.AUTO_CROP_ARG_NAME + ' ' + auto_crop_value
             self.__add_or_update_command_argument(cst.AUTO_CROP_ARG_NAME, arg)
