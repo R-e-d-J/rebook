@@ -443,9 +443,12 @@ class MainFrame(ttk.Frame):
 
         self.notebook.pack(expand=1, fill="both")
 
+        self.tab_left_part = 0
+        self.tab_right_part = 1
+
         self.__fill_conversion_tab()
         self.conversion_tab.columnconfigure(
-            self.conversion_tab_right_part_column_num,
+            self.tab_right_part,
             weight=1,
         )
         self.conversion_tab.rowconfigure(
@@ -500,7 +503,6 @@ class MainFrame(ttk.Frame):
 
     def __fill_left_side_of_conversion_tab(self):
         """Fill the left side of Conversion tab"""
-        self.conversion_tab_left_part_column_num = 0
         self.conversion_tab_left_part_line_num = -1
         self.__setup_file_frame()
         self.__setup_device_frame()
@@ -510,10 +512,9 @@ class MainFrame(ttk.Frame):
 
     def __fill_right_side_of_conversion_tab(self):
         """Fill the right side of Conversion tab"""
-        self.conversion_tab_right_part_column_num = 1
         conversion_tab_right_part_line_num = -1
-        conversion_tab_right_part_line_num = self.__draw_command_line_frame_on_tab(self.conversion_tab, self.conversion_tab_right_part_column_num, conversion_tab_right_part_line_num)
-        self.__draw_action_frame_on_tab(self.conversion_tab, self.conversion_tab_right_part_column_num, conversion_tab_right_part_line_num)
+        conversion_tab_right_part_line_num = self.__draw_command_line_frame_on_tab(self.conversion_tab, self.tab_right_part, conversion_tab_right_part_line_num)
+        self.__draw_action_frame_on_tab(self.conversion_tab, self.tab_right_part, conversion_tab_right_part_line_num)
 
     def __fill_conversion_tab(self):
         """Fill the Conversion tab"""
@@ -540,7 +541,7 @@ class MainFrame(ttk.Frame):
             height=300,
         )
         advanced_option_frame.grid(
-            column=0,
+            column=self.tab_left_part,
             row=self.advanced_tab_left_part_line_num,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
@@ -1508,18 +1509,20 @@ class MainFrame(ttk.Frame):
             self.conversion_tab, text="Files", width=self.half_width_screen, height=78
         )
         file_frame.grid(
-            column=self.conversion_tab_left_part_column_num,
+            column=self.tab_left_part,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
         file_frame.grid_propagate(False)
+        self.__insert_input_output_file_fields(file_frame)
 
+    def __insert_input_output_file_fields(self, frame):
+        """Insert the input and output file field into a"""
         file_frame_line_number = 0
-
         open_button = ttk.Button(
-            file_frame, text="Input file", command=self.action_open_pdf_file
+            frame, text="Input file", command=self.action_open_pdf_file
         )
         open_button.grid(
             column=0,
@@ -1529,7 +1532,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         self.input_path_entry = ttk.Entry(
-            file_frame, textvariable=self.strvar_input_file_path, width=35
+            frame, textvariable=self.strvar_input_file_path, width=35
         )
         self.input_path_entry.grid(
             column=1,
@@ -1540,9 +1543,8 @@ class MainFrame(ttk.Frame):
         )
 
         file_frame_line_number += 1
-
         output_folder_label = ttk.Button(
-            file_frame,
+            frame,
             text="Output folder",
             command=self.action_choose_output_folder,
         )
@@ -1553,10 +1555,10 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        self.output_path_entry = ttk.Entry(
-            file_frame, textvariable=self.strvar_output_file_path, width=40
+        output_path_entry = ttk.Entry(
+            frame, textvariable=self.strvar_output_file_path, width=40
         )
-        self.output_path_entry.grid(
+        output_path_entry.grid(
             column=1,
             row=file_frame_line_number,
             sticky=tk.N + tk.W,
@@ -1572,17 +1574,19 @@ class MainFrame(ttk.Frame):
             self.conversion_tab, text="Device", width=self.half_width_screen, height=80
         )
         device_frame.grid(
-            column=self.conversion_tab_left_part_column_num,
+            column=self.tab_left_part,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
         device_frame.grid_propagate(False)
+        self.__insert_device_fields(device_frame)
 
+    def __insert_device_fields(self, frame):
+        """Insert the device fields into a frame"""
         device_frame_line_number = 0
-
-        device_label = ttk.Label(device_frame, text="Device")
+        device_label = ttk.Label(frame, text="Device")
         device_label.grid(
             column=0,
             row=device_frame_line_number,
@@ -1591,7 +1595,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         self.device_combobox = ttk.Combobox(
-            device_frame, textvariable=self.strvar_device, width=25
+            frame, textvariable=self.strvar_device, width=25
         )
         self.device_combobox["values"] = list(cst.DEVICE_CHOICE_MAP.values())
         self.device_combobox.current(0)
@@ -1605,7 +1609,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-        unit_label = ttk.Label(device_frame, text="Unit")
+        unit_label = ttk.Label(frame, text="Unit")
         unit_label.grid(
             column=4,
             row=device_frame_line_number,
@@ -1614,7 +1618,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         self.unit_combobox = ttk.Combobox(
-            device_frame, textvariable=self.strvar_screen_unit, width=20
+            frame, textvariable=self.strvar_screen_unit, width=20
         )
         self.unit_combobox["values"] = list(cst.UNIT_CHOICE_MAP.values())
         self.unit_combobox.current(0)
@@ -1629,8 +1633,7 @@ class MainFrame(ttk.Frame):
         )
 
         device_frame_line_number += 1
-
-        device_width_label = ttk.Label(device_frame, text="Width")
+        device_width_label = ttk.Label(frame, text="Width")
         device_width_label.grid(
             column=0,
             row=device_frame_line_number,
@@ -1640,7 +1643,7 @@ class MainFrame(ttk.Frame):
         )
 
         device_width_spinbox = ttk.Spinbox(
-            device_frame,
+            frame,
             from_=cst.DEVICE_WIDTH_MIN_VALUE,
             to=cst.DEVICE_WIDTH_MAX_VALUE,
             increment=1,
@@ -1656,7 +1659,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-        device_height_label = ttk.Label(device_frame, text="Height")
+        device_height_label = ttk.Label(frame, text="Height")
         device_height_label.grid(
             column=2,
             row=device_frame_line_number,
@@ -1665,7 +1668,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         device_height_spinbox = ttk.Spinbox(
-            device_frame,
+            frame,
             from_=cst.DEVICE_HEIGHT_MIN_VALUE,
             to=cst.DEVICE_HEIGHT_MAX_VALUE,
             increment=1,
@@ -1681,7 +1684,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         dpi_check_button = ttk.Checkbutton(
-            device_frame,
+            frame,
             text="DPI",
             variable=self.is_dpi_checked,
             command=self.gui_dpi,
@@ -1693,9 +1696,8 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
         device_dpi_spinbox = ttk.Spinbox(
-            device_frame,
+            frame,
             from_=cst.DEVICE_DPI_MIN_VALUE,
             to=cst.DEVICE_DPI_MAX_VALUE,
             increment=1,
@@ -1722,17 +1724,20 @@ class MainFrame(ttk.Frame):
             height=223,
         )
         margin_and_cropboxes_frame.grid(
-            column=self.conversion_tab_left_part_column_num,
+            column=self.tab_left_part,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
         margin_and_cropboxes_frame.grid_propagate(False)
+        self.__insert_margin_and_cropboxes_field(margin_and_cropboxes_frame)
 
+    def __insert_margin_and_cropboxes_field(self, frame):
+        """Insert margin and cropboxes field into a frame."""
         margin_and_cropboxes_frame_line_number = 0
         cropmargin_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Crop Margins (in)",
         )
         cropmargin_label.grid(
@@ -1743,7 +1748,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropmargin_check_button = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropmargin_checked,
             command=self.gui_crop_margin,
         )
@@ -1755,7 +1760,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropmargin_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1771,7 +1776,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropmargin_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1787,7 +1792,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropmargin_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1803,7 +1808,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropmargin_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1819,7 +1824,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropmargin_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="(left, top, right, bottom)",
         )
         cropmargin_label.grid(
@@ -1831,12 +1836,12 @@ class MainFrame(ttk.Frame):
         )
 
         margin_and_cropboxes_frame_line_number += 1
-        whitespace_label = ttk.Label(margin_and_cropboxes_frame, text="")
+        whitespace_label = ttk.Label(frame, text="")
         whitespace_label.grid(column=1, row=margin_and_cropboxes_frame_line_number)
         margin_and_cropboxes_frame_line_number += 1
 
         cropbox_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Crop Areas (in)",
         )
         cropbox_label.grid(
@@ -1847,7 +1852,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropaera_left_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Left",
         )
         cropaera_left_label.grid(
@@ -1858,7 +1863,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropaera_top_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Top",
         )
         cropaera_top_label.grid(
@@ -1869,7 +1874,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropaera_width_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Width",
         )
         cropaera_width_label.grid(
@@ -1880,7 +1885,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropaera_height_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Height",
         )
         cropaera_height_label.grid(
@@ -1891,7 +1896,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropaera_page_range_label = ttk.Label(
-            margin_and_cropboxes_frame,
+            frame,
             text="Page range",
             anchor=tk.CENTER,
         )
@@ -1905,7 +1910,7 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
         cropbox_check_button_1 = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropbox_checked_1,
             command=lambda : self.ui_cropbox_margin(1),
         )
@@ -1917,7 +1922,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropbox1_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1933,7 +1938,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropbox1_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1949,7 +1954,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropbox1_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1965,7 +1970,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropbox1_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -1981,7 +1986,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropbox1_page_range_entry = ttk.Entry(
-            margin_and_cropboxes_frame,
+            frame,
             textvariable=self.strvar_page_range_cropbox_1,
             validate="focusout",
             validatecommand=lambda : self.ui_cropbox_margin(1),
@@ -1997,7 +2002,7 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
         cropbox_check_button_2 = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropbox_checked_2,
             command=lambda : self.ui_cropbox_margin(2),
         )
@@ -2009,7 +2014,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropbox2_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2025,7 +2030,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropbox2_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2041,7 +2046,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropbox2_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2057,7 +2062,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropbox2_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2073,7 +2078,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropbox2_page_range_entry = ttk.Entry(
-            margin_and_cropboxes_frame,
+            frame,
             textvariable=self.strvar_page_range_cropbox_2,
             validate="focusout",
             validatecommand=lambda : self.ui_cropbox_margin(2),
@@ -2089,7 +2094,7 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
         cropbox_check_button_3 = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropbox_checked_3,
             command=lambda : self.ui_cropbox_margin(3),
         )
@@ -2101,7 +2106,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropbox3_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2117,7 +2122,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropbox3_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2133,7 +2138,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropbox3_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2149,7 +2154,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropbox3_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2165,7 +2170,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropbox3_page_range_entry = ttk.Entry(
-            margin_and_cropboxes_frame,
+            frame,
             textvariable=self.strvar_page_range_cropbox_3,
             validate="focusout",
             validatecommand=lambda : self.ui_cropbox_margin(3),
@@ -2181,7 +2186,7 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
         cropbox_check_button_4 = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropbox_checked_4,
             command=lambda : self.ui_cropbox_margin(4),
         )
@@ -2193,7 +2198,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropbox4_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2209,7 +2214,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropbox4_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2225,7 +2230,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropbox4_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2241,7 +2246,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropbox4_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2257,7 +2262,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropbox4_page_range_entry = ttk.Entry(
-            margin_and_cropboxes_frame,
+            frame,
             textvariable=self.strvar_page_range_cropbox_4,
             validate="focusout",
             validatecommand=lambda : self.ui_cropbox_margin(4),
@@ -2273,7 +2278,7 @@ class MainFrame(ttk.Frame):
 
         margin_and_cropboxes_frame_line_number += 1
         cropbox_check_button_5 = ttk.Checkbutton(
-            margin_and_cropboxes_frame,
+            frame,
             variable=self.is_cropbox_checked_5,
             command=lambda : self.ui_cropbox_margin(5),
         )
@@ -2285,7 +2290,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         left_cropbox5_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2301,7 +2306,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         top_cropbox5_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2317,7 +2322,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         width_cropbox5_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2333,7 +2338,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         height_cropbox5_spinbox = ttk.Spinbox(
-            margin_and_cropboxes_frame,
+            frame,
             from_=cst.MARGIN_AND_CROP_AREAS_MIN_VALUE,
             to=cst.MARGIN_AND_CROP_AREAS_MAX_VALUE,
             increment=0.1,
@@ -2349,7 +2354,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         cropbox5_page_range_entry = ttk.Entry(
-            margin_and_cropboxes_frame,
+            frame,
             textvariable=self.strvar_page_range_cropbox_5,
             validate="focusout",
             validatecommand=lambda : self.ui_cropbox_margin(5),
@@ -2374,16 +2379,19 @@ class MainFrame(ttk.Frame):
             height=290,
         )
         parameters_frame.grid(
-            column=self.conversion_tab_left_part_column_num,
+            column=self.tab_left_part,
             row=self.conversion_tab_left_part_line_num,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
         parameters_frame.grid_propagate(False)
+        self.__insert_paramaters_field(parameters_frame)
 
+    def __insert_paramaters_field(self, frame):
         parameters_frame_line_number = 0
-        conversion_mode_label = ttk.Label(parameters_frame, text="Conversion Mode")
+
+        conversion_mode_label = ttk.Label(frame, text="Conversion Mode")
         conversion_mode_label.grid(
             column=0,
             row=parameters_frame_line_number,
@@ -2393,7 +2401,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.mode_combobox = ttk.Combobox(
-            parameters_frame, textvariable=self.strvar_conversion_mode, width=10
+            frame, textvariable=self.strvar_conversion_mode, width=10
         )
         self.mode_combobox["values"] = list(cst.MODE_CHOICE_MAP.values())
         self.mode_combobox.current(0)
@@ -2408,7 +2416,7 @@ class MainFrame(ttk.Frame):
 
         # parameters_frame_line_number += 1
 
-        page_number_label = ttk.Label(parameters_frame, text="Pages to Convert")
+        page_number_label = ttk.Label(frame, text="Pages to Convert")
         page_number_label.grid(
             column=2,
             row=parameters_frame_line_number,
@@ -2418,7 +2426,7 @@ class MainFrame(ttk.Frame):
         )
 
         page_number_entry = ttk.Entry(
-            parameters_frame,
+            frame,
             textvariable=self.strvar_page_numbers,
             validate="focusout",
             validatecommand=self.validate_and_update_page_nums,
@@ -2434,7 +2442,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         max_column_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Maximum Columns",
             variable=self.is_column_num_checked,
             command=self.gui_column_num,
@@ -2447,7 +2455,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         max_column_spinbox = ttk.Spinbox(
-            parameters_frame,
+            frame,
             from_=cst.MAX_COLUMN_MIN_VALUE,
             to=cst.MAX_COLUMN_MAX_VALUE,
             increment=1,
@@ -2463,7 +2471,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         landscape_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Output in Landscape",
             variable=self.is_landscape_checked,
             command=self.gui_validate_landscape,
@@ -2476,7 +2484,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         landscapepage_number_entry = ttk.Entry(
-            parameters_frame,
+            frame,
             textvariable=self.strvar_landscape_pages,
             validate="focusout",
             validatecommand=self.gui_validate_landscape,
@@ -2492,7 +2500,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         resolution_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Document Resolution Factor",
             variable=self.is_resolution_multipler_checked,
             command=self.gui_document_resolution_multipler,
@@ -2505,7 +2513,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         resolution_spinbox = ttk.Spinbox(
-            parameters_frame,
+            frame,
             from_=cst.DOCUMENT_RESOLUTION_FACTOR_MIN_VALUE,
             to=cst.DOCUMENT_RESOLUTION_FACTOR_MAX_VALUE,
             increment=0.1,
@@ -2522,7 +2530,7 @@ class MainFrame(ttk.Frame):
         )
 
         fixed_font_size_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Fixed Output Font Size",
             variable=self.is_fixed_font_size_checked,
             command=self.gui_fixed_font_size,
@@ -2535,7 +2543,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         fixed_font_size_spinbox = ttk.Spinbox(
-            parameters_frame,
+            frame,
             from_=cst.FIXED_FONT_SIZE_MIN_VALUE,
             to=cst.FIXED_FONT_SIZE_MAX_VALUE,
             increment=1,
@@ -2553,7 +2561,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         smart_line_break_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Smart Line Breaks",
             variable=self.is_smart_linebreak_checked,
             command=self.gui_line_break,
@@ -2566,7 +2574,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         smart_line_break_spinbox = ttk.Spinbox(
-            parameters_frame,
+            frame,
             from_=cst.SMART_LINE_BREAK_MIN_VALUE,
             to=cst.SMART_LINE_BREAK_MAX_VALUE,
             increment=0.01,
@@ -2583,7 +2591,7 @@ class MainFrame(ttk.Frame):
         )
 
         autocrop_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Auto-Crop",
             variable=self.is_auto_crop_checked,
             command=self.gui_auto_crop,
@@ -2596,7 +2604,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         autocrop_spinbox = ttk.Spinbox(
-            parameters_frame,
+            frame,
             from_=cst.AUTO_CROP_MIN_VALUE,
             to=cst.AUTO_CROP_MAX_VALUE,
             increment=0.1,
@@ -2617,7 +2625,7 @@ class MainFrame(ttk.Frame):
         save_parameters_frame_line_number = parameters_frame_line_number
 
         autostraighten_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Autostraighten",
             variable=self.is_autostraighten_checked,
             command=self.gui_auto_straighten,
@@ -2632,7 +2640,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         break_after_source_page_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Break after each source page",
             variable=self.is_break_page_checked,
             command=self.gui_break_page,
@@ -2647,7 +2655,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         color_output_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Color Output",
             variable=self.is_coloroutput_checked,
             command=self.gui_color_output,
@@ -2662,7 +2670,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         native_pdf_output_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Native PDF output",
             variable=self.is_native_pdf_checked,
             command=self.gui_native_pdf,
@@ -2677,7 +2685,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         avoid_text_overlap_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Avoid text selection overlap",
             variable=self.is_avoid_overlap_checked,
             command=self.gui_avoid_text_selection_overlap,
@@ -2692,7 +2700,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         post_process_ghostscript_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Post process w/GhostScript",
             variable=self.is_ghostscript_postprocessing_checked,
             command=self.gui_post_gs,
@@ -2707,7 +2715,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         generate_markup_source_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Generate marked-up source",
             variable=self.is_markedup_source_checked,
             command=self.gui_marked_source,
@@ -2724,7 +2732,7 @@ class MainFrame(ttk.Frame):
         parameters_frame_line_number = save_parameters_frame_line_number
 
         reflow_text_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Re-flow text",
             variable=self.is_reflow_text_checked,
             command=self.gui_reflow_text,
@@ -2739,7 +2747,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         erase_vline_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Erase vertical lines",
             variable=self.is_erase_vertical_line_checked,
             command=self.gui_erase_vertical_line,
@@ -2754,7 +2762,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         erase_hline_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Erase horizontal lines",
             variable=self.is_erase_horizontal_line_checked,
             command=self.gui_erase_horizontal_line,
@@ -2769,7 +2777,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         fast_preview_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Fast preview",
             variable=self.is_fast_preview_checked,
             command=self.gui_fast_preview,
@@ -2784,7 +2792,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         right_to_left_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Right-to-left text",
             variable=self.is_right_to_left_checked,
             command=self.gui_right_to_left,
@@ -2799,7 +2807,7 @@ class MainFrame(ttk.Frame):
 
         parameters_frame_line_number += 1
         ignore_defect_check_button = ttk.Checkbutton(
-            parameters_frame,
+            frame,
             text="Ignore small defects",
             variable=self.is_ignore_small_defects_checked,
             command=self.gui_ignore_small_defect,
@@ -2831,10 +2839,13 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         tesseract_frame.grid_propagate(False)
+        self.__insert_tesseract_fields_into_frame(tesseract_frame)
 
+    def __insert_tesseract_fields_into_frame(self, frame):
+        """Insert tesseract/ocr field into a frame"""
         tesseract_frame_line_number = 1
         ocr_check_button = ttk.Checkbutton(
-            tesseract_frame,
+            frame,
             text="Tesseract (OCR)",
             variable=self.is_tesseract_checked,
             command=self.gui_ocr_and_cpu,
@@ -2847,7 +2858,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         ocr_cpu_spinbox = ttk.Spinbox(
-            tesseract_frame,
+            frame,
             from_=cst.OCR_CPU_MIN_VALUE,
             to=cst.OCR_CPU_MAX_VALUE,
             increment=1,
@@ -2864,7 +2875,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         tesseract_fast_check_button = ttk.Checkbutton(
-            tesseract_frame,
+            frame,
             text="Fast",
             variable=self.is_tesseract_fast_checked,
             command=self.gui_tesseract_fast,
@@ -2878,7 +2889,7 @@ class MainFrame(ttk.Frame):
         )
 
         tesseract_frame_line_number += 1
-        tesseract_language_label = ttk.Label(tesseract_frame, text="Language")
+        tesseract_language_label = ttk.Label(frame, text="Language")
         tesseract_language_label.grid(
             column=0,
             row=tesseract_frame_line_number,
@@ -2889,7 +2900,7 @@ class MainFrame(ttk.Frame):
         )
 
         self.tesseract_language = ttk.Combobox(
-            tesseract_frame, textvariable=self.strvar_tesseract_language, width=22
+            frame, textvariable=self.strvar_tesseract_language, width=22
         )
         self.tesseract_language["values"] = list(cst.LANGUAGE_MAP.values())
         self.tesseract_language.current(24)
@@ -2906,7 +2917,7 @@ class MainFrame(ttk.Frame):
         )
 
         tesseract_frame_line_number += 1
-        ocr_detection_label = ttk.Label(tesseract_frame, text="OCR Detection")
+        ocr_detection_label = ttk.Label(frame, text="OCR Detection")
         ocr_detection_label.grid(
             column=0,
             row=tesseract_frame_line_number,
@@ -2915,7 +2926,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         self.ocr_detection_combobox = ttk.Combobox(
-            tesseract_frame, textvariable=self.strvar_tesseract_detection, width=25
+            frame, textvariable=self.strvar_tesseract_detection, width=25
         )
         self.ocr_detection_combobox["values"] = list(cst.OCRD_MAP.values())
         self.ocr_detection_combobox.current(0)
@@ -2931,7 +2942,6 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
 
-
     def __draw_action_frame_on_tab(self, tab, column, line):
         """Set up the action frame and draw its widgets"""
         line += 1
@@ -2945,11 +2955,15 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
+        action_frame_line_num = self.__insert_action_fields_into_frame(action_frame)
+        action_frame.columnconfigure(1, weight=1)
+        action_frame.rowconfigure(action_frame_line_num, weight=1)
 
+    def __insert_action_fields_into_frame(self, frame):
+        """Insert action fields into a frame"""
         action_frame_line_num = 0
-
         preview_button = ttk.Button(
-            action_frame, text="Preview", command=self.action_preview_current_page
+            frame, text="Preview", command=self.action_preview_current_page
         )
         preview_button.grid(
             column=0,
@@ -2957,14 +2971,14 @@ class MainFrame(ttk.Frame):
             columnspan=2,
         )
         convert_button = ttk.Button(
-            action_frame, text="Convert", command=self.action_convert_pdf
+            frame, text="Convert", command=self.action_convert_pdf
         )
         convert_button.grid(
             column=2,
             row=action_frame_line_num,
         )
         abort_button = ttk.Button(
-            action_frame,
+            frame,
             text="Abort",
             command=self.action_abort_conversion,
         )
@@ -2978,7 +2992,7 @@ class MainFrame(ttk.Frame):
         action_frame_line_num += 1
 
         first_button = ttk.Button(
-            action_frame, text="<<", command=self.action_ten_page_up
+            frame, text="<<", command=self.action_ten_page_up
         )
         first_button.grid(
             column=action_frame_of_conversion_tab_column_num,
@@ -2990,7 +3004,7 @@ class MainFrame(ttk.Frame):
         action_frame_of_conversion_tab_column_num += 1
 
         previous_button = ttk.Button(
-            action_frame, text="<", command=self.action_page_up
+            frame, text="<", command=self.action_page_up
         )
         previous_button.grid(
             column=action_frame_of_conversion_tab_column_num,
@@ -3002,7 +3016,7 @@ class MainFrame(ttk.Frame):
 
         action_frame_of_conversion_tab_column_num += 1
         current_preview_page_number_entry = ttk.Entry(
-            action_frame,
+            frame,
             textvariable=self.strvar_current_preview_page_num,
             width=30,
             justify='center',
@@ -3010,14 +3024,13 @@ class MainFrame(ttk.Frame):
         current_preview_page_number_entry.grid(
             column=action_frame_of_conversion_tab_column_num,
             row=action_frame_line_num,
-            # columnspan=3,
             sticky=tk.N + tk.W,
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
         action_frame_of_conversion_tab_column_num += 1
         next_button = ttk.Button(
-            action_frame, text=">", command=self.action_page_down
+            frame, text=">", command=self.action_page_down
         )
         next_button.grid(
             column=action_frame_of_conversion_tab_column_num,
@@ -3029,7 +3042,7 @@ class MainFrame(ttk.Frame):
         action_frame_of_conversion_tab_column_num += 1
 
         last_button = ttk.Button(
-            action_frame, text=">>", command=self.action_ten_page_down
+            frame, text=">>", command=self.action_ten_page_down
         )
         last_button.grid(
             column=action_frame_of_conversion_tab_column_num,
@@ -3042,7 +3055,7 @@ class MainFrame(ttk.Frame):
         action_frame_of_conversion_tab_column_num += 1
         action_frame_line_num += 1
 
-        self.preview_canvas = tk.Canvas(action_frame, bd=0)
+        self.preview_canvas = tk.Canvas(frame, bd=0)
         self.preview_canvas.grid(
             column=0,
             columnspan=action_frame_of_conversion_tab_column_num,
@@ -3051,7 +3064,7 @@ class MainFrame(ttk.Frame):
         )
 
         x_scrollbar = ttk.Scrollbar(
-            action_frame, orient=tk.HORIZONTAL, command=self.preview_canvas.xview
+            frame, orient=tk.HORIZONTAL, command=self.preview_canvas.xview
         )
         x_scrollbar.grid(
             column=0,
@@ -3061,7 +3074,7 @@ class MainFrame(ttk.Frame):
         )
 
         y_scrollbar = ttk.Scrollbar(
-            action_frame, command=self.preview_canvas.yview
+            frame, command=self.preview_canvas.yview
         )
         y_scrollbar.grid(
             column=action_frame_of_conversion_tab_column_num,
@@ -3073,9 +3086,7 @@ class MainFrame(ttk.Frame):
         self.preview_canvas.configure(yscrollcommand=y_scrollbar.set)
         self.preview_canvas.bind("<MouseWheel>", self.yscroll_canvas)
         self.preview_canvas.bind("<Shift-MouseWheel>", self.xscroll_canvas)
-
-        action_frame.columnconfigure(1, weight=1)
-        action_frame.rowconfigure(action_frame_line_num, weight=1)
+        return action_frame_line_num
 
     def __fill_logs_tab(self):
         """Fill the Log tab with widget"""
@@ -3114,9 +3125,13 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
+        self.__insert_command_line_field(information_frame)
+        return line
 
+    def __insert_command_line_field(self, frame):
+        """Insert the command-line fields into a frame."""
         command_arguments_entry = ttk.Entry(
-            information_frame, textvariable=self.strvar_command_args, width=76
+            frame, textvariable=self.strvar_command_args, width=76
         )
         command_arguments_entry.bind("<Button-1>", self.gui_cmd_args)
         command_arguments_entry.grid(
@@ -3126,8 +3141,6 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
-        return line
 
     def __initialize(self):
         """Simulate a click on every field : execute all the binded method
