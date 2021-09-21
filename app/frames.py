@@ -548,10 +548,12 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         advanced_option_frame.grid_propagate(False)
+        self.__insert_advanced_option_field_into_frame(advanced_option_frame)
 
+    def __insert_advanced_option_field_into_frame(self, frame):
         advanced_option_line_number = 0
         min_column_gap_width_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Minimum column gap width",
             variable=self.is_minimum_column_gap_checked,
             command=self.gui_minimum_column_gap,
@@ -564,7 +566,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         min_column_gap_width = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.MIN_COLUMN_GAP_WIDTH_MIN_VALUE,
             to=cst.MIN_COLUMN_GAP_WIDTH_MAX_VALUE,
             increment=0.1,
@@ -581,9 +583,8 @@ class MainFrame(ttk.Frame):
         )
 
         advanced_option_line_number += 1
-
         max_gap_between_column_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Max allowed gap between columns",
             variable=self.is_max_gap_between_column_checked,
             command=self.gui_max_gap_between_column,
@@ -596,7 +597,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         max_gap_between_column = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.MAX_GAP_BETWEEN_COLUMN_MIN_VALUE,
             to=cst.MAX_GAP_BETWEEN_COLUMN_MAX_VALUE,
             increment=0.1,
@@ -613,9 +614,8 @@ class MainFrame(ttk.Frame):
         )
 
         advanced_option_line_number += 1
-
         column_gap_range_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Column-gap range",
             variable=self.is_column_gap_range_checked,
             command=self.gui_column_gap_range,
@@ -628,7 +628,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         column_gap_range = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.COLUMN_GAP_RANGE_MIN_VALUE,
             to=cst.COLUMN_GAP_RANGE_MAX_VALUE,
             increment=0.01,
@@ -645,9 +645,8 @@ class MainFrame(ttk.Frame):
         )
 
         advanced_option_line_number += 1
-
         minimum_column_height_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Minimum column height",
             variable=self.is_minimum_column_height_checked,
             command=self.gui_minimum_column_height,
@@ -660,7 +659,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         minimum_column_height = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.MINIMUM_COLUMN_HEIGHT_MIN_VALUE,
             to=cst.MINIMUM_COLUMN_HEIGHT_MAX_VALUE,
             increment=0.1,
@@ -677,9 +676,8 @@ class MainFrame(ttk.Frame):
         )
 
         advanced_option_line_number += 1
-
         column_offset_maximum_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Column Offset Maximum",
             variable=self.is_column_offset_maximum_checked,
             command=self.gui_column_offset_maximum,
@@ -692,7 +690,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         column_offset_maximum = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.COLUMN_OFFSET_MAXIMUM_MIN_VALUE,
             to=cst.COLUMN_OFFSET_MAXIMUM_MAX_VALUE,
             increment=0.1,
@@ -709,9 +707,8 @@ class MainFrame(ttk.Frame):
         )
 
         advanced_option_line_number += 1
-
         min_height_blank_between_regions_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Min height of the blank area that separates regions",
             variable=self.is_min_height_blank_between_regions_checked,
             command=self.gui_min_height_blank_between_regions,
@@ -724,7 +721,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         min_height_blank_between_regions = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MIN_VALUE,
             to=cst.MIN_HEIGHT_BLANK_BETWEEN_REGIONS_MAX_VALUE,
             increment=0.001,
@@ -742,7 +739,7 @@ class MainFrame(ttk.Frame):
 
         advanced_option_line_number += 1
         threshold_detecting_gaps_between_column_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Threshold value for detecting column gaps",
             variable=self.is_threshold_detecting_gaps_between_column_checked,
             command=self.gui_threshold_detecting_gaps_between_column,
@@ -755,7 +752,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         threshold_detecting_gaps_between_column = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MIN_VALUE,
             to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_COLUMN_MAX_VALUE,
             increment=0.001,
@@ -773,7 +770,7 @@ class MainFrame(ttk.Frame):
 
         advanced_option_line_number += 1
         threshold_detecting_gaps_between_rows_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Threshold value for detecting rows gaps",
             variable=self.is_threshold_detecting_gaps_between_rows_checked,
             command=self.gui_threshold_detecting_gaps_between_rows,
@@ -786,7 +783,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         threshold_detecting_gaps_between_rows = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MIN_VALUE,
             to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_ROWS_MAX_VALUE,
             increment=0.001,
@@ -804,7 +801,7 @@ class MainFrame(ttk.Frame):
 
         advanced_option_line_number += 1
         threshold_detecting_gaps_between_words_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Threshold value for detecting words gaps",
             variable=self.is_threshold_detecting_gaps_between_words_checked,
             command=self.gui_threshold_detecting_gaps_between_words,
@@ -817,7 +814,7 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         threshold_detecting_gaps_between_words = ttk.Spinbox(
-            advanced_option_frame,
+            frame,
             from_=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MIN_VALUE,
             to=cst.THRESHOLD_DETECTING_GAPS_BETWEEN_WORDS_MAX_VALUE,
             increment=0.001,
@@ -835,7 +832,7 @@ class MainFrame(ttk.Frame):
 
         advanced_option_line_number += 1
         text_only_label = ttk.Checkbutton(
-            advanced_option_frame,
+            frame,
             text="Text only",
             variable=self.is_text_only_checked,
             command=self.gui_text_only,
@@ -1516,9 +1513,9 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         file_frame.grid_propagate(False)
-        self.__insert_input_output_file_fields(file_frame)
+        self.__insert_input_output_file_fields_into_frame(file_frame)
 
-    def __insert_input_output_file_fields(self, frame):
+    def __insert_input_output_file_fields_into_frame(self, frame):
         """Insert the input and output file field into a"""
         file_frame_line_number = 0
         open_button = ttk.Button(
@@ -1581,9 +1578,9 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         device_frame.grid_propagate(False)
-        self.__insert_device_fields(device_frame)
+        self.__insert_device_fields_into_frame(device_frame)
 
-    def __insert_device_fields(self, frame):
+    def __insert_device_fields_into_frame(self, frame):
         """Insert the device fields into a frame"""
         device_frame_line_number = 0
         device_label = ttk.Label(frame, text="Device")
@@ -1731,9 +1728,9 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         margin_and_cropboxes_frame.grid_propagate(False)
-        self.__insert_margin_and_cropboxes_field(margin_and_cropboxes_frame)
+        self.__insert_margin_and_cropboxes_field_into_frame(margin_and_cropboxes_frame)
 
-    def __insert_margin_and_cropboxes_field(self, frame):
+    def __insert_margin_and_cropboxes_field_into_frame(self, frame):
         """Insert margin and cropboxes field into a frame."""
         margin_and_cropboxes_frame_line_number = 0
         cropmargin_label = ttk.Label(
@@ -2386,9 +2383,9 @@ class MainFrame(ttk.Frame):
             padx=cst.DEFAULT_PADX,
         )
         parameters_frame.grid_propagate(False)
-        self.__insert_paramaters_field(parameters_frame)
+        self.__insert_paramaters_field_into_frame(parameters_frame)
 
-    def __insert_paramaters_field(self, frame):
+    def __insert_paramaters_field_into_frame(self, frame):
         parameters_frame_line_number = 0
 
         conversion_mode_label = ttk.Label(frame, text="Conversion Mode")
@@ -3125,10 +3122,10 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-        self.__insert_command_line_field(information_frame)
+        self.__insert_command_line_field_into_frame(information_frame)
         return line
 
-    def __insert_command_line_field(self, frame):
+    def __insert_command_line_field_into_frame(self, frame):
         """Insert the command-line fields into a frame."""
         command_arguments_entry = ttk.Entry(
             frame, textvariable=self.strvar_command_args, width=76
