@@ -522,10 +522,12 @@ class MainFrame(ttk.Frame):
         self.__fill_right_side_of_conversion_tab()
 
     def __fill_advanced_tab(self):
+        """Fill the advanced tab"""
         self.__fill_left_side_of_advanced_tab()
         self.__fill_right_side_of_advanced_tab()
 
     def __fill_left_side_of_advanced_tab(self):
+        """Fill the left part of advanced tab"""
         self.advanced_tab_left_part_line_num = -1
         self.__draw_advanced_option_frame()
         # self.__draw_more_cropboxes_frame()
@@ -551,6 +553,7 @@ class MainFrame(ttk.Frame):
         self.__insert_advanced_option_field_into_frame(advanced_option_frame)
 
     def __insert_advanced_option_field_into_frame(self, frame):
+        """Insert advanced option fields into a frame"""
         advanced_option_line_number = 0
         min_column_gap_width_label = ttk.Checkbutton(
             frame,
@@ -1494,6 +1497,7 @@ class MainFrame(ttk.Frame):
     #     # )
 
     def __fill_right_side_of_advanced_tab(self):
+        """Fill the right part of advanced tab"""
         self.advanced_tab_right_part_line_num = -1
         self.advanced_tab_right_part_line_num = self.__draw_command_line_frame_on_tab(self.advanced_tab, 1, self.advanced_tab_right_part_line_num)
 
@@ -1835,8 +1839,8 @@ class MainFrame(ttk.Frame):
         margin_and_cropboxes_frame_line_number += 1
         whitespace_label = ttk.Label(frame, text="")
         whitespace_label.grid(column=1, row=margin_and_cropboxes_frame_line_number)
-        margin_and_cropboxes_frame_line_number += 1
 
+        margin_and_cropboxes_frame_line_number += 1
         cropbox_label = ttk.Label(
             frame,
             text="Crop Areas (in)",
@@ -2386,6 +2390,7 @@ class MainFrame(ttk.Frame):
         self.__insert_paramaters_field_into_frame(parameters_frame)
 
     def __insert_paramaters_field_into_frame(self, frame):
+        """Insert parameters fields into a frame"""
         parameters_frame_line_number = 0
 
         conversion_mode_label = ttk.Label(frame, text="Conversion Mode")
@@ -2410,8 +2415,6 @@ class MainFrame(ttk.Frame):
             pady=cst.DEFAULT_PADY,
             padx=cst.DEFAULT_PADX,
         )
-
-        # parameters_frame_line_number += 1
 
         page_number_label = ttk.Label(frame, text="Pages to Convert")
         page_number_label.grid(
@@ -3372,16 +3375,7 @@ class MainFrame(ttk.Frame):
         if self.is_cropmargin_checked.get():
             self.is_auto_crop_checked.set(False)
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
-            self.is_cropbox_checked_1.set(False)
-            self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
-            self.is_cropbox_checked_2.set(False)
-            self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
-            self.is_cropbox_checked_3.set(False)
-            self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
-            self.is_cropbox_checked_4.set(False)
-            self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
-            self.is_cropbox_checked_5.set(False)
-            self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
+            self.__remove_cropboxes_argument()
 
             if len(self.strvar_left_cropmargin.get().strip()) > 0:
                 arg = (
@@ -3424,6 +3418,7 @@ class MainFrame(ttk.Frame):
             self.__remove_crop_margin_argument()
 
     def __remove_crop_margin_argument(self):
+        self.is_cropmargin_checked.set(False)
         self.__remove_command_argument(cst.CROP_MARGIN_LEFT_ARG_NAME)
         self.__remove_command_argument(cst.CROP_MARGIN_TOP_ARG_NAME)
         self.__remove_command_argument(cst.CROP_MARGIN_RIGHT_ARG_NAME)
@@ -3440,7 +3435,6 @@ class MainFrame(ttk.Frame):
             return
 
         if getattr(self, "is_cropbox_checked_" + str(number)).get():
-            self.is_cropmargin_checked.set(False)
             self.__remove_crop_margin_argument()
             self.is_auto_crop_checked.set(False)
             self.__remove_command_argument(cst.AUTO_CROP_ARG_NAME)
@@ -3514,6 +3508,21 @@ class MainFrame(ttk.Frame):
         self.__remove_command_argument(cst.TESSERACT_FAST_ARG_NAME)
         self.__remove_command_argument(cst.TESSERACT_DETECTION_ARG_NAME)
 
+    def __uncheck_cropboxes_checkbox(self):
+        self.is_cropbox_checked_1.set(False)
+        self.is_cropbox_checked_2.set(False)
+        self.is_cropbox_checked_3.set(False)
+        self.is_cropbox_checked_4.set(False)
+        self.is_cropbox_checked_5.set(False)
+
+    def __remove_cropboxes_argument(self):
+        self.__uncheck_cropboxes_checkbox()
+        self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
+        self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
+        self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
+        self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
+        self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
+
     def gui_ocr_and_cpu(self):
         """OCR CPU pourcentage management
 
@@ -3577,13 +3586,11 @@ class MainFrame(ttk.Frame):
         """Update the command-line with landscape (page range if valid range)"""
         page_range = self.strvar_landscape_pages.get().strip()
         if len(page_range) > 0 and not tools.check_page_nums(page_range):
-
             self.__remove_command_argument(cst.LANDSCAPE_ARG_NAME)
             self.strvar_landscape_pages.set("")
             messagebox.showerror(
                 message="Invalide `Output in Landscape` Page Argument!"
             )
-
             return False
 
         if self.is_landscape_checked.get():
@@ -3752,23 +3759,14 @@ class MainFrame(ttk.Frame):
     def gui_auto_crop(self):
         """Manage `Auto-Crop` option.
 
-        Remarks: conflict with `crop margin`
+        Remarks:
+            - conflict with `crop margin`
+            - conflict with `cropboxes`
         """
         auto_crop_value = self.strvar_auto_crop.get().strip()
         if self.is_auto_crop_checked.get() and tools.is_acceptable_number(auto_crop_value, "float", cst.AUTO_CROP_MIN_VALUE, cst.AUTO_CROP_MAX_VALUE):
-            self.is_cropmargin_checked.set(False)
-            self.__remove_command_argument(cst.CROPBOX_ARG_NAME)
             self.__remove_crop_margin_argument()
-            self.is_cropbox_checked_1.set(False)
-            self.__remove_command_argument(cst.CROPBOX_1_ARG_NAME)
-            self.is_cropbox_checked_2.set(False)
-            self.__remove_command_argument(cst.CROPBOX_2_ARG_NAME)
-            self.is_cropbox_checked_3.set(False)
-            self.__remove_command_argument(cst.CROPBOX_3_ARG_NAME)
-            self.is_cropbox_checked_4.set(False)
-            self.__remove_command_argument(cst.CROPBOX_4_ARG_NAME)
-            self.is_cropbox_checked_5.set(False)
-            self.__remove_command_argument(cst.CROPBOX_5_ARG_NAME)
+            self.__remove_cropboxes_argument()
             arg = cst.AUTO_CROP_ARG_NAME + ' ' + auto_crop_value
             self.__add_or_update_command_argument(cst.AUTO_CROP_ARG_NAME, arg)
         else:
